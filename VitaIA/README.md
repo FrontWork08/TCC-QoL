@@ -81,8 +81,8 @@ O **VitaIA** é um assistente pessoal de qualidade de vida que ajuda você a mon
 
 1. **Baixe os arquivos**
 
-index.html
-style.css
+index.html/
+style.css/
 script.js
 
 2. **Coloque na mesma pasta**
