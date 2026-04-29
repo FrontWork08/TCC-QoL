@@ -93,19 +93,6 @@ script.js
 
 5. **Comece a usar!** 🎉
 
----
-
-## 📁 Estrutura do Projeto
-
-VitaIA/
-├── index.html # Estrutura principal
-├── style.css # Estilos e responsividade
-├── script.js # Lógica e IA
-└── README.md # Documentação
-
-
----
-
 ## 🔐 Armazenamento de Dados
 
 - Todos os dados são salvos localmente no **localStorage** do navegador
