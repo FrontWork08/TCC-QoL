@@ -15,7 +15,7 @@ let comidaLog = [];
 let exerciciosHoje = [];
 let consultasAgendadas = [];
 
-// API key - peguei da internet, se parar de funcionar troca
+// API key
 const CHAVE_API = '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';
 
 // ========== helpers bagunçados ==========
