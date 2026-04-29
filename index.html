@@ -9,6 +9,8 @@
   :root {
     --bg: #0d1117; --surface: #161b22; --surface2: #1c2330; --border: #2a3340;
     --teal: #00c896; --red: #e53935; --text: #e6edf3; --muted: #8b949e; --card-bg: #1a2030;
+    --protein: #e53935; --carb: #8B4513; --fat: #FFD700;
+    --cyan: #00e5ff; --cyan-dark: #006978;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
@@ -50,35 +52,152 @@
   .mood-card, .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
   .card-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .7px; }
 
-  /* MOOD SELECTOR */
+  /* ══════════════════════════════════
+     TABELA DE NUTRIÇÃO
+  ══════════════════════════════════ */
+  .nutrition-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .nutrition-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nutrition-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .nutr-box {
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .nutr-box-protein { background: rgba(229,57,53,0.12); border: 1.5px solid var(--protein); }
+  .nutr-box-carb    { background: rgba(139,69,19,0.18); border: 1.5px solid var(--carb); }
+  .nutr-box-fat     { background: rgba(255,215,0,0.10); border: 1.5px solid var(--fat); }
+  .nutr-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 6px; }
+  .nutr-label-protein { color: var(--protein); }
+  .nutr-label-carb    { color: #cd853f; }
+  .nutr-label-fat     { color: var(--fat); }
+  .nutr-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; }
+  .nutr-value-protein { color: var(--protein); }
+  .nutr-value-carb    { color: #cd853f; }
+  .nutr-value-fat     { color: var(--fat); }
+  .nutr-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nutr-bar-wrap { margin-top: 4px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .nutr-bar { height: 100%; border-radius: 4px; transition: width .5s; }
+  .nutr-bar-protein { background: var(--protein); }
+  .nutr-bar-carb    { background: #cd853f; }
+  .nutr-bar-fat     { background: var(--fat); }
+
+  /* Tabela de alimentos */
+  .food-log-area { margin-top: 14px; }
+  .food-log-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; }
+  .food-log-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .food-log-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+  .food-log-name { font-weight: 500; }
+  .food-log-macros { display: flex; gap: 10px; font-family: 'DM Sans', monospace; font-size: 11px; color: var(--muted); }
+  .food-log-macro-p { color: var(--protein); }
+  .food-log-macro-c { color: #cd853f; }
+  .food-log-macro-f { color: var(--fat); }
+  .btn-del-food { background: none; border: none; color: #444; cursor: pointer; font-size: 14px; transition: color .2s; padding: 0 4px; }
+  .btn-del-food:hover { color: var(--red); }
+
+  .food-add-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .food-search-wrap { flex: 1; min-width: 150px; position: relative; }
+  .food-search-input { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none; transition: border-color .2s; }
+  .food-search-input:focus { border-color: var(--teal); }
+  .food-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; z-index: 50; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.4); display: none; }
+  .food-sugg-item { padding: 10px 14px; font-size: 13px; cursor: pointer; transition: background .15s; }
+  .food-sugg-item:hover { background: var(--surface2); color: var(--teal); }
+  .food-sugg-macros { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .btn-add-food { padding: 9px 16px; background: var(--teal); border: none; border-radius: 10px; color: #051a12; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .btn-add-food:hover { background: #00e0a8; }
+
+  /* ══════════════════════════════════
+     HUMOR - fundo ciano
+  ══════════════════════════════════ */
+  .mood-card {
+    background: linear-gradient(135deg, #004d5a 0%, #006978 60%, #00838f 100%);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 20px rgba(0,229,255,0.08);
+  }
+  .mood-registered {
+    background: linear-gradient(135deg, #004d5a, #006978);
+    border: 1px solid var(--cyan);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeUp .3s ease both;
+  }
+  .mood-reg-left { display: flex; align-items: center; gap: 12px; }
+  .mood-reg-check { width: 30px; height: 30px; border-radius: 50%; background: rgba(0,229,255,0.15); border: 1.5px solid var(--cyan); display: flex; align-items: center; justify-content: center; color: var(--cyan); font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .mood-reg-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+  .mood-reg-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 2px; }
+  .mood-reg-reset { background: none; border: none; color: rgba(255,255,255,.6); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
+  .mood-reg-reset:hover { color: var(--cyan); }
+  .card-title-mood { font-size: 13px; color: rgba(255,255,255,.75); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .7px; }
   .mood-row { display: flex; justify-content: space-around; }
-  .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px 10px; border-radius: 10px; background: none; border: none; color: var(--muted); font-size: 11px; transition: all .2s; }
-  .mood-btn:hover, .mood-btn.selected { background: var(--surface2); color: var(--text); }
+  .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px 10px; border-radius: 10px; background: none; border: none; color: rgba(255,255,255,.7); font-size: 11px; transition: all .2s; }
+  .mood-btn:hover, .mood-btn.selected { background: rgba(0,0,0,0.2); color: white; }
   .mood-emoji { font-size: 28px; }
 
-  /* MOOD REGISTERED */
-  .mood-registered { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; animation: fadeUp .3s ease both; }
-  .mood-reg-left { display: flex; align-items: center; gap: 12px; }
-  .mood-reg-check { width: 30px; height: 30px; border-radius: 50%; background: #00c89618; border: 1.5px solid var(--teal); display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 14px; font-weight: 700; flex-shrink: 0; }
-  .mood-reg-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
-  .mood-reg-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .mood-reg-reset { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
-  .mood-reg-reset:hover { color: var(--teal); }
+  /* ══════════════════════════════════
+     HIDRATAÇÃO - fundo branco, copo animado
+  ══════════════════════════════════ */
+  .hydra-card {
+    background: #ffffff;
+    border: 1px solid #dde4ec;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    color: #1a2030;
+  }
+  .hydra-card .hydra-header span { color: #4a6080; }
+  .hydra-card .hydra-label { color: #6b7d93; }
+  .hydra-card .hydra-q { color: #6b7d93; }
+  .hydra-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .hydra-header span { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
+  .hydra-reset { font-size: 12px; color: #0097a7; cursor: pointer; background: none; border: none; font-weight: 600; }
+  .hydra-count { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: #0097a7; line-height: 1; }
+  .hydra-label { font-size: 12px; margin-top: 4px; margin-bottom: 16px; }
+
+  /* Copo animado */
+  .hydra-cup-row { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 14px; }
+  .hydra-cup-wrap { position: relative; width: 60px; flex-shrink: 0; }
+  .hydra-cup-svg { width: 60px; height: 80px; }
+  .hydra-cup-fill { transition: height .6s ease, y .6s ease; }
+  .hydra-cup-pct { font-size: 11px; color: #0097a7; text-align: center; margin-top: 4px; font-weight: 600; }
+  .hydra-info { flex: 1; }
+
+  .hydra-q { font-size: 13px; margin-bottom: 10px; }
+  .hydra-btns { display: flex; gap: 10px; }
+  .hydra-btn { flex: 1; padding: 11px; background: #e3f6fb; border: 1.5px solid #b2ebf2; border-radius: 10px; color: #0097a7; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .2s; }
+  .hydra-btn:hover { background: #b2ebf2; }
+
+  /* Aviso de água */
+  .water-alert { display: none; background: #e3f6fb; border: 1.5px solid #0097a7; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; color: #005f6b; font-size: 13px; font-weight: 500; align-items: center; gap: 10px; animation: pulse-alert 2s ease infinite; }
+  .water-alert.show { display: flex; }
+  @keyframes pulse-alert { 0%,100%{box-shadow:0 0 0 0 rgba(0,151,167,.3)} 50%{box-shadow:0 0 0 6px rgba(0,151,167,0)} }
 
   /* EMERGENCY */
   .btn-emergency { width: 100%; padding: 15px; background: var(--red); color: #fff; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; transition: background .2s; }
   .btn-emergency:hover { background: #c62828; }
-
-  /* HYDRATION */
-  .hydra-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .hydra-header span { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; }
-  .hydra-reset { font-size: 12px; color: var(--teal); cursor: pointer; background: none; border: none; }
-  .hydra-count { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: var(--teal); line-height: 1; }
-  .hydra-label { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 16px; }
-  .hydra-q { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-  .hydra-btns { display: flex; gap: 10px; }
-  .hydra-btn { flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--teal); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .2s; }
-  .hydra-btn:hover { background: var(--border); }
 
   /* INSIGHT */
   .insight-card { background: linear-gradient(135deg, #005c3e, #006b48); border: 1px solid #00c89640; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
@@ -110,7 +229,9 @@
   .loading-dots span:nth-child(3) { animation-delay: .3s; }
   @keyframes dot { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
 
-  /* PROGRESS */
+  /* ══════════════════════════════════
+     PROGRESSO
+  ══════════════════════════════════ */
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
   .stat-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; }
   .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
@@ -122,7 +243,28 @@
   .no-data { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
   .no-data-icon { font-size: 36px; margin-bottom: 12px; }
 
-  /* LABS - Lista */
+  /* Parabéns banner */
+  .congrats-banner { display: none; background: linear-gradient(135deg, #005c3e, #00c896); border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; animation: fadeUp .4s ease both; text-align: center; }
+  .congrats-banner.show { display: block; }
+  .congrats-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .congrats-sub { font-size: 13px; color: #a7f3d0; }
+
+  /* Exercício */
+  .exercise-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; }
+  .exercise-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .exercise-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .exercise-btn { padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; transition: .2s; }
+  .exercise-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .exercise-btn.done { background: rgba(0,200,150,0.12); border-color: var(--teal); color: var(--teal); }
+  .exercise-log { margin-top: 12px; font-size: 12px; color: var(--muted); min-height: 20px; }
+
+  /* Progress nutrition bars */
+  .prog-nutr-row { margin-bottom: 14px; }
+  .prog-nutr-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .prog-nutr-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+  .prog-nutr-fill { height: 100%; border-radius: 99px; transition: width .4s; }
+
+  /* LABS */
   .lab-list { display: flex; flex-direction: column; gap: 12px; }
   .lab-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: border-color .2s, background .2s; }
   .lab-item:hover { border-color: var(--teal); background: #1e2a3a; }
@@ -131,8 +273,6 @@
   .lab-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; }
   .lab-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .lab-arrow { color: var(--muted); font-size: 20px; }
-
-  /* LABS - Tela interna */
   .lab-screen { display: none; animation: fadeUp .3s ease both; }
   .lab-screen.active { display: block; }
   .lab-back { display: flex; align-items: center; gap: 6px; color: var(--teal); font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 20px; background: none; border: none; padding: 0; }
@@ -140,15 +280,59 @@
   .lab-inner-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
   .lab-inner-title { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 16px; }
 
-  /* Upload de imagem (Visão Pro) */
+  /* ══════════════════════════════════
+     TELESAÚDE
+  ══════════════════════════════════ */
+  .tele-hero { background: linear-gradient(135deg, #0a2540, #0d1117); border: 1px solid #1e3a5f; border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; text-align: center; }
+  .tele-hero-icon { font-size: 42px; margin-bottom: 12px; }
+  .tele-hero h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .tele-hero p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .tele-types { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .tele-type-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px 14px; text-align: center; cursor: pointer; transition: .2s; }
+  .tele-type-card:hover { border-color: var(--teal); background: #1e2a3a; }
+  .tele-type-icon { font-size: 30px; margin-bottom: 10px; }
+  .tele-type-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .tele-type-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .tele-prof-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .tele-prof-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: .2s; }
+  .tele-prof-item:hover { border-color: var(--teal); }
+  .tele-prof-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--surface2); flex-shrink: 0; }
+  .tele-prof-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+  .tele-prof-spec { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .tele-prof-rating { font-size: 12px; color: #ffd700; margin-top: 2px; }
+  .tele-prof-actions { margin-left: auto; display: flex; gap: 6px; }
+  .btn-tele-action { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; border: none; transition: .2s; }
+  .btn-chat { background: rgba(0,200,150,.15); color: var(--teal); border: 1px solid var(--teal); }
+  .btn-chat:hover { background: var(--teal); color: #051a12; }
+  .btn-video { background: #1e3a5f; color: #4a9eff; border: 1px solid #4a9eff; }
+  .btn-video:hover { background: #4a9eff; color: #fff; }
+  .tele-section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 10px; margin-top: 4px; }
+  .tele-schedule-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .tele-sched-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+  .tele-sched-time { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--teal); min-width: 80px; }
+  .tele-sched-name { font-size: 13px; font-weight: 500; }
+  .tele-sched-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tele-badge { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 600; letter-spacing: .5px; }
+  .badge-chat { background: rgba(0,200,150,.12); color: var(--teal); }
+  .badge-video { background: rgba(74,158,255,.12); color: #4a9eff; }
+  .tele-secure-banner { background: #0a1628; border: 1px solid #1e3a5f; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .tele-secure-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .tele-secure-title { font-size: 13px; font-weight: 600; color: #4a9eff; margin-bottom: 4px; }
+  .tele-secure-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .tele-ia-box { background: linear-gradient(135deg, #003d2a, #005c3e); border: 1px solid #00c89640; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+  .tele-ia-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .tele-ia-text { font-size: 13px; color: #a7f3d0; line-height: 1.6; }
+  .tele-rating-stars { color: #ffd700; font-size: 20px; cursor: pointer; display: flex; gap: 4px; }
+  .tele-rating-star { transition: transform .15s; }
+  .tele-rating-star:hover { transform: scale(1.2); }
+
+  /* Upload de imagem */
   .img-upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: 14px; position: relative; overflow: hidden; }
   .img-upload-area:hover { border-color: var(--teal); background: #00c89608; }
   .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
   .img-upload-icon { font-size: 28px; margin-bottom: 8px; color: var(--muted); }
   .img-upload-label { font-size: 13px; color: var(--muted); }
   .img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; display: none; }
-
-  /* Campo de texto labs */
   .lab-textarea-wrap { position: relative; margin-bottom: 14px; }
   .lab-textarea { width: 100%; padding: 14px 46px 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; resize: none; min-height: 90px; outline: none; font-family: 'DM Sans', sans-serif; transition: border-color .2s; line-height: 1.5; }
   .lab-textarea:focus { border-color: var(--teal); }
@@ -156,20 +340,14 @@
   .mic-btn:hover { color: var(--teal); }
   .mic-btn.recording { color: var(--red); animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
-  /* Botão executar */
   .btn-execute { width: 100%; padding: 14px; background: var(--teal); color: #051a12; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .2s, opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn-execute:hover { background: #00e0a8; }
   .btn-execute:disabled { opacity: .55; cursor: default; }
-
-  /* Resposta labs */
   .lab-response-area { margin-top: 16px; display: none; animation: fadeUp .3s ease both; }
   .lab-response-area.visible { display: block; }
   .lab-response-inner { background: linear-gradient(135deg, #005c3e, #006b48); border: 1px solid #00c89640; border-radius: 14px; padding: 18px; }
   .lab-response-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
   .lab-response-text { font-size: 13px; line-height: 1.7; color: #a7f3d0; white-space: pre-wrap; }
-
-  /* Voz Vital - player */
   .voz-player { display: none; margin-top: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; align-items: center; gap: 12px; }
   .voz-player.visible { display: flex; }
   .voz-play-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--teal); border: none; color: #051a12; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
@@ -187,7 +365,7 @@
   .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
   .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
 
-  /* CHAT - Ajuda Imediata */
+  /* CHAT */
   .chat-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
   .chat-bubble { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.55; max-width: 92%; word-break: break-word; }
   .chat-bubble.ai { background: var(--surface2); border: 1px solid var(--border); align-self: flex-start; color: var(--text); border-bottom-left-radius: 4px; }
@@ -200,14 +378,12 @@
   .chat-send-btn:hover { background: #00e0a8; }
   .chat-send-btn:disabled { opacity: .5; cursor: default; }
 
-  /* SUPPORT */
+  /* SUPORTE */
   .faq-item { border-bottom: 1px solid var(--border); }
   .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; cursor: pointer; font-size: 14px; font-weight: 500; background: none; border: none; width: 100%; color: var(--text); text-align: left; }
   .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; padding-bottom: 16px; display: none; }
   .faq-a.open { display: block; animation: fadeUp .2s ease both; }
   .contact-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-top: 20px; color: var(--teal); font-size: 14px; }
-
-  /* API KEY notice */
   .api-notice { background: #2a1a0e; border: 1px solid #7c4a00; border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #fbbf24; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; }
   .api-notice-icon { font-size: 16px; flex-shrink: 0; }
 
@@ -217,11 +393,8 @@
 </head>
 <body>
 
-<!-- ===== CONFIGURAÇÃO DA API KEY ===== -->
 <script>
-  // 🔑 COLE SUA API KEY DA GROQ AQUI:
   const API_KEY = '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';
-  // Obtenha GRATUITAMENTE em: https://console.groq.com → API Keys
 </script>
 
 <!-- LOGIN -->
@@ -242,7 +415,9 @@
   <div class="app-wrapper">
     <div class="page-content">
 
-      <!-- HOME -->
+      <!-- ═══════════════════════════════════
+           HOME
+      ═══════════════════════════════════ -->
       <div id="page-home" class="page">
         <div class="page-header">
           <div>
@@ -252,8 +427,51 @@
           <div class="avatar" id="avatar-btn">U</div>
         </div>
 
+        <!-- 1) TABELA DE NUTRIÇÃO (TOPO) -->
+        <div class="nutrition-card">
+          <div class="nutrition-title">🥗 Nutrição de Hoje</div>
+          <div class="nutrition-grid">
+            <div class="nutr-box nutr-box-protein">
+              <div class="nutr-label nutr-label-protein">Proteína</div>
+              <div class="nutr-value nutr-value-protein" id="nutr-protein-val">0</div>
+              <div class="nutr-unit">g / <span id="nutr-protein-goal">120</span>g</div>
+              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-protein" id="nutr-protein-bar" style="width:0%"></div></div>
+            </div>
+            <div class="nutr-box nutr-box-carb">
+              <div class="nutr-label nutr-label-carb">Carboidrato</div>
+              <div class="nutr-value nutr-value-carb" id="nutr-carb-val">0</div>
+              <div class="nutr-unit">g / <span id="nutr-carb-goal">250</span>g</div>
+              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-carb" id="nutr-carb-bar" style="width:0%"></div></div>
+            </div>
+            <div class="nutr-box nutr-box-fat">
+              <div class="nutr-label nutr-label-fat">Gordura</div>
+              <div class="nutr-value nutr-value-fat" id="nutr-fat-val">0</div>
+              <div class="nutr-unit">g / <span id="nutr-fat-goal">60</span>g</div>
+              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-fat" id="nutr-fat-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <!-- Adicionar alimento -->
+          <div class="food-add-row">
+            <div class="food-search-wrap">
+              <input type="text" class="food-search-input" id="food-search" placeholder="🔍 Buscar alimento..." oninput="searchFood()" autocomplete="off">
+              <div class="food-suggestions" id="food-suggestions"></div>
+            </div>
+            <button class="btn-add-food" onclick="addSelectedFood()">+ Adicionar</button>
+          </div>
+
+          <!-- Log de alimentos -->
+          <div class="food-log-area">
+            <div class="food-log-title">Registros de hoje</div>
+            <div class="food-log-list" id="food-log-list">
+              <div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Nenhum alimento registrado ainda</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) HUMOR (fundo ciano) -->
         <div class="mood-card" id="mood-selector">
-          <div class="card-title">Como você se sente agora?</div>
+          <div class="card-title-mood">Como você se sente agora?</div>
           <div class="mood-row">
             <button class="mood-btn" data-mood="1" onclick="selectMood(this)"><span class="mood-emoji">😢</span>Mal</button>
             <button class="mood-btn" data-mood="2" onclick="selectMood(this)"><span class="mood-emoji">😟</span>Instável</button>
@@ -274,36 +492,153 @@
           <button class="mood-reg-reset" onclick="resetMoodCard()" title="Registrar novamente">↺</button>
         </div>
 
-        <button class="btn-emergency" onclick="openAjuda()">
-          ⚡ PRECISO DE AJUDA AGORA
-        </button>
+        <!-- Botão emergência -->
+        <button class="btn-emergency" onclick="openAjuda()">⚡ PRECISO DE AJUDA AGORA</button>
 
-        <div class="card">
+        <!-- 3) Aviso de beber água -->
+        <div class="water-alert" id="water-alert">
+          💧 <span id="water-alert-msg">Lembre-se de se hidratar! Você ainda não registrou água hoje.</span>
+        </div>
+
+        <!-- 4) HIDRATAÇÃO — fundo branco, copo animado -->
+        <div class="hydra-card">
           <div class="hydra-header">
-            <span>Hidratação</span>
+            <span style="color:#4a6080;">💧 Hidratação</span>
             <button class="hydra-reset" onclick="resetHydra()">ZERAR DIA</button>
           </div>
-          <div class="hydra-count" id="hydra-count">0</div>
-          <div class="hydra-label">Consumo real de hoje</div>
-          <div class="hydra-q">Quantos litros de água você bebeu agora?</div>
-          <div class="hydra-btns">
-            <button class="hydra-btn" onclick="addHydra(1)">+1L</button>
-            <button class="hydra-btn" onclick="addHydra(2)">+2L</button>
-            <button class="hydra-btn" onclick="addHydra(3)">+3L</button>
+          <div class="hydra-cup-row">
+            <div class="hydra-cup-wrap">
+              <!-- Copo SVG animado -->
+              <svg class="hydra-cup-svg" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+                <!-- Corpo do copo -->
+                <path d="M10 10 L50 10 L45 75 L15 75 Z" fill="none" stroke="#b2ebf2" stroke-width="2.5" stroke-linejoin="round"/>
+                <!-- Água dentro (animada) -->
+                <clipPath id="cup-clip">
+                  <path d="M11 11 L49 11 L44 74 L16 74 Z"/>
+                </clipPath>
+                <rect id="cup-water" x="11" y="65" width="38" height="9" fill="#00bcd4" opacity="0.7" clip-path="url(#cup-clip)">
+                  <animate attributeName="opacity" values="0.7;0.85;0.7" dur="2s" repeatCount="indefinite"/>
+                </rect>
+                <!-- Ondinha da água -->
+                <path id="cup-wave" d="M11 65 Q20 62 29 65 Q38 68 49 65" stroke="#00e5ff" stroke-width="1.5" fill="none" clip-path="url(#cup-clip)">
+                  <animate attributeName="d" values="M11 65 Q20 62 29 65 Q38 68 49 65;M11 65 Q20 68 29 65 Q38 62 49 65;M11 65 Q20 62 29 65 Q38 68 49 65" dur="1.5s" repeatCount="indefinite"/>
+                </path>
+                <!-- Marcações -->
+                <line x1="40" y1="25" x2="45" y2="25" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
+                <line x1="42" y1="43" x2="46" y2="43" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
+                <line x1="43" y1="60" x2="47" y2="60" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
+              </svg>
+              <div class="hydra-cup-pct" id="hydra-cup-pct">0%</div>
+            </div>
+            <div class="hydra-info">
+              <div class="hydra-count" id="hydra-count">0</div>
+              <div class="hydra-label">Litros consumidos hoje</div>
+              <div class="hydra-q">Quantos litros você bebeu agora?</div>
+              <div class="hydra-btns">
+                <button class="hydra-btn" onclick="addHydra(1)">+1L</button>
+                <button class="hydra-btn" onclick="addHydra(2)">+2L</button>
+                <button class="hydra-btn" onclick="addHydra(3)">+3L</button>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- Insight IA -->
         <div class="insight-card" id="insight-card">
           <div class="insight-title">✦ Registre seu humor para ver insights!</div>
           <div class="insight-body" id="insight-body">Clique em como você está se sentindo acima e receba orientações personalizadas da IA.</div>
           <div class="progress-bar-wrap" id="insight-progress" style="display:none">
-            <div class="progress-meta"><span>Seu progresso</span><span id="progress-goal">META: 2L</span></div>
+            <div class="progress-meta"><span>Hidratação</span><span id="progress-goal">META: 2L</span></div>
             <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
           </div>
         </div>
       </div>
 
-      <!-- PLANOS -->
+      <!-- ═══════════════════════════════════
+           PROGRESSO
+      ═══════════════════════════════════ -->
+      <div id="page-progress" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">Evolução</div><div class="page-subtitle">Acompanhando seu histórico real.</div></div></div>
+
+        <!-- Banner parabéns -->
+        <div class="congrats-banner" id="congrats-banner">
+          <div class="congrats-title">🎉 Parabéns!</div>
+          <div class="congrats-sub" id="congrats-sub">Você bateu todas as metas de hoje!</div>
+        </div>
+
+        <div class="no-data" id="chart-placeholder"><div class="no-data-icon">📈</div>Ainda não há dados suficientes.<br>Registre seu humor na Home!</div>
+
+        <!-- EXERCÍCIOS -->
+        <div class="exercise-card">
+          <div class="exercise-title">💪 Exercícios de Hoje</div>
+          <div class="exercise-btns">
+            <button class="exercise-btn" id="ex-caminhada" onclick="toggleExercise('caminhada','🚶 Caminhada')">🚶 Caminhada</button>
+            <button class="exercise-btn" id="ex-corrida" onclick="toggleExercise('corrida','🏃 Corrida')">🏃 Corrida</button>
+            <button class="exercise-btn" id="ex-musculacao" onclick="toggleExercise('musculacao','🏋️ Musculação')">🏋️ Musculação</button>
+            <button class="exercise-btn" id="ex-yoga" onclick="toggleExercise('yoga','🧘 Yoga')">🧘 Yoga</button>
+            <button class="exercise-btn" id="ex-natacao" onclick="toggleExercise('natacao','🏊 Natação')">🏊 Natação</button>
+            <button class="exercise-btn" id="ex-ciclismo" onclick="toggleExercise('ciclismo','🚴 Ciclismo')">🚴 Ciclismo</button>
+          </div>
+          <div class="exercise-log" id="exercise-log">Nenhum exercício registrado hoje.</div>
+        </div>
+
+        <!-- Nutrição no progresso -->
+        <div class="card">
+          <div class="card-title">🥗 Nutrição — Metas do Dia</div>
+          <div class="prog-nutr-row">
+            <div class="prog-nutr-header">
+              <span style="color:var(--protein)">🥩 Proteína</span>
+              <strong id="prog-protein-val">0g de 120g</strong>
+              <span id="prog-protein-pct">0%</span>
+            </div>
+            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-protein-bar" style="width:0%;background:var(--protein)"></div></div>
+          </div>
+          <div class="prog-nutr-row">
+            <div class="prog-nutr-header">
+              <span style="color:#cd853f">🍚 Carboidratos</span>
+              <strong id="prog-carb-val">0g de 250g</strong>
+              <span id="prog-carb-pct">0%</span>
+            </div>
+            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-carb-bar" style="width:0%;background:#cd853f"></div></div>
+          </div>
+          <div class="prog-nutr-row">
+            <div class="prog-nutr-header">
+              <span style="color:var(--fat)">🥑 Gordura</span>
+              <strong id="prog-fat-val">0g de 60g</strong>
+              <span id="prog-fat-pct">0%</span>
+            </div>
+            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-fat-bar" style="width:0%;background:var(--fat)"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Status de Metas</div>
+          <div class="goal-row">
+            <div class="goal-row-header"><span>Hidratação Diária</span><strong id="prog-hydra-val">0L de 2L</strong><span id="prog-hydra-pct">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-hydra-bar" style="width:0%"></div></div>
+          </div>
+          <div class="goal-row" style="margin-top:14px">
+            <div class="goal-row-header"><span>Consistência de Logs</span><strong id="prog-log-val">0 registros totais</strong><span id="prog-log-pct">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-log-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">Média de Humor</div><div class="stat-value" id="avg-mood">0</div></div>
+          <div class="stat-box"><div class="stat-label">Água Hoje</div><div class="stat-value teal" id="water-today">0L</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumo Geral</div>
+          <div class="stat-grid" style="margin:0">
+            <div class="stat-box"><div class="stat-label">IA Consultas</div><div class="stat-value" id="ai-count">0</div></div>
+            <div class="stat-box"><div class="stat-label">Check-ins</div><div class="stat-value" id="checkin-count">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PLANOS
+      ═══════════════════════════════════ -->
       <div id="page-plans" class="page" style="display:none">
         <div class="page-header"><div><div class="page-title">Seu Plano IA</div><div class="page-subtitle">Personalizado para seu estado atual.</div></div></div>
         <div class="plans-hero">
@@ -319,39 +654,11 @@
         <div id="plan-result" class="plan-result"></div>
       </div>
 
-      <!-- PROGRESSO -->
-      <div id="page-progress" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">Evolução</div><div class="page-subtitle">Acompanhando seu histórico real.</div></div></div>
-        <div class="no-data" id="chart-placeholder"><div class="no-data-icon">📈</div>Ainda não há dados suficientes.<br>Registre seu humor na Home!</div>
-        <div class="card">
-          <div class="card-title">Status de Metas</div>
-          <div class="goal-row">
-            <div class="goal-row-header"><span>Hidratação Diária</span><strong id="prog-hydra-val">0L de 2L</strong><span id="prog-hydra-pct">0%</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-hydra-bar" style="width:0%"></div></div>
-          </div>
-          <div class="goal-row" style="margin-top:14px">
-            <div class="goal-row-header"><span>Consistência de Logs</span><strong id="prog-log-val">0 registros totais</strong><span id="prog-log-pct">0%</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-log-bar" style="width:0%"></div></div>
-          </div>
-        </div>
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-label">Média de Humor</div><div class="stat-value" id="avg-mood">0</div></div>
-          <div class="stat-box"><div class="stat-label">Água Hoje</div><div class="stat-value teal" id="water-today">0L</div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Resumo Geral</div>
-          <div class="stat-grid" style="margin:0">
-            <div class="stat-box"><div class="stat-label">IA Consultas</div><div class="stat-value" id="ai-count">0</div></div>
-            <div class="stat-box"><div class="stat-label">Check-ins</div><div class="stat-value" id="checkin-count">0</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LABS -->
+      <!-- ═══════════════════════════════════
+           LABS
+      ═══════════════════════════════════ -->
       <div id="page-labs" class="page" style="display:none">
         <div class="page-header"><div><div class="page-title">Laboratório IA</div><div class="page-subtitle">Ferramentas avançadas para sua saúde.</div></div></div>
-
-        <!-- Lista de ferramentas -->
         <div id="lab-list-view" class="lab-list">
           <div class="lab-item" onclick="openLabScreen('visao')">
             <div class="lab-left"><div class="lab-icon">👁️</div><div><div class="lab-name">Visão Pro</div><div class="lab-desc">Analise fotos de alimentos ou treinos</div></div></div>
@@ -370,8 +677,6 @@
             <div class="lab-arrow">›</div>
           </div>
         </div>
-
-        <!-- Tela interna: Visão Pro -->
         <div id="lab-screen-visao" class="lab-screen">
           <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
           <div class="lab-inner-card">
@@ -384,72 +689,46 @@
             <img id="visao-preview" class="img-preview" alt="Preview">
             <div class="lab-textarea-wrap">
               <textarea class="lab-textarea" id="visao-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="visao-mic" onclick="toggleMic('visao-input', 'visao-mic')" title="Falar">🎤</button>
+              <button class="mic-btn" id="visao-mic" onclick="toggleMic('visao-input','visao-mic')" title="Falar">🎤</button>
             </div>
             <button class="btn-execute" id="visao-btn" onclick="executeLab('visao')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="visao-response">
-              <div class="lab-response-inner">
-                <div class="lab-response-title">🤖 Análise</div>
-                <div class="lab-response-text" id="visao-response-text"></div>
-              </div>
-            </div>
+            <div class="lab-response-area" id="visao-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Análise</div><div class="lab-response-text" id="visao-response-text"></div></div></div>
           </div>
         </div>
-
-        <!-- Tela interna: Explorador -->
         <div id="lab-screen-explorador" class="lab-screen">
           <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
           <div class="lab-inner-card">
             <div class="lab-inner-title">📍 Explorador</div>
             <div class="lab-textarea-wrap">
               <textarea class="lab-textarea" id="explorador-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="explorador-mic" onclick="toggleMic('explorador-input', 'explorador-mic')" title="Falar">🎤</button>
+              <button class="mic-btn" id="explorador-mic" onclick="toggleMic('explorador-input','explorador-mic')" title="Falar">🎤</button>
             </div>
             <button class="btn-execute" id="explorador-btn" onclick="executeLab('explorador')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="explorador-response">
-              <div class="lab-response-inner">
-                <div class="lab-response-title">🤖 Resposta</div>
-                <div class="lab-response-text" id="explorador-response-text"></div>
-              </div>
-            </div>
+            <div class="lab-response-area" id="explorador-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Resposta</div><div class="lab-response-text" id="explorador-response-text"></div></div></div>
           </div>
         </div>
-
-        <!-- Tela interna: Deep Think -->
         <div id="lab-screen-deepthink" class="lab-screen">
           <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
           <div class="lab-inner-card">
             <div class="lab-inner-title">💡 Deep Think</div>
             <div class="lab-textarea-wrap">
               <textarea class="lab-textarea" id="deepthink-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="deepthink-mic" onclick="toggleMic('deepthink-input', 'deepthink-mic')" title="Falar">🎤</button>
+              <button class="mic-btn" id="deepthink-mic" onclick="toggleMic('deepthink-input','deepthink-mic')" title="Falar">🎤</button>
             </div>
             <button class="btn-execute" id="deepthink-btn" onclick="executeLab('deepthink')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="deepthink-response">
-              <div class="lab-response-inner">
-                <div class="lab-response-title">🤖 Análise Profunda</div>
-                <div class="lab-response-text" id="deepthink-response-text"></div>
-              </div>
-            </div>
+            <div class="lab-response-area" id="deepthink-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Análise Profunda</div><div class="lab-response-text" id="deepthink-response-text"></div></div></div>
           </div>
         </div>
-
-        <!-- Tela interna: Voz Vital -->
         <div id="lab-screen-voz" class="lab-screen">
           <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
           <div class="lab-inner-card">
             <div class="lab-inner-title">🔊 Voz Vital</div>
             <div class="lab-textarea-wrap">
               <textarea class="lab-textarea" id="voz-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="voz-mic" onclick="toggleMic('voz-input', 'voz-mic')" title="Falar">🎤</button>
+              <button class="mic-btn" id="voz-mic" onclick="toggleMic('voz-input','voz-mic')" title="Falar">🎤</button>
             </div>
             <button class="btn-execute" id="voz-btn" onclick="executeLab('voz')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="voz-response">
-              <div class="lab-response-inner">
-                <div class="lab-response-title">🔊 Orientação</div>
-                <div class="lab-response-text" id="voz-response-text"></div>
-              </div>
-            </div>
+            <div class="lab-response-area" id="voz-response"><div class="lab-response-inner"><div class="lab-response-title">🔊 Orientação</div><div class="lab-response-text" id="voz-response-text"></div></div></div>
             <div class="voz-player" id="voz-player">
               <button class="voz-play-btn" id="voz-play-btn" onclick="toggleVozPlayback()">▶</button>
               <div class="voz-wave" id="voz-wave"></div>
@@ -457,10 +736,108 @@
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- SUPORTE -->
+      <!-- ═══════════════════════════════════
+           TELESAÚDE
+      ═══════════════════════════════════ -->
+      <div id="page-tele" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">TeleSaúde</div><div class="page-subtitle">Consultas virtuais com profissionais.</div></div></div>
+
+        <!-- IA sugere -->
+        <div class="tele-ia-box">
+          <div class="tele-ia-title">🤖 Sugestão IA</div>
+          <div class="tele-ia-text" id="tele-ia-suggestion">Com base nos seus dados, a IA está pronta para sugerir o profissional ideal. Registre seu humor na Home primeiro!</div>
+        </div>
+
+        <!-- Segurança -->
+        <div class="tele-secure-banner">
+          <div class="tele-secure-icon">🔒</div>
+          <div>
+            <div class="tele-secure-title">Segurança & Privacidade</div>
+            <div class="tele-secure-desc">Criptografia de ponta a ponta · Login seguro · Conformidade com LGPD · Seus dados são protegidos.</div>
+          </div>
+        </div>
+
+        <!-- Tipo de atendimento -->
+        <div class="tele-section-title">Tipo de Atendimento</div>
+        <div class="tele-types">
+          <div class="tele-type-card" onclick="selectTeleType('chat')">
+            <div class="tele-type-icon">💬</div>
+            <div class="tele-type-name">Chat</div>
+            <div class="tele-type-desc">Conversa em tempo real ou assíncrona. Envio de fotos e relatórios.</div>
+          </div>
+          <div class="tele-type-card" onclick="selectTeleType('video')">
+            <div class="tele-type-icon">📹</div>
+            <div class="tele-type-name">Vídeo</div>
+            <div class="tele-type-desc">Consulta completa ao vivo com avaliação personalizada.</div>
+          </div>
+        </div>
+
+        <!-- Profissionais -->
+        <div class="tele-section-title">Profissionais Disponíveis</div>
+        <div class="tele-prof-list">
+          <div class="tele-prof-item">
+            <div class="tele-prof-avatar">🥗</div>
+            <div>
+              <div class="tele-prof-name">Dra. Ana Ribeiro</div>
+              <div class="tele-prof-spec">Nutricionista · CRN 12345</div>
+              <div class="tele-prof-rating">★★★★★ 4.9</div>
+            </div>
+            <div class="tele-prof-actions">
+              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Ana Ribeiro','Nutricionista')">💬</button>
+              <button class="btn-tele-action btn-video" onclick="scheduleTele('Dra. Ana Ribeiro')">📹</button>
+            </div>
+          </div>
+          <div class="tele-prof-item">
+            <div class="tele-prof-avatar">💪</div>
+            <div>
+              <div class="tele-prof-name">Carlos Mendes</div>
+              <div class="tele-prof-spec">Personal Trainer · CREF 98765</div>
+              <div class="tele-prof-rating">★★★★☆ 4.7</div>
+            </div>
+            <div class="tele-prof-actions">
+              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Carlos Mendes','Personal Trainer')">💬</button>
+              <button class="btn-tele-action btn-video" onclick="scheduleTele('Carlos Mendes')">📹</button>
+            </div>
+          </div>
+          <div class="tele-prof-item">
+            <div class="tele-prof-avatar">🩺</div>
+            <div>
+              <div class="tele-prof-name">Dra. Mariana Costa</div>
+              <div class="tele-prof-spec">Clínica Geral · CRM 54321</div>
+              <div class="tele-prof-rating">★★★★★ 5.0</div>
+            </div>
+            <div class="tele-prof-actions">
+              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Mariana Costa','Médica')">💬</button>
+              <button class="btn-tele-action btn-video" onclick="scheduleTele('Dra. Mariana Costa')">📹</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Próximas consultas -->
+        <div class="tele-section-title">Próximas Consultas</div>
+        <div class="tele-schedule-list" id="tele-schedule-list">
+          <div style="font-size:13px;color:var(--muted);padding:12px 0;">Nenhuma consulta agendada. Escolha um profissional acima!</div>
+        </div>
+
+        <!-- Avaliação -->
+        <div class="card" style="margin-top:4px">
+          <div class="card-title">Avalie seu último atendimento</div>
+          <div class="tele-rating-stars" id="tele-stars">
+            <span class="tele-rating-star" onclick="rateTele(1)">★</span>
+            <span class="tele-rating-star" onclick="rateTele(2)">★</span>
+            <span class="tele-rating-star" onclick="rateTele(3)">★</span>
+            <span class="tele-rating-star" onclick="rateTele(4)">★</span>
+            <span class="tele-rating-star" onclick="rateTele(5)">★</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px" id="tele-rating-msg">Clique nas estrelas para avaliar</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           SUPORTE
+      ═══════════════════════════════════ -->
       <div id="page-support" class="page" style="display:none">
         <div class="page-header"><div><div class="page-title">Suporte</div><div class="page-subtitle">Estamos aqui para ajudar você.</div></div></div>
         <div class="card" style="padding:0 20px">
@@ -495,8 +872,8 @@
       <div class="nav-item" onclick="goTo('labs',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Labs
       </div>
-      <div class="nav-item" onclick="goTo('support',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Suporte
+      <div class="nav-item" onclick="goTo('tele',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .95h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>TeleSaúde
       </div>
     </nav>
   </div>
@@ -519,80 +896,148 @@
   </div>
 </div>
 
+<!-- MODAL: TELESAÚDE CHAT -->
+<div class="modal-overlay" id="modal-tele-chat">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-tele-chat')">×</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="tele-chat-title">Chat com Profissional</div>
+    <div class="modal-sub" id="tele-chat-sub">Consulta via chat seguro</div>
+    <div class="chat-area" id="tele-chat-area"></div>
+    <div class="chat-input-row">
+      <textarea id="tele-chat-input" placeholder="Escreva sua dúvida..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTeleChat()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button class="chat-send-btn" id="tele-chat-btn" onclick="sendTeleChat()">ENVIAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: AGENDAMENTO -->
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-schedule')">×</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agendar Consulta</div>
+    <div class="modal-sub" id="schedule-prof-name">Profissional</div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.7px">Data e Horário</label>
+      <input type="datetime-local" id="schedule-datetime" style="width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;">
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.7px">Tipo</label>
+      <select id="schedule-type" style="width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;">
+        <option value="video">📹 Vídeo Chamada</option>
+        <option value="chat">💬 Chat</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="confirmSchedule()">✓ Confirmar Agendamento</button>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   CONFIGURAÇÃO DA API KEY
-   Cole sua chave abaixo — obtenha em console.anthropic.com
+   BANCO DE DADOS DE ALIMENTOS
    ============================================================ */
-// A constante API_KEY já está declarada no bloco <script> no topo do <body>
+const FOOD_DB = [
+  { nome:'Frango grelhado (100g)', protein:31, carb:0, fat:3.6 },
+  { nome:'Arroz branco cozido (100g)', protein:2.5, carb:28, fat:0.3 },
+  { nome:'Feijão cozido (100g)', protein:8.7, carb:14, fat:0.5 },
+  { nome:'Ovo cozido (1 unidade)', protein:6.3, carb:0.6, fat:5 },
+  { nome:'Ovo mexido (1 unidade)', protein:5.5, carb:0.4, fat:5.5 },
+  { nome:'Batata doce cozida (100g)', protein:1.6, carb:20, fat:0.1 },
+  { nome:'Aveia (40g)', protein:5.2, carb:25, fat:2.8 },
+  { nome:'Banana (1 média)', protein:1.3, carb:27, fat:0.3 },
+  { nome:'Maçã (1 média)', protein:0.3, carb:25, fat:0.2 },
+  { nome:'Leite integral (200ml)', protein:6.6, carb:9.6, fat:6.4 },
+  { nome:'Iogurte grego natural (100g)', protein:9.9, carb:3.6, fat:0.7 },
+  { nome:'Whey protein (30g)', protein:22, carb:3, fat:1.5 },
+  { nome:'Amendoim (30g)', protein:7.7, carb:6, fat:14 },
+  { nome:'Azeite de oliva (1 colher)', protein:0, carb:0, fat:14 },
+  { nome:'Atum em lata (100g)', protein:26, carb:0, fat:0.8 },
+  { nome:'Salmão grelhado (100g)', protein:25, carb:0, fat:12 },
+  { nome:'Queijo mussarela (30g)', protein:6.5, carb:0.6, fat:6 },
+  { nome:'Pão integral (1 fatia)', protein:3.6, carb:13, fat:1 },
+  { nome:'Massa (100g cozida)', protein:3.6, carb:25, fat:0.5 },
+  { nome:'Brócolis (100g)', protein:2.8, carb:6.6, fat:0.4 },
+  { nome:'Cenoura (100g)', protein:0.9, carb:9.6, fat:0.2 },
+  { nome:'Alface (100g)', protein:1.4, carb:2.9, fat:0.2 },
+  { nome:'Tomate (1 médio)', protein:0.9, carb:4.8, fat:0.2 },
+  { nome:'Manteiga (10g)', protein:0.1, carb:0, fat:8 },
+  { nome:'Mel (1 colher)', protein:0.1, carb:17, fat:0 },
+  { nome:'Castanha do Pará (30g)', protein:4.2, carb:3.5, fat:20 },
+  { nome:'Abacate (100g)', protein:2, carb:6.5, fat:16 },
+  { nome:'Carne bovina magra (100g)', protein:26, carb:0, fat:5 },
+  { nome:'Batata cozida (100g)', protein:2, carb:17, fat:0.1 },
+  { nome:'Laranja (1 média)', protein:1, carb:15, fat:0.2 },
+  { nome:'Morango (100g)', protein:0.7, carb:7.7, fat:0.3 },
+  { nome:'Chocolate 70% (20g)', protein:2, carb:6, fat:8 },
+  { nome:'Granola (40g)', protein:4, carb:24, fat:6 },
+  { nome:'Proteína vegetal texturizada (30g)', protein:15, carb:8, fat:0.5 },
+  { nome:'Tapioca (50g)', protein:0.2, carb:40, fat:0.1 },
+];
 
+/* ============================================================
+   ESTADO GLOBAL
+   ============================================================ */
 const moodLabels = ['','Mal','Instável','Neutro','Bem','Ótimo'];
 const moodSubs   = ['','Vai ficar tudo bem, estou aqui.','Estou aqui com você.','Seguindo em frente!','Que ótimo estar bem!','Você é incrível hoje!'];
 const moodCtx    = ['','Percebi que você está se sentindo mal. Como posso te ajudar agora?','Percebi que seu humor está instável. Como posso ajudar?','Oi! Tudo neutro por aí. Tem algo que posso fazer por você?','Que bom que você está bem! Posso potencializar isso?','Incrível que você está ótimo! Como posso tornar seu dia ainda melhor?'];
 
-const state = { name:'', hydra:0, moodLog:[], planCount:0, checkins:0, chatHistory:[], visaoImageData:null, vozText:'', vozUtterance:null };
+const state = {
+  name:'', hydra:0, moodLog:[],
+  planCount:0, checkins:0,
+  chatHistory:[], visaoImageData:null,
+  vozText:'', vozUtterance:null,
+  nutrition:{ protein:0, carb:0, fat:0 },
+  foodLog:[],
+  exercises:[],
+  teleSchedules:[],
+  teleChatProf:null, teleChatHistory:[]
+};
 
-/* ---- API CALL - Groq ---- */
+const NUTR_GOALS = { protein:120, carb:250, fat:60 };
+const HYDRA_GOAL = 2;
 
+let selectedFood = null;
 
-
-
+/* ════════════════════════════════════
+   API
+════════════════════════════════════ */
 function checkKey() {
-  if (!API_KEY || API_KEY === 'SUA_API_KEY_AQUI') {
-    throw new Error('API Key não configurada. Edite o arquivo e substitua SUA_API_KEY_AQUI pela sua chave da Groq.');
-  }
+  if (!API_KEY || API_KEY === 'SUA_API_KEY_AQUI') throw new Error('API Key não configurada.');
 }
-
 async function callAI(prompt, imageData) {
   checkKey();
   const messages = [];
   if (imageData) {
-    messages.push({
-      role: 'user',
-      content: [
-        { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + imageData } },
-        { type: 'text', text: prompt }
-      ]
-    });
+    messages.push({ role:'user', content:[{ type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+imageData } },{ type:'text', text:prompt }] });
   } else {
-    messages.push({ role: 'user', content: prompt });
+    messages.push({ role:'user', content:prompt });
   }
-
   let res, data;
   try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 1024, messages })
-    });
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
     data = await res.json();
-  } catch(e) {
-    throw new Error('Falha de conexão com a API. Verifique sua internet. Detalhe: ' + e.message);
-  }
-  if (data.error) throw new Error('Groq: ' + (data.error.message || JSON.stringify(data.error)));
-  return data.choices?.[0]?.message?.content || '';
+  } catch(e) { throw new Error('Falha de conexão. Detalhe: '+e.message); }
+  if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
+  return data.choices?.[0]?.message?.content||'';
 }
-
 async function callAIChat(sysPrompt, history) {
   checkKey();
-  const messages = [{ role: 'system', content: sysPrompt }, ...history];
-
+  const messages = [{ role:'system', content:sysPrompt }, ...history];
   let res, data;
   try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 1024, messages })
-    });
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
     data = await res.json();
-  } catch(e) {
-    throw new Error('Falha de conexão com a API. Verifique sua internet. Detalhe: ' + e.message);
-  }
-  if (data.error) throw new Error('Groq: ' + (data.error.message || JSON.stringify(data.error)));
-  return data.choices?.[0]?.message?.content || '';
+  } catch(e) { throw new Error('Falha de conexão. Detalhe: '+e.message); }
+  if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
+  return data.choices?.[0]?.message?.content||'';
 }
 
-/* ---- LOGIN ---- */
+/* ════════════════════════════════════
+   LOGIN
+════════════════════════════════════ */
 function doLogin() {
   const name = document.getElementById('login-name').value.trim() || 'Usuário';
   state.name = name;
@@ -602,18 +1047,25 @@ function doLogin() {
   document.getElementById('greeting').textContent = h<12?'Bom dia,':h<18?'Boa tarde,':'Boa noite,';
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-app').classList.add('active');
+  startWaterReminder();
+  updateTeleSuggestion();
 }
 
-/* ---- NAV ---- */
+/* ════════════════════════════════════
+   NAV
+════════════════════════════════════ */
 function goTo(page, el) {
   document.querySelectorAll('.page').forEach(p => p.style.display='none');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+page).style.display='block';
   el.classList.add('active');
   if (page === 'labs') closeLabScreen();
+  if (page === 'progress') checkCongrats();
 }
 
-/* ---- MOOD ---- */
+/* ════════════════════════════════════
+   MOOD
+════════════════════════════════════ */
 function selectMood(btn) {
   const mood = parseInt(btn.dataset.mood);
   state.moodLog.push({ mood, time: Date.now() });
@@ -624,14 +1076,13 @@ function selectMood(btn) {
   document.getElementById('mood-reg-sub').textContent = moodSubs[mood];
   openAjuda(mood);
   generateInsight(mood);
+  updateTeleSuggestion();
 }
-
 function resetMoodCard() {
   document.getElementById('mood-selector').style.display = 'block';
   document.getElementById('mood-registered').style.display = 'none';
   document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
 }
-
 function syncMoodUI() {
   const avg = state.moodLog.length ? (state.moodLog.reduce((a,b)=>a+b.mood,0)/state.moodLog.length).toFixed(1) : 0;
   document.getElementById('avg-mood').textContent = avg;
@@ -641,41 +1092,244 @@ function syncMoodUI() {
   document.getElementById('prog-log-val').textContent = state.checkins+' registros totais';
   document.getElementById('prog-log-pct').textContent = logPct+'%';
   document.getElementById('prog-log-bar').style.width = logPct+'%';
-  if (state.checkins>0) document.getElementById('chart-placeholder').style.display='none';
+  if (state.checkins > 0) document.getElementById('chart-placeholder').style.display = 'none';
 }
 
-/* ---- INSIGHT ---- */
+/* ════════════════════════════════════
+   INSIGHT
+════════════════════════════════════ */
 async function generateInsight(mood) {
   const el=document.getElementById('insight-body'), card=document.getElementById('insight-card'), title=card.querySelector('.insight-title');
   title.textContent='🤖 Gerando insight...'; el.textContent='';
   document.getElementById('insight-progress').style.display='block';
-  document.getElementById('progress-fill').style.width=Math.min((state.hydra/2)*100,100)+'%';
-  document.getElementById('progress-goal').textContent='META: 2L';
+  document.getElementById('progress-fill').style.width=Math.min((state.hydra/HYDRA_GOAL)*100,100)+'%';
+  document.getElementById('progress-goal').textContent='META: '+HYDRA_GOAL+'L';
   try {
-    const text = await callAI(`Você é um assistente de qualidade de vida. O usuário "${state.name}" registrou humor: ${moodLabels[mood]} (${mood}/5). Hidratação hoje: ${state.hydra}L. Dê um insight motivacional e uma recomendação prática em 2-3 frases curtas. Seja positivo e personalizado.`);
-    title.textContent = ['','💙 Vai ficar tudo bem','🌤️ Você está melhorando','⚡ Seguindo em frente','✨ Incrível, você está bem!','🌟 Incrível, você é um exemplo!'][mood];
+    const nutrSummary = `Proteína: ${state.nutrition.protein}g, Carboidratos: ${state.nutrition.carb}g, Gordura: ${state.nutrition.fat}g`;
+    const exList = state.exercises.length ? state.exercises.join(', ') : 'nenhum';
+    const text = await callAI(`Você é um assistente de qualidade de vida. O usuário "${state.name}" registrou humor: ${moodLabels[mood]} (${mood}/5). Hidratação hoje: ${state.hydra}L. Nutrição: ${nutrSummary}. Exercícios: ${exList}. Dê um insight motivacional e uma recomendação prática em 2-3 frases curtas. Seja positivo e personalizado.`);
+    title.textContent = ['','💙 Vai ficar tudo bem','🌤️ Você está melhorando','⚡ Seguindo em frente','✨ Você está bem!','🌟 Você é um exemplo!'][mood];
     el.textContent = text;
     state.planCount++; syncMoodUI();
   } catch(e) {
     title.textContent='✨ Insight';
-    el.textContent= e.message.includes('API Key') ? '⚠️ ' + e.message : 'Continue registrando seu humor diariamente para receber orientações personalizadas!';
+    el.textContent= e.message.includes('API Key') ? '⚠️ '+e.message : 'Continue registrando seu humor diariamente para receber orientações personalizadas!';
   }
 }
 
-/* ---- HYDRA ---- */
-function addHydra(l) { state.hydra+=l; syncHydraUI(); }
-function resetHydra() { state.hydra=0; syncHydraUI(); }
+/* ════════════════════════════════════
+   HIDRATAÇÃO + AVISO + COPO
+════════════════════════════════════ */
+function addHydra(l) { state.hydra+=l; syncHydraUI(); checkWaterAlert(); }
+function resetHydra() { state.hydra=0; syncHydraUI(); checkWaterAlert(); }
+
 function syncHydraUI() {
-  const h=state.hydra, pct=Math.min((h/2)*100,100);
-  document.getElementById('hydra-count').textContent=h;
-  document.getElementById('progress-fill').style.width=pct+'%';
-  document.getElementById('water-today').textContent=h+'L';
-  document.getElementById('prog-hydra-val').textContent=h+'L de 2L';
-  document.getElementById('prog-hydra-pct').textContent=Math.round(pct)+'%';
-  document.getElementById('prog-hydra-bar').style.width=pct+'%';
+  const h=state.hydra, pct=Math.min((h/HYDRA_GOAL)*100,100);
+  document.getElementById('hydra-count').textContent = h;
+  document.getElementById('hydra-cup-pct').textContent = Math.round(pct)+'%';
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('water-today').textContent = h+'L';
+  document.getElementById('prog-hydra-val').textContent = h+'L de '+HYDRA_GOAL+'L';
+  document.getElementById('prog-hydra-pct').textContent = Math.round(pct)+'%';
+  document.getElementById('prog-hydra-bar').style.width = pct+'%';
+  // Animar copo SVG
+  const cupWater = document.getElementById('cup-water');
+  const cupWave  = document.getElementById('cup-wave');
+  if (cupWater) {
+    const fillH = Math.round(pct * 0.63); // 63px de altura interna do copo
+    const y = 74 - fillH;
+    cupWater.setAttribute('y', y);
+    cupWater.setAttribute('height', fillH);
+    // Onda
+    const waveY = y;
+    cupWave.setAttribute('d', `M11 ${waveY} Q20 ${waveY-3} 29 ${waveY} Q38 ${waveY+3} 49 ${waveY}`);
+  }
+  checkCongrats();
 }
 
-/* ---- AJUDA IMEDIATA ---- */
+function checkWaterAlert() {
+  const alert = document.getElementById('water-alert');
+  if (state.hydra === 0) {
+    document.getElementById('water-alert-msg').textContent = 'Lembre-se de se hidratar! Você ainda não registrou água hoje.';
+    alert.classList.add('show');
+  } else if (state.hydra < HYDRA_GOAL) {
+    document.getElementById('water-alert-msg').textContent = `💧 Você bebeu ${state.hydra}L. Meta: ${HYDRA_GOAL}L. Continue se hidratando!`;
+    alert.classList.add('show');
+  } else {
+    alert.classList.remove('show');
+  }
+}
+
+function startWaterReminder() {
+  // Aviso inicial
+  setTimeout(() => checkWaterAlert(), 1000);
+  // A cada 30 minutos, lembra de beber água
+  setInterval(() => {
+    if (state.hydra < HYDRA_GOAL) {
+      checkWaterAlert();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('💧 VitaIA – Hora de se hidratar!', { body: `Você bebeu ${state.hydra}L hoje. Meta: ${HYDRA_GOAL}L` });
+      }
+    }
+  }, 30 * 60 * 1000);
+  // Solicitar permissão de notificação
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+/* ════════════════════════════════════
+   NUTRIÇÃO
+════════════════════════════════════ */
+function searchFood() {
+  const q = document.getElementById('food-search').value.toLowerCase().trim();
+  const suggsEl = document.getElementById('food-suggestions');
+  if (!q) { suggsEl.style.display='none'; selectedFood=null; return; }
+  const matches = FOOD_DB.filter(f => f.nome.toLowerCase().includes(q)).slice(0,6);
+  if (!matches.length) { suggsEl.style.display='none'; return; }
+  suggsEl.innerHTML = matches.map((f,i) =>
+    `<div class="food-sugg-item" onclick="selectFoodSugg(${i},'${f.nome.replace(/'/g,"\\'")}')">
+      ${f.nome}
+      <div class="food-sugg-macros">
+        <span style="color:var(--protein)">P: ${f.protein}g</span>
+        <span style="color:#cd853f">C: ${f.carb}g</span>
+        <span style="color:var(--fat)">G: ${f.fat}g</span>
+      </div>
+    </div>`
+  ).join('');
+  suggsEl.style.display='block';
+  // Guardar matches no estado temporário
+  suggsEl._matches = matches;
+}
+
+function selectFoodSugg(idx, nome) {
+  const matches = document.getElementById('food-suggestions')._matches;
+  selectedFood = matches[idx];
+  document.getElementById('food-search').value = nome;
+  document.getElementById('food-suggestions').style.display='none';
+}
+
+function addSelectedFood() {
+  if (!selectedFood) {
+    // Tenta match direto pelo texto
+    const q = document.getElementById('food-search').value.toLowerCase().trim();
+    selectedFood = FOOD_DB.find(f => f.nome.toLowerCase().includes(q));
+  }
+  if (!selectedFood) { alert('Selecione um alimento da lista!'); return; }
+  state.foodLog.push({...selectedFood});
+  state.nutrition.protein += selectedFood.protein;
+  state.nutrition.carb    += selectedFood.carb;
+  state.nutrition.fat     += selectedFood.fat;
+  document.getElementById('food-search').value = '';
+  document.getElementById('food-suggestions').style.display = 'none';
+  selectedFood = null;
+  syncNutritionUI();
+  checkCongrats();
+}
+
+function removeFood(idx) {
+  const food = state.foodLog[idx];
+  state.nutrition.protein -= food.protein;
+  state.nutrition.carb    -= food.carb;
+  state.nutrition.fat     -= food.fat;
+  state.foodLog.splice(idx, 1);
+  syncNutritionUI();
+  checkCongrats();
+}
+
+function syncNutritionUI() {
+  const { protein, carb, fat } = state.nutrition;
+  const pPct = Math.min((protein/NUTR_GOALS.protein)*100,100);
+  const cPct = Math.min((carb/NUTR_GOALS.carb)*100,100);
+  const fPct = Math.min((fat/NUTR_GOALS.fat)*100,100);
+
+  document.getElementById('nutr-protein-val').textContent = Math.round(protein);
+  document.getElementById('nutr-carb-val').textContent    = Math.round(carb);
+  document.getElementById('nutr-fat-val').textContent     = Math.round(fat);
+  document.getElementById('nutr-protein-bar').style.width = pPct+'%';
+  document.getElementById('nutr-carb-bar').style.width    = cPct+'%';
+  document.getElementById('nutr-fat-bar').style.width     = fPct+'%';
+
+  // Progresso
+  document.getElementById('prog-protein-val').textContent = Math.round(protein)+'g de '+NUTR_GOALS.protein+'g';
+  document.getElementById('prog-carb-val').textContent    = Math.round(carb)+'g de '+NUTR_GOALS.carb+'g';
+  document.getElementById('prog-fat-val').textContent     = Math.round(fat)+'g de '+NUTR_GOALS.fat+'g';
+  document.getElementById('prog-protein-pct').textContent = Math.round(pPct)+'%';
+  document.getElementById('prog-carb-pct').textContent    = Math.round(cPct)+'%';
+  document.getElementById('prog-fat-pct').textContent     = Math.round(fPct)+'%';
+  document.getElementById('prog-protein-bar').style.width = pPct+'%';
+  document.getElementById('prog-carb-bar').style.width    = cPct+'%';
+  document.getElementById('prog-fat-bar').style.width     = fPct+'%';
+
+  // Log de alimentos
+  const logEl = document.getElementById('food-log-list');
+  if (!state.foodLog.length) {
+    logEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Nenhum alimento registrado ainda</div>';
+    return;
+  }
+  logEl.innerHTML = state.foodLog.map((f,i) =>
+    `<div class="food-log-item">
+      <span class="food-log-name">${f.nome}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="food-log-macros">
+          <span class="food-log-macro-p">P:${Math.round(f.protein)}g</span>
+          <span class="food-log-macro-c">C:${Math.round(f.carb)}g</span>
+          <span class="food-log-macro-f">G:${Math.round(f.fat)}g</span>
+        </span>
+        <button class="btn-del-food" onclick="removeFood(${i})">✕</button>
+      </div>
+    </div>`
+  ).join('');
+}
+
+/* ════════════════════════════════════
+   EXERCÍCIOS
+════════════════════════════════════ */
+function toggleExercise(id, label) {
+  const btn = document.getElementById('ex-'+id);
+  const idx = state.exercises.indexOf(label);
+  if (idx >= 0) {
+    state.exercises.splice(idx, 1);
+    btn.classList.remove('done');
+  } else {
+    state.exercises.push(label);
+    btn.classList.add('done');
+  }
+  const logEl = document.getElementById('exercise-log');
+  logEl.textContent = state.exercises.length ? '✓ ' + state.exercises.join(' · ') : 'Nenhum exercício registrado hoje.';
+  checkCongrats();
+}
+
+/* ════════════════════════════════════
+   PARABÉNS
+════════════════════════════════════ */
+function checkCongrats() {
+  const hydraOk   = state.hydra >= HYDRA_GOAL;
+  const proteinOk = state.nutrition.protein >= NUTR_GOALS.protein;
+  const carbOk    = state.nutrition.carb    >= NUTR_GOALS.carb;
+  const fatOk     = state.nutrition.fat     >= NUTR_GOALS.fat;
+  const banner    = document.getElementById('congrats-banner');
+  const sub       = document.getElementById('congrats-sub');
+  if (!banner) return;
+
+  const metas = [];
+  if (hydraOk) metas.push('Hidratação 💧');
+  if (proteinOk) metas.push('Proteína 🥩');
+  if (carbOk) metas.push('Carboidratos 🍚');
+  if (fatOk) metas.push('Gordura 🥑');
+  if (state.exercises.length) metas.push('Exercícios 💪');
+
+  if (hydraOk && proteinOk) {
+    banner.classList.add('show');
+    sub.textContent = 'Metas atingidas: ' + metas.join(', ') + '!';
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+/* ════════════════════════════════════
+   AJUDA IMEDIATA
+════════════════════════════════════ */
 function openAjuda(mood) {
   state.chatHistory = [];
   const chatEl = document.getElementById('ajuda-chat');
@@ -685,14 +1339,13 @@ function openAjuda(mood) {
   document.getElementById('ajuda-btn').textContent = 'OBTER ORIENTAÇÃO IA';
   document.getElementById('ajuda-btn').disabled = false;
   const intro = (mood !== undefined && moodCtx[mood]) ? moodCtx[mood] : 'Olá! Como posso te ajudar hoje?';
-  appendBubble('ai', intro);
+  appendBubble('ajuda-chat','ai', intro);
   state.chatHistory.push({ role:'assistant', content:intro });
   document.getElementById('modal-ajuda').classList.add('active');
   setTimeout(() => document.getElementById('ajuda-input').focus(), 300);
 }
-
-function appendBubble(who, text) {
-  const chat = document.getElementById('ajuda-chat');
+function appendBubble(areaId, who, text) {
+  const chat = document.getElementById(areaId);
   const div = document.createElement('div');
   div.className = 'chat-bubble ' + who;
   div.textContent = text;
@@ -700,28 +1353,28 @@ function appendBubble(who, text) {
   chat.scrollTop = chat.scrollHeight;
   return div;
 }
-
 async function sendAjuda() {
   const input = document.getElementById('ajuda-input');
   const text = input.value.trim();
   if (!text) return;
-  appendBubble('user', text);
+  appendBubble('ajuda-chat','user', text);
   input.value = ''; input.style.height = 'auto';
   state.chatHistory.push({ role:'user', content:text });
   const btn = document.getElementById('ajuda-btn');
   btn.disabled = true; btn.textContent = 'Pensando...';
-  const typing = appendBubble('ai typing', '...');
-  const sysPrompt = `Você é VitaIA, assistente empático de qualidade de vida. Usuário: "${state.name}". Humor atual: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não informado'}. Hidratação: ${state.hydra}L. Responda de forma calorosa, prática e concisa (máximo 4 frases). Se perceber crise emocional severa, indique gentilmente o CVV (188).`;
+  const typing = appendBubble('ajuda-chat','ai typing','...');
+  const nutrInfo = `Nutrição hoje: Proteína ${Math.round(state.nutrition.protein)}g, Carb ${Math.round(state.nutrition.carb)}g, Gordura ${Math.round(state.nutrition.fat)}g.`;
+  const exInfo = state.exercises.length ? 'Exercícios: '+state.exercises.join(', ')+'.' : '';
+  const sysPrompt = `Você é VitaIA, assistente empático de qualidade de vida. Usuário: "${state.name}". Humor atual: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não informado'}. Hidratação: ${state.hydra}L. ${nutrInfo} ${exInfo} Responda de forma calorosa, prática e concisa (máximo 4 frases). Se perceber crise emocional severa, indique gentilmente o CVV (188).`;
   try {
     const reply = await callAIChat(sysPrompt, state.chatHistory);
-    typing.classList.remove('typing');
-    typing.textContent = reply;
+    typing.classList.remove('typing'); typing.textContent = reply;
     state.chatHistory.push({ role:'assistant', content:reply });
     state.planCount++; syncMoodUI();
     btn.textContent = 'OUTRA PERGUNTA';
   } catch(e) {
     typing.classList.remove('typing');
-    typing.textContent = e.message.includes('API Key') ? '⚠️ ' + e.message : 'Respire fundo. Você não está sozinho. Tente novamente em instantes.';
+    typing.textContent = e.message.includes('API Key') ? '⚠️ '+e.message : 'Respire fundo. Você não está sozinho. Tente novamente em instantes.';
     btn.textContent = 'TENTAR NOVAMENTE';
   } finally {
     btn.disabled = false;
@@ -729,14 +1382,18 @@ async function sendAjuda() {
   }
 }
 
-/* ---- PLANOS ---- */
+/* ════════════════════════════════════
+   PLANOS
+════════════════════════════════════ */
 async function generatePlan() {
   document.querySelector('.plans-hero').style.display='none';
   document.getElementById('plan-loading').style.display='block';
   document.getElementById('plan-result').classList.remove('visible');
   const lastMood = state.moodLog.length?state.moodLog[state.moodLog.length-1].mood:3;
+  const nutrInfo = `Proteína: ${Math.round(state.nutrition.protein)}g/${NUTR_GOALS.protein}g, Carb: ${Math.round(state.nutrition.carb)}g/${NUTR_GOALS.carb}g, Gordura: ${Math.round(state.nutrition.fat)}g/${NUTR_GOALS.fat}g`;
+  const exInfo = state.exercises.length ? state.exercises.join(', ') : 'nenhum';
   try {
-    const text = await callAI(`Crie um plano de qualidade de vida para "${state.name}". Humor: ${moodLabels[lastMood]} (${lastMood}/5). Hidratação: ${state.hydra}L. Responda APENAS em JSON sem markdown: {"saudacao":"...","manha":["..."],"almoco":["..."],"tarde":["..."],"noite":["..."]}`);
+    const text = await callAI(`Crie um plano de qualidade de vida para "${state.name}". Humor: ${moodLabels[lastMood]} (${lastMood}/5). Hidratação: ${state.hydra}L de ${HYDRA_GOAL}L. Nutrição: ${nutrInfo}. Exercícios hoje: ${exInfo}. Responda APENAS em JSON sem markdown: {"saudacao":"...","manha":["..."],"almoco":["..."],"tarde":["..."],"noite":["..."]}`);
     const plan = JSON.parse(text.replace(/```json|```/g,'').trim());
     document.getElementById('plan-loading').style.display='none';
     const result = document.getElementById('plan-result');
@@ -749,171 +1406,192 @@ async function generatePlan() {
     document.getElementById('plan-result').classList.add('visible');
   }
 }
-function rPS(t,items) { return items?.length?`<div class="plan-section"><h3>${t}</h3>${items.map(i=>`<div class="plan-item">${i}</div>`).join('')}</div>`:''; }
-function resetPlan() { document.querySelector('.plans-hero').style.display='flex'; document.getElementById('plan-result').classList.remove('visible'); document.getElementById('plan-result').innerHTML=''; }
+function rPS(t,items){ return items?.length?`<div class="plan-section"><h3>${t}</h3>${items.map(i=>`<div class="plan-item">${i}</div>`).join('')}</div>`:''; }
+function resetPlan(){ document.querySelector('.plans-hero').style.display='flex'; document.getElementById('plan-result').classList.remove('visible'); document.getElementById('plan-result').innerHTML=''; }
 
-/* ---- LABS - Navegação ---- */
+/* ════════════════════════════════════
+   LABS
+════════════════════════════════════ */
 function openLabScreen(name) {
-  document.getElementById('lab-list-view').style.display = 'none';
-  document.querySelectorAll('.lab-screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('lab-screen-' + name).classList.add('active');
+  document.getElementById('lab-list-view').style.display='none';
+  document.querySelectorAll('.lab-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('lab-screen-'+name).classList.add('active');
 }
 function closeLabScreen() {
-  document.querySelectorAll('.lab-screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('lab-list-view').style.display = 'flex';
+  document.querySelectorAll('.lab-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('lab-list-view').style.display='flex';
 }
-
-/* ---- VISÃO PRO - Upload de imagem ---- */
 function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
     const dataUrl = e.target.result;
-    // Mostrar preview
     const preview = document.getElementById('visao-preview');
-    preview.src = dataUrl;
-    preview.style.display = 'block';
+    preview.src = dataUrl; preview.style.display = 'block';
     document.getElementById('visao-upload-area').style.display = 'none';
-    // Salvar base64 (sem o prefixo "data:image/jpeg;base64,")
     state.visaoImageData = dataUrl.split(',')[1];
   };
   reader.readAsDataURL(file);
 }
-
-/* ---- LABS - Executar IA ---- */
 const labPrompts = {
-  visao: (input) => `Você é nutricionista e personal trainer especializado. Analise a imagem enviada e a pergunta: "${input}". Dê uma análise detalhada com 3-5 pontos práticos. Se não houver imagem, analise apenas o texto.`,
-  explorador: (input) => `Você é um guia de bem-estar e saúde. O usuário busca: "${input}". Dê dicas práticas e específicas sobre como encontrar e aproveitar locais saudáveis, com sugestões de busca e o que procurar em cada tipo de local.`,
-  deepthink: (input) => `Você é um consultor de saúde com raciocínio aprofundado e embasamento científico. Analise com profundidade: "${input}". Estruture sua resposta com contexto, análise e recomendações práticas baseadas em evidências.`,
-  voz: (input) => `Você é um guia de bem-estar. Crie uma orientação calorosa, motivacional e prática sobre: "${input}". Escreva como se estivesse falando diretamente com a pessoa, em tom de voz calmo e encorajador. Máximo 5 frases.`
+  visao: (input) => `Você é nutricionista e personal trainer. Analise a imagem e: "${input}". Dê análise detalhada com 3-5 pontos práticos.`,
+  explorador: (input) => `Você é guia de bem-estar. O usuário busca: "${input}". Dê dicas práticas sobre locais saudáveis.`,
+  deepthink: (input) => `Você é consultor de saúde com embasamento científico. Analise com profundidade: "${input}". Estruture com contexto, análise e recomendações práticas.`,
+  voz: (input) => `Você é guia de bem-estar. Crie orientação calorosa e motivacional sobre: "${input}". Tom calmo e encorajador. Máximo 5 frases.`
 };
-
 async function executeLab(labName) {
-  const inputEl = document.getElementById(labName + '-input');
-  const btnEl = document.getElementById(labName + '-btn');
-  const responseEl = document.getElementById(labName + '-response');
-  const responseTextEl = document.getElementById(labName + '-response-text');
-
-  const input = inputEl.value.trim();
-  if (!input) { inputEl.focus(); return; }
-
-  btnEl.disabled = true;
-  btnEl.textContent = 'Consultando IA...';
-  responseEl.classList.remove('visible');
-
-  const imageData = labName === 'visao' ? state.visaoImageData : null;
-
+  const inputEl=document.getElementById(labName+'-input'), btnEl=document.getElementById(labName+'-btn'), responseEl=document.getElementById(labName+'-response'), responseTextEl=document.getElementById(labName+'-response-text');
+  const input=inputEl.value.trim(); if (!input) { inputEl.focus(); return; }
+  btnEl.disabled=true; btnEl.textContent='Consultando IA...'; responseEl.classList.remove('visible');
+  const imageData = labName==='visao' ? state.visaoImageData : null;
   try {
     const text = await callAI(labPrompts[labName](input), imageData);
-    responseTextEl.textContent = text;
-    responseEl.classList.add('visible');
-
-    // Voz Vital: sintetizar voz
-    if (labName === 'voz') {
-      state.vozText = text;
-      setupVozPlayer(text);
-    }
-
+    responseTextEl.textContent = text; responseEl.classList.add('visible');
+    if (labName==='voz') { state.vozText=text; setupVozPlayer(text); }
     state.planCount++; syncMoodUI();
   } catch(e) {
-    responseTextEl.textContent = e.message.includes('API Key') ? '⚠️ ' + e.message : '❌ Erro ao consultar a IA. Verifique sua conexão e tente novamente.';
+    responseTextEl.textContent = e.message.includes('API Key') ? '⚠️ '+e.message : '❌ Erro ao consultar a IA.';
     responseEl.classList.add('visible');
-  } finally {
-    btnEl.disabled = false;
-    btnEl.textContent = 'EXECUTAR IA';
-  }
+  } finally { btnEl.disabled=false; btnEl.textContent='EXECUTAR IA'; }
 }
 
-/* ---- VOZ VITAL - Player ---- */
+/* ════════════════════════════════════
+   VOZ VITAL
+════════════════════════════════════ */
 function setupVozPlayer(text) {
   if (!window.speechSynthesis) return;
   const player = document.getElementById('voz-player');
   player.classList.add('visible');
-  // Gerar ondas decorativas
-  const wave = document.getElementById('voz-wave');
-  wave.innerHTML = '';
-  for (let i=0; i<28; i++) {
-    const span = document.createElement('span');
-    const h = 4 + Math.random()*24;
-    span.style.height = h + 'px';
-    span.style.animationDelay = (i*0.06)+'s';
-    wave.appendChild(span);
-  }
-  // Iniciar leitura automática
+  const wave = document.getElementById('voz-wave'); wave.innerHTML='';
+  for (let i=0;i<28;i++){const span=document.createElement('span');const h=4+Math.random()*24;span.style.height=h+'px';span.style.animationDelay=(i*0.06)+'s';wave.appendChild(span);}
   speakVoz(text);
 }
+function speakVoz(text){if(!window.speechSynthesis)return;speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.lang='pt-BR';utt.rate=0.9;utt.pitch=1;state.vozUtterance=utt;utt.onstart=()=>document.getElementById('voz-play-btn').textContent='⏸';utt.onend=()=>document.getElementById('voz-play-btn').textContent='▶';speechSynthesis.speak(utt);}
+function toggleVozPlayback(){if(!window.speechSynthesis)return;if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();document.getElementById('voz-play-btn').textContent='▶';}else if(speechSynthesis.paused){speechSynthesis.resume();document.getElementById('voz-play-btn').textContent='⏸';}else if(state.vozText){speakVoz(state.vozText);}}
 
-function speakVoz(text) {
-  if (!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'pt-BR'; utt.rate = 0.9; utt.pitch = 1;
-  state.vozUtterance = utt;
-  utt.onstart = () => document.getElementById('voz-play-btn').textContent = '⏸';
-  utt.onend = () => document.getElementById('voz-play-btn').textContent = '▶';
-  speechSynthesis.speak(utt);
-}
-
-function toggleVozPlayback() {
-  if (!window.speechSynthesis) return;
-  if (speechSynthesis.speaking && !speechSynthesis.paused) {
-    speechSynthesis.pause();
-    document.getElementById('voz-play-btn').textContent = '▶';
-  } else if (speechSynthesis.paused) {
-    speechSynthesis.resume();
-    document.getElementById('voz-play-btn').textContent = '⏸';
-  } else if (state.vozText) {
-    speakVoz(state.vozText);
-  }
-}
-
-/* ---- MICROFONE (reconhecimento de voz) ---- */
+/* ════════════════════════════════════
+   MIC
+════════════════════════════════════ */
 let recognition = null;
 function toggleMic(inputId, micBtnId) {
   const micBtn = document.getElementById(micBtnId);
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    alert('Reconhecimento de voz não suportado neste navegador. Use Chrome.');
-    return;
-  }
-  if (recognition && recognition._active) {
-    recognition.stop();
-    return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'pt-BR';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition._active = true;
+  if (!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome para reconhecimento de voz.');return;}
+  if (recognition && recognition._active){recognition.stop();return;}
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR(); recognition.lang='pt-BR'; recognition.continuous=false; recognition.interimResults=false; recognition._active=true;
   micBtn.classList.add('recording');
-  recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    const inputEl = document.getElementById(inputId);
-    inputEl.value = (inputEl.value ? inputEl.value + ' ' : '') + transcript;
-  };
-  recognition.onend = () => {
-    recognition._active = false;
-    micBtn.classList.remove('recording');
-  };
-  recognition.onerror = () => {
-    recognition._active = false;
-    micBtn.classList.remove('recording');
-  };
+  recognition.onresult=(e)=>{const t=e.results[0][0].transcript;const el=document.getElementById(inputId);el.value=(el.value?el.value+' ':'')+t;};
+  recognition.onend=()=>{recognition._active=false;micBtn.classList.remove('recording');};
+  recognition.onerror=()=>{recognition._active=false;micBtn.classList.remove('recording');};
   recognition.start();
 }
 
-/* ---- FAQ ---- */
+/* ════════════════════════════════════
+   TELESAÚDE
+════════════════════════════════════ */
+let currentSchedProf = '';
+function selectTeleType(type) {
+  alert(type==='chat' ? '💬 Chat selecionado! Escolha um profissional abaixo.' : '📹 Vídeo selecionado! Escolha um profissional abaixo.');
+}
+function openTeleChat(profName, spec) {
+  state.teleChatProf = profName;
+  state.teleChatHistory = [];
+  document.getElementById('tele-chat-title').textContent = '💬 Chat com '+profName;
+  document.getElementById('tele-chat-sub').textContent = spec+' · Consulta segura e criptografada';
+  const chatEl = document.getElementById('tele-chat-area');
+  chatEl.innerHTML = '';
+  const intro = `Olá! Sou ${profName}, ${spec}. Como posso te ajudar hoje? Você pode me enviar fotos de refeições, dúvidas sobre treinos ou qualquer questão de saúde.`;
+  appendBubble('tele-chat-area','ai', intro);
+  state.teleChatHistory.push({ role:'assistant', content:intro });
+  document.getElementById('modal-tele-chat').classList.add('active');
+}
+async function sendTeleChat() {
+  const input = document.getElementById('tele-chat-input');
+  const text = input.value.trim(); if (!text) return;
+  appendBubble('tele-chat-area','user', text);
+  input.value=''; input.style.height='auto';
+  state.teleChatHistory.push({ role:'user', content:text });
+  const btn = document.getElementById('tele-chat-btn');
+  btn.disabled=true; btn.textContent='...';
+  const typing = appendBubble('tele-chat-area','ai typing','...');
+  const nutrInfo = `Dados do paciente: Proteína ${Math.round(state.nutrition.protein)}g, Carb ${Math.round(state.nutrition.carb)}g, Gordura ${Math.round(state.nutrition.fat)}g. Água: ${state.hydra}L. Humor: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não registrado'}.`;
+  const sysPrompt = `Você é ${state.teleChatProf}, um profissional de saúde compassivo. ${nutrInfo} Responda de forma profissional, prática e empática. Máximo 4 frases.`;
+  try {
+    const reply = await callAIChat(sysPrompt, state.teleChatHistory);
+    typing.classList.remove('typing'); typing.textContent = reply;
+    state.teleChatHistory.push({ role:'assistant', content:reply });
+  } catch(e) {
+    typing.classList.remove('typing');
+    typing.textContent = '⚠️ Erro de conexão. Tente novamente.';
+  } finally { btn.disabled=false; btn.textContent='ENVIAR'; document.getElementById('tele-chat-area').scrollTop=9999; }
+}
+function scheduleTele(profName) {
+  currentSchedProf = profName;
+  document.getElementById('schedule-prof-name').textContent = '📹 Consulta por vídeo com '+profName;
+  const now = new Date(); now.setMinutes(0,0,0); now.setHours(now.getHours()+1);
+  document.getElementById('schedule-datetime').value = now.toISOString().slice(0,16);
+  document.getElementById('modal-schedule').classList.add('active');
+}
+function confirmSchedule() {
+  const dt = document.getElementById('schedule-datetime').value;
+  const type = document.getElementById('schedule-type').value;
+  if (!dt) { alert('Selecione data e horário.'); return; }
+  const d = new Date(dt);
+  const label = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} • ${d.toLocaleDateString('pt-BR')}`;
+  state.teleSchedules.push({ prof:currentSchedProf, time:label, type });
+  renderSchedules();
+  closeModal('modal-schedule');
+  alert(`✓ Consulta agendada com ${currentSchedProf} em ${label}!`);
+}
+function renderSchedules() {
+  const el = document.getElementById('tele-schedule-list');
+  if (!state.teleSchedules.length) { el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:12px 0;">Nenhuma consulta agendada. Escolha um profissional acima!</div>'; return; }
+  el.innerHTML = state.teleSchedules.map(s =>
+    `<div class="tele-sched-item">
+      <div class="tele-sched-time">${s.time}</div>
+      <div><div class="tele-sched-name">${s.prof}</div><div class="tele-sched-type">${s.type==='video'?'📹 Vídeo':'💬 Chat'}</div></div>
+      <span class="tele-badge ${s.type==='video'?'badge-video':'badge-chat'}">${s.type==='video'?'VIDEO':'CHAT'}</span>
+    </div>`
+  ).join('');
+}
+function rateTele(stars) {
+  document.querySelectorAll('.tele-rating-star').forEach((s,i)=>{s.style.color=i<stars?'#ffd700':'#333';});
+  document.getElementById('tele-rating-msg').textContent = ['','⭐ Precisa melhorar','⭐⭐ Regular','⭐⭐⭐ Bom','⭐⭐⭐⭐ Muito bom!','⭐⭐⭐⭐⭐ Excelente! Obrigado!'][stars];
+}
+function updateTeleSuggestion() {
+  const el = document.getElementById('tele-ia-suggestion');
+  if (!el) return;
+  const mood = state.moodLog.length ? state.moodLog[state.moodLog.length-1].mood : null;
+  const proteinLow = state.nutrition.protein < NUTR_GOALS.protein * 0.5;
+  if (mood && mood <= 2) {
+    el.textContent = '🧠 Sua IA detectou humor baixo. Recomendamos uma consulta com um profissional de saúde mental. Clique em um dos profissionais abaixo!';
+  } else if (proteinLow && state.foodLog.length > 0) {
+    el.textContent = '🥗 Com base nos seus dados, sua ingestão de proteína está abaixo do ideal. Sugerimos uma consulta com nossa nutricionista Dra. Ana Ribeiro!';
+  } else if (state.hydra < HYDRA_GOAL && state.hydra > 0) {
+    el.textContent = '💧 Sua hidratação está abaixo da meta. Um personal trainer pode ajudar a criar hábitos saudáveis. Fale com Carlos Mendes!';
+  } else {
+    el.textContent = 'Continue registrando seus dados (humor, nutrição, água) e a IA irá sugerir o profissional ideal para você!';
+  }
+}
+
+/* ════════════════════════════════════
+   FAQ & MODALS
+════════════════════════════════════ */
 function toggleFaq(btn) {
   const ans=btn.nextElementSibling, isOpen=ans.classList.contains('open');
   document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
   if (!isOpen) ans.classList.add('open');
 }
-
-/* ---- MODALS ---- */
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target===el) el.classList.remove('active'); });
+});
+
+// Fechar sugestões ao clicar fora
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.food-search-wrap')) {
+    document.getElementById('food-suggestions').style.display = 'none';
+  }
 });
 </script>
 </body>
