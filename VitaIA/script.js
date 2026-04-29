@@ -1,6 +1,5 @@
 // ============================================
-// VitaIA - versão da tia
-// tem bug mas funciona (quase sempre)
+// VitaIA - versão do tcc
 // ============================================
 
 // variaveis globais (sei que é feio mas funciona)
