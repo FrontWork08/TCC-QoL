@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>VitaIA - vai dar certo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="telaLogin" class="tela">
+    <div class="cardLogin">
+        <h1 style="text-align:center; margin-bottom:8px;">🌿 VitaIA</h1>
+        <p style="text-align:center; color:#666; margin-bottom:24px;">seu parceiro de saúde</p>
+        
+        <div class="tabs">
+            <button id="btnTabLogin" class="tab ativo" onclick="mostrarTab('login')">Entrar</button>
+            <button id="btnTabCad" class="tab" onclick="mostrarTab('cadastro')">Criar conta</button>
+        </div>
+
+        <!-- login -->
+        <div id="formLogin">
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com">
+                <div class="erro" id="erroLoginEmail"></div>
+            </div>
+            <div class="campo">
+                <label>Senha</label>
+                <input type="password" id="loginSenha" placeholder="******">
+                <div class="erro" id="erroLoginSenha"></div>
+            </div>
+            <button class="btn" onclick="fazerLogin()">Entrar →</button>
+            <div id="usuariosSalvos" style="margin-top:16px; font-size:12px;"></div>
+        </div>
+
+        <!-- cadastro -->
+        <div id="formCadastro" style="display:none">
+            <div class="campo">
+                <label>Seu nome</label>
+                <input type="text" id="cadNome" placeholder="Como te chamo?">
+                <div class="erro" id="erroCadNome"></div>
+            </div>
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email" id="cadEmail" placeholder="seu@email.com">
+                <div class="erro" id="erroCadEmail"></div>
+            </div>
+            <div class="campo">
+                <label>Senha</label>
+                <input type="password" id="cadSenha" placeholder="******">
+                <div class="erro" id="erroCadSenha"></div>
+            </div>
+            <div class="campo">
+                <label>Confirmar senha</label>
+                <input type="password" id="cadSenha2" placeholder="******">
+                <div class="erro" id="erroCadSenha2"></div>
+            </div>
+            <button class="btn" onclick="fazerCadastro()">Criar conta 🎉</button>
+        </div>
+    </div>
+</div>
+
+<!-- app principal -->
+<div id="telaApp" class="tela" style="display:none">
+    <div class="appContainer">
+        <div class="topo">
+            <div>
+                <div class="saudacao" id="saudacaoMsg">Bom dia,</div>
+                <div class="nomeUsuario" id="nomeUser">Usuário</div>
+            </div>
+            <div class="avatar" onclick="sair()" title="sair">👤</div>
+        </div>
+
+        <div id="conteudo" class="conteudo">
+            <!-- cada página vai ser jogada aqui via js mesmo rs -->
+        </div>
+
+        <div class="menuBaixo">
+            <div class="menuItem ativo" onclick="mudarPagina('home', this)">🏠 Home</div>
+            <div class="menuItem" onclick="mudarPagina('progresso', this)">📈 Progresso</div>
+            <div class="menuItem" onclick="mudarPagina('plano', this)">🎯 Plano</div>
+            <div class="menuItem" onclick="mudarPagina('labs', this)">🧪 Labs</div>
+            <div class="menuItem" onclick="mudarPagina('tele', this)">🩺 Tele</div>
+        </div>
+    </div>
+</div>
+
+<!-- modals -->
+<div id="modalChat" class="modal" onclick="if(event.target===this)fechaModal('modalChat')">
+    <div class="modalConteudo">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+            <h3>💬 Ajuda Imediata</h3>
+            <button onclick="fechaModal('modalChat')" style="background:none; border:none; font-size:24px; cursor:pointer">×</button>
+        </div>
+        <div id="chatArea" class="chatArea"></div>
+        <div style="display:flex; gap:8px; margin-top:12px">
+            <textarea id="chatInput" placeholder="Digite aqui..." rows="2" style="flex:1; padding:10px; border-radius:12px; border:1px solid #ddd; resize:none"></textarea>
+            <button id="chatBtn" onclick="enviarChat()" class="btn" style="width:auto; padding:0 20px">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
