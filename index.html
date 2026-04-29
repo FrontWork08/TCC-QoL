@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VitaIA – IA de Qualidade de Vida</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2330; --border: #2a3340;
+    --teal: #00c896; --red: #e53935; --text: #e6edf3; --muted: #8b949e; --card-bg: #1a2030;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* LOGIN */
+  #screen-login { align-items: center; justify-content: center; background: radial-gradient(ellipse at 60% 40%, #0d2a22 0%, var(--bg) 70%); }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 24px 64px rgba(0,0,0,.6); animation: fadeUp .5s ease both; }
+  .login-logo { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--teal); text-align: center; margin-bottom: 6px; }
+  .login-sub { color: var(--muted); font-size: 13px; text-align: center; margin-bottom: 32px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .8px; }
+  .field input { width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s; }
+  .field input:focus { border-color: var(--teal); }
+  .btn-primary { width: 100%; padding: 14px; background: var(--teal); color: #051a12; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .2s, transform .1s; margin-top: 8px; }
+  .btn-primary:hover { background: #00e0a8; }
+  .btn-primary:active { transform: scale(.98); }
+  .login-footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px; }
+  .login-footer a { color: var(--teal); cursor: pointer; }
+
+  /* APP */
+  #screen-app { flex-direction: row; min-height: 100vh; }
+  .app-wrapper { display: flex; flex-direction: column; flex: 1; max-width: 640px; margin: 0 auto; position: relative; }
+  .page-content { flex: 1; padding: 28px 20px 90px; overflow-y: auto; }
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 640px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; padding: 10px 0 14px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 12px; border-radius: 10px; transition: color .2s; color: var(--muted); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+  .nav-item svg { width: 20px; height: 20px; }
+  .nav-item.active { color: var(--teal); }
+
+  /* HEADER */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+  .page-subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), #00578a); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; flex-shrink: 0; }
+
+  /* CARDS */
+  .mood-card, .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .7px; }
+
+  /* MOOD SELECTOR */
+  .mood-row { display: flex; justify-content: space-around; }
+  .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px 10px; border-radius: 10px; background: none; border: none; color: var(--muted); font-size: 11px; transition: all .2s; }
+  .mood-btn:hover, .mood-btn.selected { background: var(--surface2); color: var(--text); }
+  .mood-emoji { font-size: 28px; }
+
+  /* MOOD REGISTERED */
+  .mood-registered { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; animation: fadeUp .3s ease both; }
+  .mood-reg-left { display: flex; align-items: center; gap: 12px; }
+  .mood-reg-check { width: 30px; height: 30px; border-radius: 50%; background: #00c89618; border: 1.5px solid var(--teal); display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .mood-reg-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+  .mood-reg-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .mood-reg-reset { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
+  .mood-reg-reset:hover { color: var(--teal); }
+
+  /* EMERGENCY */
+  .btn-emergency { width: 100%; padding: 15px; background: var(--red); color: #fff; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; transition: background .2s; }
+  .btn-emergency:hover { background: #c62828; }
+
+  /* HYDRATION */
+  .hydra-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .hydra-header span { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; }
+  .hydra-reset { font-size: 12px; color: var(--teal); cursor: pointer; background: none; border: none; }
+  .hydra-count { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: var(--teal); line-height: 1; }
+  .hydra-label { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 16px; }
+  .hydra-q { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .hydra-btns { display: flex; gap: 10px; }
+  .hydra-btn { flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--teal); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .2s; }
+  .hydra-btn:hover { background: var(--border); }
+
+  /* INSIGHT */
+  .insight-card { background: linear-gradient(135deg, #005c3e, #006b48); border: 1px solid #00c89640; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .insight-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+  .insight-body { font-size: 13px; line-height: 1.6; color: #a7f3d0; }
+  .progress-bar-wrap { margin-top: 14px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: #6ee7b7; margin-bottom: 6px; }
+  .progress-bar { height: 6px; background: #00402c; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 99px; transition: width .4s; }
+
+  /* PLANS */
+  .plans-hero { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; text-align: center; }
+  .brain-icon { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #00c896, #006b48); display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 22px; box-shadow: 0 0 40px #00c89630; }
+  .plans-hero h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .plans-hero p { color: var(--muted); font-size: 14px; max-width: 280px; line-height: 1.6; margin-bottom: 28px; }
+  .plans-btns { display: flex; gap: 12px; width: 100%; }
+  .btn-outline { flex: 1; padding: 14px; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; transition: border-color .2s; }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+  .btn-teal { flex: 1; padding: 14px; background: var(--teal); border: none; border-radius: 10px; color: #051a12; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .btn-teal:hover { background: #00e0a8; }
+  .plan-result { display: none; }
+  .plan-result.visible { display: block; animation: fadeUp .4s ease both; }
+  .plan-section { margin-bottom: 20px; }
+  .plan-section h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 10px; color: var(--teal); }
+  .plan-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+  .loading-dots { display: flex; gap: 6px; justify-content: center; padding: 30px 0; }
+  .loading-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: dot .9s ease-in-out infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: .15s; }
+  .loading-dots span:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* PROGRESS */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .stat-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .stat-value.teal { color: var(--teal); }
+  .goal-row { margin-bottom: 14px; }
+  .goal-row-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .goal-row-header strong { color: var(--text); }
+  .no-data { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .no-data-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* LABS - Lista */
+  .lab-list { display: flex; flex-direction: column; gap: 12px; }
+  .lab-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: border-color .2s, background .2s; }
+  .lab-item:hover { border-color: var(--teal); background: #1e2a3a; }
+  .lab-left { display: flex; align-items: center; gap: 14px; }
+  .lab-icon { width: 42px; height: 42px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .lab-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; }
+  .lab-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .lab-arrow { color: var(--muted); font-size: 20px; }
+
+  /* LABS - Tela interna */
+  .lab-screen { display: none; animation: fadeUp .3s ease both; }
+  .lab-screen.active { display: block; }
+  .lab-back { display: flex; align-items: center; gap: 6px; color: var(--teal); font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 20px; background: none; border: none; padding: 0; }
+  .lab-back:hover { opacity: .8; }
+  .lab-inner-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+  .lab-inner-title { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 16px; }
+
+  /* Upload de imagem (Visão Pro) */
+  .img-upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: 14px; position: relative; overflow: hidden; }
+  .img-upload-area:hover { border-color: var(--teal); background: #00c89608; }
+  .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .img-upload-icon { font-size: 28px; margin-bottom: 8px; color: var(--muted); }
+  .img-upload-label { font-size: 13px; color: var(--muted); }
+  .img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; display: none; }
+
+  /* Campo de texto labs */
+  .lab-textarea-wrap { position: relative; margin-bottom: 14px; }
+  .lab-textarea { width: 100%; padding: 14px 46px 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; resize: none; min-height: 90px; outline: none; font-family: 'DM Sans', sans-serif; transition: border-color .2s; line-height: 1.5; }
+  .lab-textarea:focus { border-color: var(--teal); }
+  .mic-btn { position: absolute; right: 12px; bottom: 12px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 18px; transition: color .2s; padding: 4px; border-radius: 6px; }
+  .mic-btn:hover { color: var(--teal); }
+  .mic-btn.recording { color: var(--red); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* Botão executar */
+  .btn-execute { width: 100%; padding: 14px; background: var(--teal); color: #051a12; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .2s, opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-execute:hover { background: #00e0a8; }
+  .btn-execute:disabled { opacity: .55; cursor: default; }
+
+  /* Resposta labs */
+  .lab-response-area { margin-top: 16px; display: none; animation: fadeUp .3s ease both; }
+  .lab-response-area.visible { display: block; }
+  .lab-response-inner { background: linear-gradient(135deg, #005c3e, #006b48); border: 1px solid #00c89640; border-radius: 14px; padding: 18px; }
+  .lab-response-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .lab-response-text { font-size: 13px; line-height: 1.7; color: #a7f3d0; white-space: pre-wrap; }
+
+  /* Voz Vital - player */
+  .voz-player { display: none; margin-top: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; align-items: center; gap: 12px; }
+  .voz-player.visible { display: flex; }
+  .voz-play-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--teal); border: none; color: #051a12; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
+  .voz-play-btn:hover { background: #00e0a8; }
+  .voz-wave { flex: 1; height: 32px; display: flex; align-items: center; gap: 3px; overflow: hidden; }
+  .voz-wave span { display: inline-block; width: 3px; border-radius: 2px; background: var(--teal); opacity: .6; }
+  .voz-label { font-size: 11px; color: var(--muted); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 200; align-items: flex-end; justify-content: center; }
+  .modal-overlay.active { display: flex; }
+  .modal-sheet { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 640px; padding: 28px 24px 36px; animation: slideUp .3s ease both; max-height: 82vh; overflow-y: auto; position: relative; }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+
+  /* CHAT - Ajuda Imediata */
+  .chat-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
+  .chat-bubble { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.55; max-width: 92%; word-break: break-word; }
+  .chat-bubble.ai { background: var(--surface2); border: 1px solid var(--border); align-self: flex-start; color: var(--text); border-bottom-left-radius: 4px; }
+  .chat-bubble.user { background: #00c89614; border: 1px solid #00c89630; align-self: flex-end; color: var(--text); border-bottom-right-radius: 4px; }
+  .chat-bubble.typing { color: var(--muted); font-style: italic; }
+  .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .chat-input-row textarea { flex: 1; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; resize: none; height: 46px; max-height: 120px; outline: none; font-family: 'DM Sans', sans-serif; transition: border-color .2s; overflow-y: hidden; }
+  .chat-input-row textarea:focus { border-color: var(--teal); }
+  .chat-send-btn { padding: 12px 16px; background: var(--teal); border: none; border-radius: 12px; color: #051a12; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; transition: background .2s, opacity .2s; }
+  .chat-send-btn:hover { background: #00e0a8; }
+  .chat-send-btn:disabled { opacity: .5; cursor: default; }
+
+  /* SUPPORT */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; cursor: pointer; font-size: 14px; font-weight: 500; background: none; border: none; width: 100%; color: var(--text); text-align: left; }
+  .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; padding-bottom: 16px; display: none; }
+  .faq-a.open { display: block; animation: fadeUp .2s ease both; }
+  .contact-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-top: 20px; color: var(--teal); font-size: 14px; }
+
+  /* API KEY notice */
+  .api-notice { background: #2a1a0e; border: 1px solid #7c4a00; border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #fbbf24; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; }
+  .api-notice-icon { font-size: 16px; flex-shrink: 0; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- ===== CONFIGURAÇÃO DA API KEY ===== -->
+<script>
+  // 🔑 COLE SUA API KEY DA GROQ AQUI:
+  const API_KEY = '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';
+  // Obtenha GRATUITAMENTE em: https://console.groq.com → API Keys
+</script>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">🌿 VitaIA</div>
+    <p class="login-sub">Sua IA de qualidade de vida</p>
+    <div class="field"><label>Nome</label><input type="text" id="login-name" placeholder="Como você se chama?" /></div>
+    <div class="field"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" /></div>
+    <div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••" /></div>
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <p class="login-footer">Não tem conta? <a onclick="doLogin()">Criar grátis</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="screen-app" class="screen">
+  <div class="app-wrapper">
+    <div class="page-content">
+
+      <!-- HOME -->
+      <div id="page-home" class="page">
+        <div class="page-header">
+          <div>
+            <div style="color:var(--muted);font-size:13px" id="greeting">Bom dia,</div>
+            <div class="page-title" id="username-display">Usuário</div>
+          </div>
+          <div class="avatar" id="avatar-btn">U</div>
+        </div>
+
+        <div class="mood-card" id="mood-selector">
+          <div class="card-title">Como você se sente agora?</div>
+          <div class="mood-row">
+            <button class="mood-btn" data-mood="1" onclick="selectMood(this)"><span class="mood-emoji">😢</span>Mal</button>
+            <button class="mood-btn" data-mood="2" onclick="selectMood(this)"><span class="mood-emoji">😟</span>Instável</button>
+            <button class="mood-btn" data-mood="3" onclick="selectMood(this)"><span class="mood-emoji">😐</span>Neutro</button>
+            <button class="mood-btn" data-mood="4" onclick="selectMood(this)"><span class="mood-emoji">🙂</span>Bem</button>
+            <button class="mood-btn" data-mood="5" onclick="selectMood(this)"><span class="mood-emoji">😄</span>Ótimo</button>
+          </div>
+        </div>
+
+        <div class="mood-registered" id="mood-registered" style="display:none">
+          <div class="mood-reg-left">
+            <div class="mood-reg-check">✓</div>
+            <div>
+              <div class="mood-reg-title">Mood registrado!</div>
+              <div class="mood-reg-sub" id="mood-reg-sub">Fico feliz em saber como você está.</div>
+            </div>
+          </div>
+          <button class="mood-reg-reset" onclick="resetMoodCard()" title="Registrar novamente">↺</button>
+        </div>
+
+        <button class="btn-emergency" onclick="openAjuda()">
+          ⚡ PRECISO DE AJUDA AGORA
+        </button>
+
+        <div class="card">
+          <div class="hydra-header">
+            <span>Hidratação</span>
+            <button class="hydra-reset" onclick="resetHydra()">ZERAR DIA</button>
+          </div>
+          <div class="hydra-count" id="hydra-count">0</div>
+          <div class="hydra-label">Consumo real de hoje</div>
+          <div class="hydra-q">Quantos litros de água você bebeu agora?</div>
+          <div class="hydra-btns">
+            <button class="hydra-btn" onclick="addHydra(1)">+1L</button>
+            <button class="hydra-btn" onclick="addHydra(2)">+2L</button>
+            <button class="hydra-btn" onclick="addHydra(3)">+3L</button>
+          </div>
+        </div>
+
+        <div class="insight-card" id="insight-card">
+          <div class="insight-title">✦ Registre seu humor para ver insights!</div>
+          <div class="insight-body" id="insight-body">Clique em como você está se sentindo acima e receba orientações personalizadas da IA.</div>
+          <div class="progress-bar-wrap" id="insight-progress" style="display:none">
+            <div class="progress-meta"><span>Seu progresso</span><span id="progress-goal">META: 2L</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANOS -->
+      <div id="page-plans" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">Seu Plano IA</div><div class="page-subtitle">Personalizado para seu estado atual.</div></div></div>
+        <div class="plans-hero">
+          <div class="brain-icon">🧠</div>
+          <h2>Pronto para seu guia?</h2>
+          <p>Nossa IA analisará seu perfil real para criar um roteiro de qualidade de vida exclusivo para você hoje.</p>
+          <div class="plans-btns">
+            <button class="btn-teal" onclick="generatePlan()">GERAR PLANO PERSONALIZADO</button>
+            <button class="btn-outline" onclick="generatePlan()">REFAZER PLANO</button>
+          </div>
+        </div>
+        <div id="plan-loading" style="display:none"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        <div id="plan-result" class="plan-result"></div>
+      </div>
+
+      <!-- PROGRESSO -->
+      <div id="page-progress" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">Evolução</div><div class="page-subtitle">Acompanhando seu histórico real.</div></div></div>
+        <div class="no-data" id="chart-placeholder"><div class="no-data-icon">📈</div>Ainda não há dados suficientes.<br>Registre seu humor na Home!</div>
+        <div class="card">
+          <div class="card-title">Status de Metas</div>
+          <div class="goal-row">
+            <div class="goal-row-header"><span>Hidratação Diária</span><strong id="prog-hydra-val">0L de 2L</strong><span id="prog-hydra-pct">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-hydra-bar" style="width:0%"></div></div>
+          </div>
+          <div class="goal-row" style="margin-top:14px">
+            <div class="goal-row-header"><span>Consistência de Logs</span><strong id="prog-log-val">0 registros totais</strong><span id="prog-log-pct">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-log-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">Média de Humor</div><div class="stat-value" id="avg-mood">0</div></div>
+          <div class="stat-box"><div class="stat-label">Água Hoje</div><div class="stat-value teal" id="water-today">0L</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumo Geral</div>
+          <div class="stat-grid" style="margin:0">
+            <div class="stat-box"><div class="stat-label">IA Consultas</div><div class="stat-value" id="ai-count">0</div></div>
+            <div class="stat-box"><div class="stat-label">Check-ins</div><div class="stat-value" id="checkin-count">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LABS -->
+      <div id="page-labs" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">Laboratório IA</div><div class="page-subtitle">Ferramentas avançadas para sua saúde.</div></div></div>
+
+        <!-- Lista de ferramentas -->
+        <div id="lab-list-view" class="lab-list">
+          <div class="lab-item" onclick="openLabScreen('visao')">
+            <div class="lab-left"><div class="lab-icon">👁️</div><div><div class="lab-name">Visão Pro</div><div class="lab-desc">Analise fotos de alimentos ou treinos</div></div></div>
+            <div class="lab-arrow">›</div>
+          </div>
+          <div class="lab-item" onclick="openLabScreen('explorador')">
+            <div class="lab-left"><div class="lab-icon">📍</div><div><div class="lab-name">Explorador</div><div class="lab-desc">Encontre locais saudáveis próximos</div></div></div>
+            <div class="lab-arrow">›</div>
+          </div>
+          <div class="lab-item" onclick="openLabScreen('deepthink')">
+            <div class="lab-left"><div class="lab-icon">💡</div><div><div class="lab-name">Deep Think</div><div class="lab-desc">Consultas complexas com foco em razão</div></div></div>
+            <div class="lab-arrow">›</div>
+          </div>
+          <div class="lab-item" onclick="openLabScreen('voz')">
+            <div class="lab-left"><div class="lab-icon">🔊</div><div><div class="lab-name">Voz Vital</div><div class="lab-desc">Ouça as orientações da IA</div></div></div>
+            <div class="lab-arrow">›</div>
+          </div>
+        </div>
+
+        <!-- Tela interna: Visão Pro -->
+        <div id="lab-screen-visao" class="lab-screen">
+          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
+          <div class="lab-inner-card">
+            <div class="lab-inner-title">👁️ Visão Pro</div>
+            <div class="img-upload-area" id="visao-upload-area">
+              <input type="file" accept="image/*" id="visao-file-input" onchange="handleImageUpload(event)">
+              <div class="img-upload-icon">📷</div>
+              <div class="img-upload-label">TIRAR FOTO OU CARREGAR</div>
+            </div>
+            <img id="visao-preview" class="img-preview" alt="Preview">
+            <div class="lab-textarea-wrap">
+              <textarea class="lab-textarea" id="visao-input" placeholder="O que você deseja saber?" rows="3"></textarea>
+              <button class="mic-btn" id="visao-mic" onclick="toggleMic('visao-input', 'visao-mic')" title="Falar">🎤</button>
+            </div>
+            <button class="btn-execute" id="visao-btn" onclick="executeLab('visao')">EXECUTAR IA</button>
+            <div class="lab-response-area" id="visao-response">
+              <div class="lab-response-inner">
+                <div class="lab-response-title">🤖 Análise</div>
+                <div class="lab-response-text" id="visao-response-text"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela interna: Explorador -->
+        <div id="lab-screen-explorador" class="lab-screen">
+          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
+          <div class="lab-inner-card">
+            <div class="lab-inner-title">📍 Explorador</div>
+            <div class="lab-textarea-wrap">
+              <textarea class="lab-textarea" id="explorador-input" placeholder="O que você deseja saber?" rows="3"></textarea>
+              <button class="mic-btn" id="explorador-mic" onclick="toggleMic('explorador-input', 'explorador-mic')" title="Falar">🎤</button>
+            </div>
+            <button class="btn-execute" id="explorador-btn" onclick="executeLab('explorador')">EXECUTAR IA</button>
+            <div class="lab-response-area" id="explorador-response">
+              <div class="lab-response-inner">
+                <div class="lab-response-title">🤖 Resposta</div>
+                <div class="lab-response-text" id="explorador-response-text"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela interna: Deep Think -->
+        <div id="lab-screen-deepthink" class="lab-screen">
+          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
+          <div class="lab-inner-card">
+            <div class="lab-inner-title">💡 Deep Think</div>
+            <div class="lab-textarea-wrap">
+              <textarea class="lab-textarea" id="deepthink-input" placeholder="O que você deseja saber?" rows="3"></textarea>
+              <button class="mic-btn" id="deepthink-mic" onclick="toggleMic('deepthink-input', 'deepthink-mic')" title="Falar">🎤</button>
+            </div>
+            <button class="btn-execute" id="deepthink-btn" onclick="executeLab('deepthink')">EXECUTAR IA</button>
+            <div class="lab-response-area" id="deepthink-response">
+              <div class="lab-response-inner">
+                <div class="lab-response-title">🤖 Análise Profunda</div>
+                <div class="lab-response-text" id="deepthink-response-text"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela interna: Voz Vital -->
+        <div id="lab-screen-voz" class="lab-screen">
+          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
+          <div class="lab-inner-card">
+            <div class="lab-inner-title">🔊 Voz Vital</div>
+            <div class="lab-textarea-wrap">
+              <textarea class="lab-textarea" id="voz-input" placeholder="O que você deseja saber?" rows="3"></textarea>
+              <button class="mic-btn" id="voz-mic" onclick="toggleMic('voz-input', 'voz-mic')" title="Falar">🎤</button>
+            </div>
+            <button class="btn-execute" id="voz-btn" onclick="executeLab('voz')">EXECUTAR IA</button>
+            <div class="lab-response-area" id="voz-response">
+              <div class="lab-response-inner">
+                <div class="lab-response-title">🔊 Orientação</div>
+                <div class="lab-response-text" id="voz-response-text"></div>
+              </div>
+            </div>
+            <div class="voz-player" id="voz-player">
+              <button class="voz-play-btn" id="voz-play-btn" onclick="toggleVozPlayback()">▶</button>
+              <div class="voz-wave" id="voz-wave"></div>
+              <div class="voz-label">Reproduzindo em pt-BR</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUPORTE -->
+      <div id="page-support" class="page" style="display:none">
+        <div class="page-header"><div><div class="page-title">Suporte</div><div class="page-subtitle">Estamos aqui para ajudar você.</div></div></div>
+        <div class="card" style="padding:0 20px">
+          <div class="card-title" style="padding-top:16px">Perguntas Frequentes</div>
+          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como a IA gera os planos? <span>›</span></button><div class="faq-a">Nossa IA analisa seu humor registrado, nível de hidratação e histórico de check-ins para gerar um plano personalizado. O plano é recriado sempre que você clicar em "Gerar Plano".</div></div>
+          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Meus dados estão seguros? <span>›</span></button><div class="faq-a">Seus dados ficam armazenados localmente no seu navegador. Não enviamos informações pessoais sem seu consentimento.</div></div>
+          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Posso usar offline? <span>›</span></button><div class="faq-a">Funcionalidades básicas funcionam offline. IA (planos, Ajuda Imediata) requerem conexão.</div></div>
+          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como resetar meu perfil? <span>›</span></button><div class="faq-a">Recarregue a página. Isso limpará todos os dados da sessão.</div></div>
+        </div>
+        <div style="padding:0 4px">
+          <div style="font-size:12px;color:var(--muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.7px">Contato</div>
+          <div class="contact-card">📧 frontwork08@gmail.com</div>
+          <div style="margin-top:16px;display:flex;gap:16px">
+            <a href="#" style="color:var(--muted);font-size:13px">Política de Privacidade</a>
+            <a href="#" style="color:var(--muted);font-size:13px">Termos de Uso</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+
+    <nav class="bottom-nav">
+      <div class="nav-item active" onclick="goTo('home',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início
+      </div>
+      <div class="nav-item" onclick="goTo('progress',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progresso
+      </div>
+      <div class="nav-item" onclick="goTo('plans',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Planos
+      </div>
+      <div class="nav-item" onclick="goTo('labs',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Labs
+      </div>
+      <div class="nav-item" onclick="goTo('support',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Suporte
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- MODAL: AJUDA IMEDIATA -->
+<div class="modal-overlay" id="modal-ajuda">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-ajuda')">×</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Ajuda Imediata</div>
+    <div class="modal-sub" id="ajuda-sub">Como posso guiar você hoje?</div>
+    <div class="chat-area" id="ajuda-chat"></div>
+    <div class="chat-input-row">
+      <textarea id="ajuda-input" placeholder="Escreva aqui..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAjuda()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button class="chat-send-btn" id="ajuda-btn" onclick="sendAjuda()">OBTER ORIENTAÇÃO IA</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO DA API KEY
+   Cole sua chave abaixo — obtenha em console.anthropic.com
+   ============================================================ */
+// A constante API_KEY já está declarada no bloco <script> no topo do <body>
+
+const moodLabels = ['','Mal','Instável','Neutro','Bem','Ótimo'];
+const moodSubs   = ['','Vai ficar tudo bem, estou aqui.','Estou aqui com você.','Seguindo em frente!','Que ótimo estar bem!','Você é incrível hoje!'];
+const moodCtx    = ['','Percebi que você está se sentindo mal. Como posso te ajudar agora?','Percebi que seu humor está instável. Como posso ajudar?','Oi! Tudo neutro por aí. Tem algo que posso fazer por você?','Que bom que você está bem! Posso potencializar isso?','Incrível que você está ótimo! Como posso tornar seu dia ainda melhor?'];
+
+const state = { name:'', hydra:0, moodLog:[], planCount:0, checkins:0, chatHistory:[], visaoImageData:null, vozText:'', vozUtterance:null };
+
+/* ---- API CALL - Groq ---- */
+
+
+
+
+function checkKey() {
+  if (!API_KEY || API_KEY === 'SUA_API_KEY_AQUI') {
+    throw new Error('API Key não configurada. Edite o arquivo e substitua SUA_API_KEY_AQUI pela sua chave da Groq.');
+  }
+}
+
+async function callAI(prompt, imageData) {
+  checkKey();
+  const messages = [];
+  if (imageData) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + imageData } },
+        { type: 'text', text: prompt }
+      ]
+    });
+  } else {
+    messages.push({ role: 'user', content: prompt });
+  }
+
+  let res, data;
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 1024, messages })
+    });
+    data = await res.json();
+  } catch(e) {
+    throw new Error('Falha de conexão com a API. Verifique sua internet. Detalhe: ' + e.message);
+  }
+  if (data.error) throw new Error('Groq: ' + (data.error.message || JSON.stringify(data.error)));
+  return data.choices?.[0]?.message?.content || '';
+}
+
+async function callAIChat(sysPrompt, history) {
+  checkKey();
+  const messages = [{ role: 'system', content: sysPrompt }, ...history];
+
+  let res, data;
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 1024, messages })
+    });
+    data = await res.json();
+  } catch(e) {
+    throw new Error('Falha de conexão com a API. Verifique sua internet. Detalhe: ' + e.message);
+  }
+  if (data.error) throw new Error('Groq: ' + (data.error.message || JSON.stringify(data.error)));
+  return data.choices?.[0]?.message?.content || '';
+}
+
+/* ---- LOGIN ---- */
+function doLogin() {
+  const name = document.getElementById('login-name').value.trim() || 'Usuário';
+  state.name = name;
+  document.getElementById('username-display').textContent = name;
+  document.getElementById('avatar-btn').textContent = name[0].toUpperCase();
+  const h = new Date().getHours();
+  document.getElementById('greeting').textContent = h<12?'Bom dia,':h<18?'Boa tarde,':'Boa noite,';
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+}
+
+/* ---- NAV ---- */
+function goTo(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.style.display='none');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).style.display='block';
+  el.classList.add('active');
+  if (page === 'labs') closeLabScreen();
+}
+
+/* ---- MOOD ---- */
+function selectMood(btn) {
+  const mood = parseInt(btn.dataset.mood);
+  state.moodLog.push({ mood, time: Date.now() });
+  state.checkins++;
+  syncMoodUI();
+  document.getElementById('mood-selector').style.display = 'none';
+  document.getElementById('mood-registered').style.display = 'flex';
+  document.getElementById('mood-reg-sub').textContent = moodSubs[mood];
+  openAjuda(mood);
+  generateInsight(mood);
+}
+
+function resetMoodCard() {
+  document.getElementById('mood-selector').style.display = 'block';
+  document.getElementById('mood-registered').style.display = 'none';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+}
+
+function syncMoodUI() {
+  const avg = state.moodLog.length ? (state.moodLog.reduce((a,b)=>a+b.mood,0)/state.moodLog.length).toFixed(1) : 0;
+  document.getElementById('avg-mood').textContent = avg;
+  document.getElementById('checkin-count').textContent = state.checkins;
+  document.getElementById('ai-count').textContent = state.planCount;
+  const logPct = Math.min(state.checkins*10,100);
+  document.getElementById('prog-log-val').textContent = state.checkins+' registros totais';
+  document.getElementById('prog-log-pct').textContent = logPct+'%';
+  document.getElementById('prog-log-bar').style.width = logPct+'%';
+  if (state.checkins>0) document.getElementById('chart-placeholder').style.display='none';
+}
+
+/* ---- INSIGHT ---- */
+async function generateInsight(mood) {
+  const el=document.getElementById('insight-body'), card=document.getElementById('insight-card'), title=card.querySelector('.insight-title');
+  title.textContent='🤖 Gerando insight...'; el.textContent='';
+  document.getElementById('insight-progress').style.display='block';
+  document.getElementById('progress-fill').style.width=Math.min((state.hydra/2)*100,100)+'%';
+  document.getElementById('progress-goal').textContent='META: 2L';
+  try {
+    const text = await callAI(`Você é um assistente de qualidade de vida. O usuário "${state.name}" registrou humor: ${moodLabels[mood]} (${mood}/5). Hidratação hoje: ${state.hydra}L. Dê um insight motivacional e uma recomendação prática em 2-3 frases curtas. Seja positivo e personalizado.`);
+    title.textContent = ['','💙 Vai ficar tudo bem','🌤️ Você está melhorando','⚡ Seguindo em frente','✨ Incrível, você está bem!','🌟 Incrível, você é um exemplo!'][mood];
+    el.textContent = text;
+    state.planCount++; syncMoodUI();
+  } catch(e) {
+    title.textContent='✨ Insight';
+    el.textContent= e.message.includes('API Key') ? '⚠️ ' + e.message : 'Continue registrando seu humor diariamente para receber orientações personalizadas!';
+  }
+}
+
+/* ---- HYDRA ---- */
+function addHydra(l) { state.hydra+=l; syncHydraUI(); }
+function resetHydra() { state.hydra=0; syncHydraUI(); }
+function syncHydraUI() {
+  const h=state.hydra, pct=Math.min((h/2)*100,100);
+  document.getElementById('hydra-count').textContent=h;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('water-today').textContent=h+'L';
+  document.getElementById('prog-hydra-val').textContent=h+'L de 2L';
+  document.getElementById('prog-hydra-pct').textContent=Math.round(pct)+'%';
+  document.getElementById('prog-hydra-bar').style.width=pct+'%';
+}
+
+/* ---- AJUDA IMEDIATA ---- */
+function openAjuda(mood) {
+  state.chatHistory = [];
+  const chatEl = document.getElementById('ajuda-chat');
+  chatEl.innerHTML = '';
+  document.getElementById('ajuda-input').value = '';
+  document.getElementById('ajuda-input').style.height = 'auto';
+  document.getElementById('ajuda-btn').textContent = 'OBTER ORIENTAÇÃO IA';
+  document.getElementById('ajuda-btn').disabled = false;
+  const intro = (mood !== undefined && moodCtx[mood]) ? moodCtx[mood] : 'Olá! Como posso te ajudar hoje?';
+  appendBubble('ai', intro);
+  state.chatHistory.push({ role:'assistant', content:intro });
+  document.getElementById('modal-ajuda').classList.add('active');
+  setTimeout(() => document.getElementById('ajuda-input').focus(), 300);
+}
+
+function appendBubble(who, text) {
+  const chat = document.getElementById('ajuda-chat');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ' + who;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+async function sendAjuda() {
+  const input = document.getElementById('ajuda-input');
+  const text = input.value.trim();
+  if (!text) return;
+  appendBubble('user', text);
+  input.value = ''; input.style.height = 'auto';
+  state.chatHistory.push({ role:'user', content:text });
+  const btn = document.getElementById('ajuda-btn');
+  btn.disabled = true; btn.textContent = 'Pensando...';
+  const typing = appendBubble('ai typing', '...');
+  const sysPrompt = `Você é VitaIA, assistente empático de qualidade de vida. Usuário: "${state.name}". Humor atual: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não informado'}. Hidratação: ${state.hydra}L. Responda de forma calorosa, prática e concisa (máximo 4 frases). Se perceber crise emocional severa, indique gentilmente o CVV (188).`;
+  try {
+    const reply = await callAIChat(sysPrompt, state.chatHistory);
+    typing.classList.remove('typing');
+    typing.textContent = reply;
+    state.chatHistory.push({ role:'assistant', content:reply });
+    state.planCount++; syncMoodUI();
+    btn.textContent = 'OUTRA PERGUNTA';
+  } catch(e) {
+    typing.classList.remove('typing');
+    typing.textContent = e.message.includes('API Key') ? '⚠️ ' + e.message : 'Respire fundo. Você não está sozinho. Tente novamente em instantes.';
+    btn.textContent = 'TENTAR NOVAMENTE';
+  } finally {
+    btn.disabled = false;
+    document.getElementById('ajuda-chat').scrollTop = 9999;
+  }
+}
+
+/* ---- PLANOS ---- */
+async function generatePlan() {
+  document.querySelector('.plans-hero').style.display='none';
+  document.getElementById('plan-loading').style.display='block';
+  document.getElementById('plan-result').classList.remove('visible');
+  const lastMood = state.moodLog.length?state.moodLog[state.moodLog.length-1].mood:3;
+  try {
+    const text = await callAI(`Crie um plano de qualidade de vida para "${state.name}". Humor: ${moodLabels[lastMood]} (${lastMood}/5). Hidratação: ${state.hydra}L. Responda APENAS em JSON sem markdown: {"saudacao":"...","manha":["..."],"almoco":["..."],"tarde":["..."],"noite":["..."]}`);
+    const plan = JSON.parse(text.replace(/```json|```/g,'').trim());
+    document.getElementById('plan-loading').style.display='none';
+    const result = document.getElementById('plan-result');
+    result.innerHTML = `<div class="insight-card" style="margin-bottom:16px"><div class="insight-title">✦ Seu plano para hoje</div><div class="insight-body">${plan.saudacao||''}</div></div>${rPS('🌅 Manhã',plan.manha)}${rPS('🥗 Alimentação',plan.almoco)}${rPS('☀️ Tarde',plan.tarde)}${rPS('🌙 Noite',plan.noite)}<button class="btn-outline" style="width:100%;margin-top:8px" onclick="resetPlan()">Refazer Plano</button>`;
+    result.classList.add('visible');
+    state.planCount++; syncMoodUI();
+  } catch(e) {
+    document.getElementById('plan-loading').style.display='none';
+    document.getElementById('plan-result').innerHTML=`<div class="plan-item">${e.message.includes('API Key')?'⚠️ '+e.message:'Não foi possível gerar o plano agora. Tente novamente.'}</div>`;
+    document.getElementById('plan-result').classList.add('visible');
+  }
+}
+function rPS(t,items) { return items?.length?`<div class="plan-section"><h3>${t}</h3>${items.map(i=>`<div class="plan-item">${i}</div>`).join('')}</div>`:''; }
+function resetPlan() { document.querySelector('.plans-hero').style.display='flex'; document.getElementById('plan-result').classList.remove('visible'); document.getElementById('plan-result').innerHTML=''; }
+
+/* ---- LABS - Navegação ---- */
+function openLabScreen(name) {
+  document.getElementById('lab-list-view').style.display = 'none';
+  document.querySelectorAll('.lab-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('lab-screen-' + name).classList.add('active');
+}
+function closeLabScreen() {
+  document.querySelectorAll('.lab-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('lab-list-view').style.display = 'flex';
+}
+
+/* ---- VISÃO PRO - Upload de imagem ---- */
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    // Mostrar preview
+    const preview = document.getElementById('visao-preview');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    document.getElementById('visao-upload-area').style.display = 'none';
+    // Salvar base64 (sem o prefixo "data:image/jpeg;base64,")
+    state.visaoImageData = dataUrl.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ---- LABS - Executar IA ---- */
+const labPrompts = {
+  visao: (input) => `Você é nutricionista e personal trainer especializado. Analise a imagem enviada e a pergunta: "${input}". Dê uma análise detalhada com 3-5 pontos práticos. Se não houver imagem, analise apenas o texto.`,
+  explorador: (input) => `Você é um guia de bem-estar e saúde. O usuário busca: "${input}". Dê dicas práticas e específicas sobre como encontrar e aproveitar locais saudáveis, com sugestões de busca e o que procurar em cada tipo de local.`,
+  deepthink: (input) => `Você é um consultor de saúde com raciocínio aprofundado e embasamento científico. Analise com profundidade: "${input}". Estruture sua resposta com contexto, análise e recomendações práticas baseadas em evidências.`,
+  voz: (input) => `Você é um guia de bem-estar. Crie uma orientação calorosa, motivacional e prática sobre: "${input}". Escreva como se estivesse falando diretamente com a pessoa, em tom de voz calmo e encorajador. Máximo 5 frases.`
+};
+
+async function executeLab(labName) {
+  const inputEl = document.getElementById(labName + '-input');
+  const btnEl = document.getElementById(labName + '-btn');
+  const responseEl = document.getElementById(labName + '-response');
+  const responseTextEl = document.getElementById(labName + '-response-text');
+
+  const input = inputEl.value.trim();
+  if (!input) { inputEl.focus(); return; }
+
+  btnEl.disabled = true;
+  btnEl.textContent = 'Consultando IA...';
+  responseEl.classList.remove('visible');
+
+  const imageData = labName === 'visao' ? state.visaoImageData : null;
+
+  try {
+    const text = await callAI(labPrompts[labName](input), imageData);
+    responseTextEl.textContent = text;
+    responseEl.classList.add('visible');
+
+    // Voz Vital: sintetizar voz
+    if (labName === 'voz') {
+      state.vozText = text;
+      setupVozPlayer(text);
+    }
+
+    state.planCount++; syncMoodUI();
+  } catch(e) {
+    responseTextEl.textContent = e.message.includes('API Key') ? '⚠️ ' + e.message : '❌ Erro ao consultar a IA. Verifique sua conexão e tente novamente.';
+    responseEl.classList.add('visible');
+  } finally {
+    btnEl.disabled = false;
+    btnEl.textContent = 'EXECUTAR IA';
+  }
+}
+
+/* ---- VOZ VITAL - Player ---- */
+function setupVozPlayer(text) {
+  if (!window.speechSynthesis) return;
+  const player = document.getElementById('voz-player');
+  player.classList.add('visible');
+  // Gerar ondas decorativas
+  const wave = document.getElementById('voz-wave');
+  wave.innerHTML = '';
+  for (let i=0; i<28; i++) {
+    const span = document.createElement('span');
+    const h = 4 + Math.random()*24;
+    span.style.height = h + 'px';
+    span.style.animationDelay = (i*0.06)+'s';
+    wave.appendChild(span);
+  }
+  // Iniciar leitura automática
+  speakVoz(text);
+}
+
+function speakVoz(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'pt-BR'; utt.rate = 0.9; utt.pitch = 1;
+  state.vozUtterance = utt;
+  utt.onstart = () => document.getElementById('voz-play-btn').textContent = '⏸';
+  utt.onend = () => document.getElementById('voz-play-btn').textContent = '▶';
+  speechSynthesis.speak(utt);
+}
+
+function toggleVozPlayback() {
+  if (!window.speechSynthesis) return;
+  if (speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause();
+    document.getElementById('voz-play-btn').textContent = '▶';
+  } else if (speechSynthesis.paused) {
+    speechSynthesis.resume();
+    document.getElementById('voz-play-btn').textContent = '⏸';
+  } else if (state.vozText) {
+    speakVoz(state.vozText);
+  }
+}
+
+/* ---- MICROFONE (reconhecimento de voz) ---- */
+let recognition = null;
+function toggleMic(inputId, micBtnId) {
+  const micBtn = document.getElementById(micBtnId);
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Reconhecimento de voz não suportado neste navegador. Use Chrome.');
+    return;
+  }
+  if (recognition && recognition._active) {
+    recognition.stop();
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition._active = true;
+  micBtn.classList.add('recording');
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    const inputEl = document.getElementById(inputId);
+    inputEl.value = (inputEl.value ? inputEl.value + ' ' : '') + transcript;
+  };
+  recognition.onend = () => {
+    recognition._active = false;
+    micBtn.classList.remove('recording');
+  };
+  recognition.onerror = () => {
+    recognition._active = false;
+    micBtn.classList.remove('recording');
+  };
+  recognition.start();
+}
+
+/* ---- FAQ ---- */
+function toggleFaq(btn) {
+  const ans=btn.nextElementSibling, isOpen=ans.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
+  if (!isOpen) ans.classList.add('open');
+}
+
+/* ---- MODALS ---- */
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target===el) el.classList.remove('active'); });
+});
+</script>
+</body>
+</html>
