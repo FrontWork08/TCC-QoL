@@ -1,1798 +1,798 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VitaIA – IA de Qualidade de Vida</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #f0f7ff; --surface: #ffffff; --surface2: #e8f4ff; --border: #c8e0ff;
-    --teal: #00b87a; --red: #ff4757; --text: #1a2a4a; --muted: #6b82a8; --card-bg: #ffffff;
-    --protein: #ff5e7a; --carb: #f97316; --fat: #f59e0b;
-    --cyan: #0ea5e9; --cyan-dark: #0284c7;
-    --green: #00b87a; --purple: #8b5cf6; --pink: #ec4899;
-    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f64f59 100%);
-    --gradient-card: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-  
-  /* Scrollbar estilizada */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--surface2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>VitaIA - vai dar certo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .screen { display: none; flex-direction: column; min-height: 100vh; }
-  .screen.active { display: flex; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-  /* LOGIN */
-  #screen-login { align-items: center; justify-content: center; background: var(--gradient-hero); min-height: 100vh; padding: 20px; }
-  .login-card { background: #ffffff; border: none; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 32px 80px rgba(0,0,0,.25); animation: fadeUp .5s ease both; }
-  .login-logo { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--teal); text-align: center; margin-bottom: 6px; }
-  .login-sub { color: var(--muted); font-size: 13px; text-align: center; margin-bottom: 32px; }
-  .field { margin-bottom: 16px; }
-  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .8px; font-weight: 600; }
-  .field input { width: 100%; padding: 13px 16px; background: #f7fbff; border: 1.5px solid #c8e0ff; border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: border-color .2s, box-shadow .2s; }
-  .field input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(14,165,233,.15); }
-  .btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, #00b87a, #0ea5e9); color: #fff; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity .2s, transform .1s; margin-top: 8px; box-shadow: 0 6px 20px rgba(0,184,122,.35); }
-  .btn-primary:hover { opacity: .9; box-shadow: 0 8px 28px rgba(0,184,122,.45); }
-  .btn-primary:active { transform: scale(.98); }
-  .login-footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px; }
-  .login-footer a { color: var(--cyan); cursor: pointer; font-weight: 600; text-decoration: underline; }
-  
-  /* Abas Login/Cadastro */
-  .auth-tabs { display: flex; background: #f0f7ff; border-radius: 12px; padding: 4px; margin-bottom: 28px; gap: 4px; }
-  .auth-tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; color: var(--muted); cursor: pointer; transition: .2s; }
-  .auth-tab.active { background: #fff; color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.1); }
-  
-  /* Erro */
-  .field-error { font-size: 11px; color: #ef4444; margin-top: 4px; display: none; }
-  .field.has-error input { border-color: #ef4444; }
-  .field.has-error .field-error { display: block; }
-  
-  /* Usuários salvos */
-  .saved-users { margin-bottom: 16px; }
-  .saved-users-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; font-weight: 600; }
-  .saved-user-chip { display: inline-flex; align-items: center; gap: 6px; background: #e8f4ff; border: 1px solid #c8e0ff; border-radius: 99px; padding: 5px 12px; font-size: 12px; color: var(--cyan-dark); cursor: pointer; margin: 0 4px 4px 0; transition: .15s; font-weight: 500; }
-  .saved-user-chip:hover { background: var(--cyan); color: #fff; }
-  .divider-or { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: var(--muted); font-size: 12px; }
-  .divider-or::before, .divider-or::after { content:''; flex:1; height:1px; background: #e2edf7; }
-  
-  /* Mensagem de boas-vindas no topo do login */
-  .login-welcome-banner { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 16px; padding: 14px 20px; text-align: center; color: #fff; font-size: 13px; line-height: 1.6; max-width: 420px; width: 100%; margin-bottom: 20px; animation: fadeUp .4s ease both; backdrop-filter: blur(8px); }
-  .login-welcome-banner strong { font-family: 'Syne', sans-serif; font-size: 15px; display: block; margin-bottom: 4px; }
+        /* ===== telas ===== */
+        .tela {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-  /* APP */
-  #screen-app { flex-direction: row; min-height: 100vh; }
-  .app-wrapper { display: flex; flex-direction: column; flex: 1; max-width: 640px; margin: 0 auto; position: relative; }
-  .page-content { flex: 1; padding: 28px 20px 90px; overflow-y: auto; }
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 640px; background: #fff; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; padding: 10px 0 14px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,.08); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 12px; border-radius: 10px; transition: color .2s; color: var(--muted); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
-  .nav-item svg { width: 20px; height: 20px; }
-  .nav-item.active { color: var(--cyan); }
+        /* ===== login ===== */
+        .cardLogin {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            border-radius: 28px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
 
-  /* HEADER */
-  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--text); }
-  .page-subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
-  .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(102,126,234,.4); transition: transform .15s; }
-  .avatar:hover { transform: scale(1.08); }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: #f0f0f0;
+            padding: 4px;
+            border-radius: 60px;
+            margin-bottom: 24px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        .tab.ativo { background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-  /* CARDS */
-  .mood-card, .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-  .card-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
+        .campo { margin-bottom: 16px; }
+        .campo label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .campo input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: max(16px, 14px);
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .campo input:focus { outline: none; border-color: #667eea; }
 
-  /* ══════════════════════════════════
-     TABELA DE NUTRIÇÃO
-  ══════════════════════════════════ */
-  .nutrition-card {
-    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-    border: 1.5px solid #a7f3d0;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 16px rgba(0,184,122,.1);
-  }
-  .nutrition-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text);
-  }
-  .nutrition-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .nutr-box {
-    border-radius: 12px;
-    padding: 14px 10px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .nutr-box-protein { background: rgba(255,94,122,0.1); border: 1.5px solid var(--protein); }
-  .nutr-box-carb    { background: rgba(249,115,22,0.1); border: 1.5px solid var(--carb); }
-  .nutr-box-fat     { background: rgba(245,158,11,0.1); border: 1.5px solid var(--fat); }
-  .nutr-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 6px; }
-  .nutr-label-protein { color: var(--protein); }
-  .nutr-label-carb    { color: var(--carb); }
-  .nutr-label-fat     { color: var(--fat); }
-  .nutr-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; }
-  .nutr-value-protein { color: var(--protein); }
-  .nutr-value-carb    { color: var(--carb); }
-  .nutr-value-fat     { color: var(--fat); }
-  .nutr-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .nutr-bar-wrap { margin-top: 4px; height: 4px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; }
-  .nutr-bar { height: 100%; border-radius: 4px; transition: width .5s; }
-  .nutr-bar-protein { background: var(--protein); }
-  .nutr-bar-carb    { background: var(--carb); }
-  .nutr-bar-fat     { background: var(--fat); }
+        .erro { font-size: 11px; color: #e74c3c; margin-top: 4px; display: none; }
+        .erro.visivel { display: block; }
 
-  /* Tabela de alimentos */
-  .food-log-area { margin-top: 14px; }
-  .food-log-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; font-weight: 600; }
-  .food-log-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
-  .food-log-item { display: flex; align-items: center; justify-content: space-between; background: #f7fbff; border: 1px solid #ddeeff; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
-  .food-log-name { font-weight: 500; color: var(--text); }
-  .food-log-macros { display: flex; gap: 10px; font-family: 'DM Sans', monospace; font-size: 11px; color: var(--muted); }
-  .food-log-macro-p { color: var(--protein); }
-  .food-log-macro-c { color: var(--carb); }
-  .food-log-macro-f { color: var(--fat); }
-  .btn-del-food { background: none; border: none; color: #c8d8e8; cursor: pointer; font-size: 14px; transition: color .2s; padding: 0 4px; }
-  .btn-del-food:hover { color: var(--red); }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            flex-shrink: 0;
+        }
+        .btn:hover  { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .food-add-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .food-search-wrap { flex: 1; min-width: 150px; position: relative; }
-  .food-search-input { width: 100%; padding: 9px 12px; background: #f7fbff; border: 1.5px solid #c8e0ff; border-radius: 10px; color: var(--text); font-size: 13px; outline: none; transition: border-color .2s; }
-  .food-search-input:focus { border-color: var(--cyan); }
-  .food-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1.5px solid #c8e0ff; border-radius: 10px; z-index: 50; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: none; }
-  .food-sugg-item { padding: 10px 14px; font-size: 13px; cursor: pointer; transition: background .15s; color: var(--text); }
-  .food-sugg-item:hover { background: #f0f7ff; color: var(--cyan); }
-  .food-sugg-macros { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .btn-add-food { padding: 9px 16px; background: linear-gradient(135deg, #00b87a, #0ea5e9); border: none; border-radius: 10px; color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,184,122,.3); }
-  .btn-add-food:hover { opacity: .9; }
+        /* ===== app ===== */
+        .appContainer {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        #telaApp { padding: 0; align-items: stretch; }
 
-  /* ══════════════════════════════════
-     HUMOR - fundo gradiente vivo
-  ══════════════════════════════════ */
-  .mood-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    box-shadow: 0 8px 30px rgba(102,126,234,.35);
-  }
-  .mood-registered {
-    background: linear-gradient(135deg, #00b87a, #0ea5e9);
-    border: none;
-    box-shadow: 0 8px 24px rgba(0,184,122,.25);
-    border-radius: 16px;
-    padding: 16px 18px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    animation: fadeUp .3s ease both;
-  }
-  .mood-reg-left { display: flex; align-items: center; gap: 12px; }
-  .mood-reg-check { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.25); border: 1.5px solid rgba(255,255,255,.6); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-  .mood-reg-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff; }
-  .mood-reg-sub { font-size: 12px; color: rgba(255,255,255,.8); margin-top: 2px; }
-  .mood-reg-reset { background: none; border: none; color: rgba(255,255,255,.7); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
-  .mood-reg-reset:hover { color: #fff; }
-  .card-title-mood { font-size: 13px; color: rgba(255,255,255,.85); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
-  .mood-row { display: flex; justify-content: space-around; }
-  .mood-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px 10px; border-radius: 10px; background: none; border: none; color: rgba(255,255,255,.8); font-size: 11px; transition: all .2s; }
-  .mood-btn:hover, .mood-btn.selected { background: rgba(255,255,255,.2); color: white; transform: scale(1.05); }
-  .mood-emoji { font-size: 28px; }
+        .topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .saudacao  { font-size: 13px; color: #888; }
+        .nomeUsuario { font-size: 20px; font-weight: 700; color: #333; }
 
-  /* ══════════════════════════════════
-     HIDRATAÇÃO - fundo azul claro vivo
-  ══════════════════════════════════ */
-  .hydra-card {
-    background: linear-gradient(135deg, #e0f4ff, #f0f9ff);
-    border: 1.5px solid #bae6fd;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    color: #0c4a6e;
-    box-shadow: 0 4px 16px rgba(14,165,233,.12);
-  }
-  .hydra-card .hydra-header span { color: #4a6080; }
-  .hydra-card .hydra-label { color: #6b7d93; }
-  .hydra-card .hydra-q { color: #6b7d93; }
-  .hydra-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .hydra-header span { font-size: 13px; text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
-  .hydra-reset { font-size: 12px; color: #0097a7; cursor: pointer; background: none; border: none; font-weight: 600; }
-  .hydra-count { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: #0097a7; line-height: 1; }
-  .hydra-label { font-size: 12px; margin-top: 4px; margin-bottom: 16px; }
+        .avatar {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; flex-shrink: 0;
+            user-select: none; transition: transform 0.15s;
+        }
+        .avatar:hover { transform: scale(1.05); }
 
-  /* Copo animado */
-  .hydra-cup-row { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 14px; }
-  .hydra-cup-wrap { position: relative; width: 60px; flex-shrink: 0; }
-  .hydra-cup-svg { width: 60px; height: 80px; }
-  .hydra-cup-fill { transition: height .6s ease, y .6s ease; }
-  .hydra-cup-pct { font-size: 11px; color: #0097a7; text-align: center; margin-top: 4px; font-weight: 600; }
-  .hydra-info { flex: 1; }
+        .conteudo {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 90px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-  .hydra-q { font-size: 13px; margin-bottom: 10px; }
-  .hydra-btns { display: flex; gap: 10px; }
-  .hydra-btn { flex: 1; padding: 11px; background: #e3f6fb; border: 1.5px solid #b2ebf2; border-radius: 10px; color: #0097a7; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .2s; }
-  .hydra-btn:hover { background: #b2ebf2; }
+        .cardGrande {
+            background: #f9f9ff;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid #eee;
+            overflow: hidden;
+            word-break: break-word;
+        }
 
-  /* Aviso de água */
-  .water-alert { display: none; background: #e0f2fe; border: 1.5px solid #0ea5e9; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; color: #0369a1; font-size: 13px; font-weight: 500; align-items: center; gap: 10px; animation: pulse-alert 2s ease infinite; }
-  .water-alert.show { display: flex; }
-  @keyframes pulse-alert { 0%,100%{box-shadow:0 0 0 0 rgba(14,165,233,.3)} 50%{box-shadow:0 0 0 6px rgba(14,165,233,0)} }
+        /* ===== menu inferior ===== */
+        .menuBaixo {
+            position: fixed;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            max-width: 500px; width: 100%;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 8px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            border-top: 1px solid #eee;
+            z-index: 200;
+        }
+        .menuItem {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+            font-size: 11px; color: #aaa;
+            cursor: pointer; padding: 6px 10px;
+            border-radius: 20px;
+            transition: color 0.2s, background 0.2s;
+            user-select: none; white-space: nowrap;
+            min-width: 52px; text-align: center;
+        }
+        .menuItem span { display: block; line-height: 1; }
+        .menuItem.ativo { color: #667eea; background: #f0f0ff; }
 
-  /* EMERGENCY */
-  .btn-emergency { width: 100%; padding: 15px; background: linear-gradient(135deg, #ef4444, #f97316); color: #fff; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; transition: opacity .2s; box-shadow: 0 6px 20px rgba(239,68,68,.35); }
-  .btn-emergency:hover { opacity: .9; }
+        /* ===== modal ===== */
+        .modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal.visivel { display: flex; }
+        .modalConteudo {
+            background: white;
+            width: 100%; max-width: 500px;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            max-height: 88vh; max-height: 88dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: slideUp 0.28s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        @keyframes toastIn {
+            from { opacity:0; transform:translateX(-50%) translateY(10px); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
 
-  /* INSIGHT */
-  .insight-card { background: linear-gradient(135deg, #7c3aed, #8b5cf6, #a78bfa); border: none; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(124,58,237,.3); }
-  .insight-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; color: #fff; }
-  .insight-body { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.9); }
-  .progress-bar-wrap { margin-top: 14px; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.8); margin-bottom: 6px; }
-  .progress-bar { height: 6px; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #fff; border-radius: 99px; transition: width .4s; }
+        .btnFechar {
+            background: none; border: none;
+            font-size: 28px; cursor: pointer;
+            line-height: 1; color: #888; padding: 4px;
+            transition: color 0.2s;
+        }
+        .btnFechar:hover { color: #333; }
 
-  /* PLANS */
-  .plans-hero { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; text-align: center; }
-  .brain-icon { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #ec4899); display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 22px; box-shadow: 0 0 40px rgba(124,58,237,.4); }
-  .plans-hero h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
-  .plans-hero p { color: var(--muted); font-size: 14px; max-width: 280px; line-height: 1.6; margin-bottom: 28px; }
-  .plans-btns { display: flex; gap: 12px; width: 100%; }
-  .btn-outline { flex: 1; padding: 14px; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; transition: border-color .2s; }
-  .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
-  .btn-teal { flex: 1; padding: 14px; background: linear-gradient(135deg, #00b87a, #0ea5e9); border: none; border-radius: 10px; color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,184,122,.3); }
-  .btn-teal:hover { opacity: .9; }
-  .plan-result { display: none; }
-  .plan-result.visible { display: block; animation: fadeUp .4s ease both; }
-  .plan-section { margin-bottom: 20px; }
-  .plan-section h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 10px; color: var(--cyan); }
-  .plan-item { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; color: var(--text); }
-  .loading-dots { display: flex; gap: 6px; justify-content: center; padding: 30px 0; }
-  .loading-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); animation: dot .9s ease-in-out infinite; }
-  .loading-dots span:nth-child(2) { animation-delay: .15s; }
-  .loading-dots span:nth-child(3) { animation-delay: .3s; }
-  @keyframes dot { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+        /* ===== chat ===== */
+        .chatArea {
+            height: 260px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        .chatInputArea { display: flex; gap: 8px; align-items: flex-end; }
+        .chatInputArea textarea {
+            flex: 1; padding: 10px 12px;
+            border-radius: 12px; border: 1px solid #ddd;
+            resize: none; font-family: 'Inter', sans-serif;
+            font-size: 14px; line-height: 1.4;
+            min-height: 44px; max-height: 100px;
+            transition: border-color 0.2s;
+        }
+        .chatInputArea textarea:focus { outline: none; border-color: #667eea; }
+        .btnEnviar { width: auto; padding: 0 18px; height: 44px; flex-shrink: 0; }
 
-  /* ══════════════════════════════════
-     PROGRESSO
-  ══════════════════════════════════ */
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .stat-box { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; font-weight: 600; }
-  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); }
-  .stat-value.teal { color: var(--cyan); }
-  .goal-row { margin-bottom: 14px; }
-  .goal-row-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .goal-row-header strong { color: var(--text); }
-  .no-data { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
-  .no-data-icon { font-size: 36px; margin-bottom: 12px; }
+        .bolha {
+            max-width: 82%; padding: 10px 14px;
+            border-radius: 18px; font-size: 14px;
+            line-height: 1.45; word-break: break-word;
+        }
+        .bolha.user {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .bolha.ai {
+            background: #f0f0f0; color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
 
-  /* Parabéns banner */
-  .congrats-banner { display: none; background: linear-gradient(135deg, #00b87a, #0ea5e9); border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; animation: fadeUp .4s ease both; text-align: center; box-shadow: 0 8px 24px rgba(0,184,122,.3); }
-  .congrats-banner.show { display: block; }
-  .congrats-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: #fff; }
-  .congrats-sub { font-size: 13px; color: rgba(255,255,255,.9); }
-
-  /* Exercício */
-  .exercise-card { background: linear-gradient(135deg, #fdf4ff, #fce7f3); border: 1.5px solid #f0abfc; border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(236,72,153,.1); }
-  .exercise-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text); }
-  .exercise-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .exercise-btn { padding: 8px 14px; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; transition: .2s; }
-  .exercise-btn:hover { border-color: var(--pink); color: var(--pink); }
-  .exercise-btn.done { background: rgba(236,72,153,0.1); border-color: var(--pink); color: var(--pink); }
-  .exercise-log { margin-top: 12px; font-size: 12px; color: var(--muted); min-height: 20px; }
-
-  /* Progress nutrition bars */
-  .prog-nutr-row { margin-bottom: 14px; }
-  .prog-nutr-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .prog-nutr-bar { height: 6px; background: rgba(0,0,0,0.06); border-radius: 99px; overflow: hidden; }
-  .prog-nutr-fill { height: 100%; border-radius: 99px; transition: width .4s; }
-
-  /* LABS */
-  .lab-list { display: flex; flex-direction: column; gap: 12px; }
-  .lab-item { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: border-color .2s, background .2s, box-shadow .2s; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-  .lab-item:hover { border-color: var(--cyan); background: #f0f9ff; box-shadow: 0 6px 20px rgba(14,165,233,.15); }
-  .lab-left { display: flex; align-items: center; gap: 14px; }
-  .lab-icon { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #e0f2fe, #bae6fd); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .lab-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
-  .lab-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .lab-arrow { color: var(--muted); font-size: 20px; }
-  .lab-screen { display: none; animation: fadeUp .3s ease both; }
-  .lab-screen.active { display: block; }
-  .lab-back { display: flex; align-items: center; gap: 6px; color: var(--cyan); font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 20px; background: none; border: none; padding: 0; }
-  .lab-back:hover { opacity: .8; }
-  .lab-inner-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-  .lab-inner-title { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 16px; color: var(--text); }
-
-  /* ══════════════════════════════════
-     TELESAÚDE
-  ══════════════════════════════════ */
-  .tele-hero { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); border: none; border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; text-align: center; box-shadow: 0 8px 30px rgba(14,165,233,.3); }
-  .tele-hero-icon { font-size: 42px; margin-bottom: 12px; }
-  .tele-hero h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #fff; }
-  .tele-hero p { color: rgba(255,255,255,.85); font-size: 13px; line-height: 1.6; }
-  .tele-types { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .tele-type-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px 14px; text-align: center; cursor: pointer; transition: .2s; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-  .tele-type-card:hover { border-color: var(--cyan); background: #f0f9ff; box-shadow: 0 6px 20px rgba(14,165,233,.15); }
-  .tele-type-icon { font-size: 30px; margin-bottom: 10px; }
-  .tele-type-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--text); }
-  .tele-type-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .tele-prof-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-  .tele-prof-item { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: .2s; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-  .tele-prof-item:hover { border-color: var(--cyan); box-shadow: 0 4px 16px rgba(14,165,233,.15); }
-  .tele-prof-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; background: linear-gradient(135deg, #e0f4ff, #f0f9ff); flex-shrink: 0; }
-  .tele-prof-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; color: var(--text); }
-  .tele-prof-spec { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .tele-prof-rating { font-size: 12px; color: #f59e0b; margin-top: 2px; }
-  .tele-prof-actions { margin-left: auto; display: flex; gap: 6px; }
-  .btn-tele-action { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; border: none; transition: .2s; }
-  .btn-chat { background: rgba(0,184,122,.1); color: var(--teal); border: 1.5px solid var(--teal); }
-  .btn-chat:hover { background: var(--teal); color: #fff; }
-  .btn-video { background: #eff6ff; color: #3b82f6; border: 1.5px solid #93c5fd; }
-  .btn-video:hover { background: #3b82f6; color: #fff; }
-  .tele-section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 10px; margin-top: 4px; }
-  .tele-schedule-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .tele-sched-item { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-  .tele-sched-time { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--cyan); min-width: 80px; }
-  .tele-sched-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .tele-sched-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .tele-badge { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 600; letter-spacing: .5px; }
-  .badge-chat { background: rgba(0,184,122,.12); color: var(--teal); }
-  .badge-video { background: rgba(59,130,246,.12); color: #3b82f6; }
-  .tele-secure-banner { background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start; }
-  .tele-secure-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-  .tele-secure-title { font-size: 13px; font-weight: 600; color: #059669; margin-bottom: 4px; }
-  .tele-secure-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
-  .tele-ia-box { background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 6px 20px rgba(124,58,237,.25); }
-  .tele-ia-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: #fff; }
-  .tele-ia-text { font-size: 13px; color: rgba(255,255,255,.9); line-height: 1.6; }
-  .tele-rating-stars { color: #f59e0b; font-size: 20px; cursor: pointer; display: flex; gap: 4px; }
-  .tele-rating-star { transition: transform .15s; }
-  .tele-rating-star:hover { transform: scale(1.2); }
-
-  /* Upload de imagem */
-  .img-upload-area { border: 2px dashed #bae6fd; border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: 14px; position: relative; overflow: hidden; }
-  .img-upload-area:hover { border-color: var(--cyan); background: #f0f9ff; }
-  .img-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .img-upload-icon { font-size: 28px; margin-bottom: 8px; color: var(--muted); }
-  .img-upload-label { font-size: 13px; color: var(--muted); }
-  .img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; display: none; }
-  .lab-textarea-wrap { position: relative; margin-bottom: 14px; }
-  .lab-textarea { width: 100%; padding: 14px 46px 14px 16px; background: #f7fbff; border: 1.5px solid #c8e0ff; border-radius: 12px; color: var(--text); font-size: 14px; resize: none; min-height: 90px; outline: none; font-family: 'DM Sans', sans-serif; transition: border-color .2s; line-height: 1.5; }
-  .lab-textarea:focus { border-color: var(--cyan); }
-  .mic-btn { position: absolute; right: 12px; bottom: 12px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 18px; transition: color .2s; padding: 4px; border-radius: 6px; }
-  .mic-btn:hover { color: var(--cyan); }
-  .mic-btn.recording { color: var(--red); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  .btn-execute { width: 100%; padding: 14px; background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; border: none; border-radius: 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity .2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(14,165,233,.3); }
-  .btn-execute:hover { opacity: .9; }
-  .btn-execute:disabled { opacity: .55; cursor: default; }
-  .lab-response-area { margin-top: 16px; display: none; animation: fadeUp .3s ease both; }
-  .lab-response-area.visible { display: block; }
-  .lab-response-inner { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1.5px solid #bae6fd; border-radius: 14px; padding: 18px; }
-  .lab-response-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: var(--text); }
-  .lab-response-text { font-size: 13px; line-height: 1.7; color: #0c4a6e; white-space: pre-wrap; }
-  .voz-player { display: none; margin-top: 14px; background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 14px 18px; align-items: center; gap: 12px; }
-  .voz-player.visible { display: flex; }
-  .voz-play-btn { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #6366f1); border: none; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .2s; }
-  .voz-play-btn:hover { opacity: .9; }
-  .voz-wave { flex: 1; height: 32px; display: flex; align-items: center; gap: 3px; overflow: hidden; }
-  .voz-wave span { display: inline-block; width: 3px; border-radius: 2px; background: var(--cyan); opacity: .6; }
-  .voz-label { font-size: 11px; color: var(--muted); }
-
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
-  .modal-overlay.active { display: flex; }
-  .modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 640px; padding: 28px 24px 36px; animation: slideUp .3s ease both; max-height: 82vh; overflow-y: auto; position: relative; }
-  .modal-handle { width: 40px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 20px; }
-  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
-  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
-  .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
-
-  /* CHAT */
-  .chat-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
-  .chat-bubble { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.55; max-width: 92%; word-break: break-word; }
-  .chat-bubble.ai { background: #f0f9ff; border: 1.5px solid #bae6fd; align-self: flex-start; color: var(--text); border-bottom-left-radius: 4px; }
-  .chat-bubble.user { background: linear-gradient(135deg, #e0f4ff, #d1fae5); border: 1.5px solid #bae6fd; align-self: flex-end; color: var(--text); border-bottom-right-radius: 4px; }
-  .chat-bubble.typing { color: var(--muted); font-style: italic; }
-  .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
-  .chat-input-row textarea { flex: 1; padding: 12px 14px; background: #f7fbff; border: 1.5px solid #c8e0ff; border-radius: 12px; color: var(--text); font-size: 14px; resize: none; height: 46px; max-height: 120px; outline: none; font-family: 'DM Sans', sans-serif; transition: border-color .2s; overflow-y: hidden; }
-  .chat-input-row textarea:focus { border-color: var(--cyan); }
-  .chat-send-btn { padding: 12px 16px; background: linear-gradient(135deg, #00b87a, #0ea5e9); border: none; border-radius: 12px; color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; transition: opacity .2s; box-shadow: 0 4px 12px rgba(0,184,122,.3); }
-  .chat-send-btn:hover { opacity: .9; }
-  .chat-send-btn:disabled { opacity: .5; cursor: default; }
-
-  /* SUPORTE */
-  .faq-item { border-bottom: 1px solid var(--border); }
-  .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; cursor: pointer; font-size: 14px; font-weight: 500; background: none; border: none; width: 100%; color: var(--text); text-align: left; }
-  .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; padding-bottom: 16px; display: none; }
-  .faq-a.open { display: block; animation: fadeUp .2s ease both; }
-  .contact-card { background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-top: 20px; color: var(--cyan); font-size: 14px; font-weight: 500; }
-  .api-notice { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #92400e; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; }
-  .api-notice-icon { font-size: 16px; flex-shrink: 0; }
-
-  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-</style>
+        /* ===== responsivo ===== */
+        @media (max-width: 390px) {
+            .cardLogin { padding: 24px 18px; }
+            .menuItem  { padding: 6px 6px; min-width: 44px; font-size: 10px; }
+            .conteudo  { padding: 12px; padding-bottom: 88px; }
+        }
+        @media (min-width: 500px) {
+            .modal { align-items: center; }
+            .modalConteudo { border-radius: 24px; max-height: 80vh; }
+        }
+        @media (min-width: 768px) {
+            .appContainer {
+                border-radius: 24px;
+                margin: 20px auto;
+                min-height: calc(100vh - 40px);
+                min-height: calc(100svh - 40px);
+                overflow: hidden;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+            }
+            #telaApp { align-items: center; }
+            .menuBaixo { border-radius: 0 0 24px 24px; }
+        }
+    </style>
 </head>
 <body>
 
-<script>
-  const API_KEY = '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';
-</script>
+<!-- ===== tela de login ===== -->
+<div id="telaLogin" class="tela">
+    <div class="cardLogin">
+        <h1 style="text-align:center;margin-bottom:8px;">🌿 VitaIA</h1>
+        <p style="text-align:center;color:#666;margin-bottom:24px;">seu parceiro de saúde</p>
 
-<!-- LOGIN / CADASTRO -->
-<div id="screen-login" class="screen active">
-  <div class="login-welcome-banner">
-    <strong>🌿 Bem-vindo ao VitaIA!</strong>
-    Cuide da sua saúde com inteligência artificial. Faça login ou crie sua conta para começar!
-  </div>
-  <div class="login-card">
-    <div class="login-logo">🌿 VitaIA</div>
-    <p class="login-sub">Sua IA de qualidade de vida</p>
+        <div class="tabs">
+            <button id="btnTabLogin" class="tab ativo" onclick="mostrarTab('login')">Entrar</button>
+            <button id="btnTabCad"   class="tab"       onclick="mostrarTab('cadastro')">Criar conta</button>
+        </div>
 
-    <!-- Abas -->
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Entrar</button>
-      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Criar Conta</button>
+        <div id="formLogin">
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com">
+                <div class="erro" id="erroLoginEmail"></div>
+            </div>
+            <div class="campo">
+                <label>Senha</label>
+                <input type="password" id="loginSenha" placeholder="******">
+                <div class="erro" id="erroLoginSenha"></div>
+            </div>
+            <button class="btn" onclick="fazerLogin()">Entrar →</button>
+            <div id="usuariosSalvos" style="margin-top:16px;font-size:12px;"></div>
+        </div>
+
+        <div id="formCadastro" style="display:none">
+            <div class="campo">
+                <label>Seu nome</label>
+                <input type="text" id="cadNome" placeholder="Como te chamo?">
+                <div class="erro" id="erroCadNome"></div>
+            </div>
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email" id="cadEmail" placeholder="seu@email.com">
+                <div class="erro" id="erroCadEmail"></div>
+            </div>
+            <div class="campo">
+                <label>Senha</label>
+                <input type="password" id="cadSenha" placeholder="******">
+                <div class="erro" id="erroCadSenha"></div>
+            </div>
+            <div class="campo">
+                <label>Confirmar senha</label>
+                <input type="password" id="cadSenha2" placeholder="******">
+                <div class="erro" id="erroCadSenha2"></div>
+            </div>
+            <button class="btn" onclick="fazerCadastro()">Criar conta 🎉</button>
+        </div>
     </div>
-
-    <!-- Formulário de LOGIN -->
-    <div id="form-login">
-      <!-- Usuários salvos -->
-      <div id="saved-users-wrap" class="saved-users" style="display:none">
-        <div class="saved-users-label">Entrar como</div>
-        <div id="saved-users-chips"></div>
-        <div class="divider-or">ou entre com e-mail</div>
-      </div>
-
-      <div class="field" id="field-login-email">
-        <label>E-mail</label>
-        <input type="email" id="login-email" placeholder="seu@email.com" oninput="clearFieldError('field-login-email')"/>
-        <div class="field-error" id="err-login-email">Informe um e-mail válido.</div>
-      </div>
-      <div class="field" id="field-login-pass">
-        <label>Senha</label>
-        <input type="password" id="login-pass" placeholder="••••••••" oninput="clearFieldError('field-login-pass')" onkeydown="if(event.key==='Enter')doLogin()"/>
-        <div class="field-error" id="err-login-pass">Senha incorreta ou não encontrada.</div>
-      </div>
-      <button class="btn-primary" onclick="doLogin()">Entrar →</button>
-      <p class="login-footer">Não tem conta? <a onclick="switchTab('register')">Criar grátis</a></p>
-    </div>
-
-    <!-- Formulário de CADASTRO -->
-    <div id="form-register" style="display:none">
-      <div class="field" id="field-reg-name">
-        <label>Seu nome</label>
-        <input type="text" id="reg-name" placeholder="Como você se chama?" oninput="clearFieldError('field-reg-name')"/>
-        <div class="field-error" id="err-reg-name">Informe seu nome.</div>
-      </div>
-      <div class="field" id="field-reg-email">
-        <label>E-mail</label>
-        <input type="email" id="reg-email" placeholder="seu@email.com" oninput="clearFieldError('field-reg-email')"/>
-        <div class="field-error" id="err-reg-email">Informe um e-mail válido.</div>
-      </div>
-      <div class="field" id="field-reg-pass">
-        <label>Senha (mín. 6 caracteres)</label>
-        <input type="password" id="reg-pass" placeholder="••••••••" oninput="clearFieldError('field-reg-pass')"/>
-        <div class="field-error" id="err-reg-pass">A senha deve ter pelo menos 6 caracteres.</div>
-      </div>
-      <div class="field" id="field-reg-pass2">
-        <label>Confirmar senha</label>
-        <input type="password" id="reg-pass2" placeholder="••••••••" oninput="clearFieldError('field-reg-pass2')" onkeydown="if(event.key==='Enter')doRegister()"/>
-        <div class="field-error" id="err-reg-pass2">As senhas não coincidem.</div>
-      </div>
-      <button class="btn-primary" onclick="doRegister()">Criar Conta 🎉</button>
-      <p class="login-footer">Já tem conta? <a onclick="switchTab('login')">Fazer login</a></p>
-    </div>
-  </div>
 </div>
 
-<!-- APP -->
-<div id="screen-app" class="screen">
-  <div class="app-wrapper">
-    <div class="page-content">
-
-      <!-- ═══════════════════════════════════
-           HOME
-      ═══════════════════════════════════ -->
-      <div id="page-home" class="page">
-        <div class="page-header">
-          <div>
-            <div style="color:var(--muted);font-size:13px" id="greeting">Bom dia,</div>
-            <div class="page-title" id="username-display">Usuário</div>
-          </div>
-          <div class="avatar" id="avatar-btn" onclick="doLogout()" title="Sair da conta">U</div>
-        </div>
-
-        <!-- 1) TABELA DE NUTRIÇÃO (TOPO) -->
-        <div class="nutrition-card">
-          <div class="nutrition-title">🥗 Nutrição de Hoje</div>
-          <div class="nutrition-grid">
-            <div class="nutr-box nutr-box-protein">
-              <div class="nutr-label nutr-label-protein">Proteína</div>
-              <div class="nutr-value nutr-value-protein" id="nutr-protein-val">0</div>
-              <div class="nutr-unit">g / <span id="nutr-protein-goal">120</span>g</div>
-              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-protein" id="nutr-protein-bar" style="width:0%"></div></div>
-            </div>
-            <div class="nutr-box nutr-box-carb">
-              <div class="nutr-label nutr-label-carb">Carboidrato</div>
-              <div class="nutr-value nutr-value-carb" id="nutr-carb-val">0</div>
-              <div class="nutr-unit">g / <span id="nutr-carb-goal">250</span>g</div>
-              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-carb" id="nutr-carb-bar" style="width:0%"></div></div>
-            </div>
-            <div class="nutr-box nutr-box-fat">
-              <div class="nutr-label nutr-label-fat">Gordura</div>
-              <div class="nutr-value nutr-value-fat" id="nutr-fat-val">0</div>
-              <div class="nutr-unit">g / <span id="nutr-fat-goal">60</span>g</div>
-              <div class="nutr-bar-wrap"><div class="nutr-bar nutr-bar-fat" id="nutr-fat-bar" style="width:0%"></div></div>
-            </div>
-          </div>
-
-          <!-- Adicionar alimento -->
-          <div class="food-add-row">
-            <div class="food-search-wrap">
-              <input type="text" class="food-search-input" id="food-search" placeholder="🔍 Buscar alimento..." oninput="searchFood()" autocomplete="off">
-              <div class="food-suggestions" id="food-suggestions"></div>
-            </div>
-            <button class="btn-add-food" onclick="addSelectedFood()">+ Adicionar</button>
-          </div>
-
-          <!-- Log de alimentos -->
-          <div class="food-log-area">
-            <div class="food-log-title">Registros de hoje</div>
-            <div class="food-log-list" id="food-log-list">
-              <div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Nenhum alimento registrado ainda</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2) HUMOR (fundo ciano) -->
-        <div class="mood-card" id="mood-selector">
-          <div class="card-title-mood">Como você se sente agora?</div>
-          <div class="mood-row">
-            <button class="mood-btn" data-mood="1" onclick="selectMood(this)"><span class="mood-emoji">😢</span>Mal</button>
-            <button class="mood-btn" data-mood="2" onclick="selectMood(this)"><span class="mood-emoji">😟</span>Instável</button>
-            <button class="mood-btn" data-mood="3" onclick="selectMood(this)"><span class="mood-emoji">😐</span>Neutro</button>
-            <button class="mood-btn" data-mood="4" onclick="selectMood(this)"><span class="mood-emoji">🙂</span>Bem</button>
-            <button class="mood-btn" data-mood="5" onclick="selectMood(this)"><span class="mood-emoji">😄</span>Ótimo</button>
-          </div>
-        </div>
-
-        <div class="mood-registered" id="mood-registered" style="display:none">
-          <div class="mood-reg-left">
-            <div class="mood-reg-check">✓</div>
+<!-- ===== app principal ===== -->
+<div id="telaApp" class="tela" style="display:none">
+    <div class="appContainer">
+        <div class="topo">
             <div>
-              <div class="mood-reg-title">Mood registrado!</div>
-              <div class="mood-reg-sub" id="mood-reg-sub">Fico feliz em saber como você está.</div>
+                <div class="saudacao"   id="saudacaoMsg">Bom dia,</div>
+                <div class="nomeUsuario" id="nomeUser">Usuário</div>
             </div>
-          </div>
-          <button class="mood-reg-reset" onclick="resetMoodCard()" title="Registrar novamente">↺</button>
+            <div class="avatar" onclick="sair()" title="sair">👤</div>
         </div>
 
-        <!-- Botão emergência -->
-        <button class="btn-emergency" onclick="openAjuda()">⚡ PRECISO DE AJUDA AGORA</button>
+        <div id="conteudo" class="conteudo"></div>
 
-        <!-- 3) Aviso de beber água -->
-        <div class="water-alert" id="water-alert">
-          💧 <span id="water-alert-msg">Lembre-se de se hidratar! Você ainda não registrou água hoje.</span>
-        </div>
-
-        <!-- 4) HIDRATAÇÃO — fundo branco, copo animado -->
-        <div class="hydra-card">
-          <div class="hydra-header">
-            <span style="color:#4a6080;">💧 Hidratação</span>
-            <button class="hydra-reset" onclick="resetHydra()">ZERAR DIA</button>
-          </div>
-          <div class="hydra-cup-row">
-            <div class="hydra-cup-wrap">
-              <!-- Copo SVG animado -->
-              <svg class="hydra-cup-svg" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-                <!-- Corpo do copo -->
-                <path d="M10 10 L50 10 L45 75 L15 75 Z" fill="none" stroke="#b2ebf2" stroke-width="2.5" stroke-linejoin="round"/>
-                <!-- Água dentro (animada) -->
-                <clipPath id="cup-clip">
-                  <path d="M11 11 L49 11 L44 74 L16 74 Z"/>
-                </clipPath>
-                <rect id="cup-water" x="11" y="65" width="38" height="9" fill="#00bcd4" opacity="0.7" clip-path="url(#cup-clip)">
-                  <animate attributeName="opacity" values="0.7;0.85;0.7" dur="2s" repeatCount="indefinite"/>
-                </rect>
-                <!-- Ondinha da água -->
-                <path id="cup-wave" d="M11 65 Q20 62 29 65 Q38 68 49 65" stroke="#00e5ff" stroke-width="1.5" fill="none" clip-path="url(#cup-clip)">
-                  <animate attributeName="d" values="M11 65 Q20 62 29 65 Q38 68 49 65;M11 65 Q20 68 29 65 Q38 62 49 65;M11 65 Q20 62 29 65 Q38 68 49 65" dur="1.5s" repeatCount="indefinite"/>
-                </path>
-                <!-- Marcações -->
-                <line x1="40" y1="25" x2="45" y2="25" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
-                <line x1="42" y1="43" x2="46" y2="43" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
-                <line x1="43" y1="60" x2="47" y2="60" stroke="#b2ebf2" stroke-width="1.5" opacity="0.5"/>
-              </svg>
-              <div class="hydra-cup-pct" id="hydra-cup-pct">0%</div>
-            </div>
-            <div class="hydra-info">
-              <div class="hydra-count" id="hydra-count">0</div>
-              <div class="hydra-label">Litros consumidos hoje</div>
-              <div class="hydra-q">Quantos litros você bebeu agora?</div>
-              <div class="hydra-btns">
-                <button class="hydra-btn" onclick="addHydra(1)">+1L</button>
-                <button class="hydra-btn" onclick="addHydra(2)">+2L</button>
-                <button class="hydra-btn" onclick="addHydra(3)">+3L</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Insight IA -->
-        <div class="insight-card" id="insight-card">
-          <div class="insight-title">✦ Registre seu humor para ver insights!</div>
-          <div class="insight-body" id="insight-body">Clique em como você está se sentindo acima e receba orientações personalizadas da IA.</div>
-          <div class="progress-bar-wrap" id="insight-progress" style="display:none">
-            <div class="progress-meta"><span>Hidratação</span><span id="progress-goal">META: 2L</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════
-           PROGRESSO
-      ═══════════════════════════════════ -->
-      <div id="page-progress" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">Evolução</div><div class="page-subtitle">Acompanhando seu histórico real.</div></div></div>
-
-        <!-- Banner parabéns -->
-        <div class="congrats-banner" id="congrats-banner">
-          <div class="congrats-title">🎉 Parabéns!</div>
-          <div class="congrats-sub" id="congrats-sub">Você bateu todas as metas de hoje!</div>
-        </div>
-
-        <div class="no-data" id="chart-placeholder"><div class="no-data-icon">📈</div>Ainda não há dados suficientes.<br>Registre seu humor na Home!</div>
-
-        <!-- EXERCÍCIOS -->
-        <div class="exercise-card">
-          <div class="exercise-title">💪 Exercícios de Hoje</div>
-          <div class="exercise-btns">
-            <button class="exercise-btn" id="ex-caminhada" onclick="toggleExercise('caminhada','🚶 Caminhada')">🚶 Caminhada</button>
-            <button class="exercise-btn" id="ex-corrida" onclick="toggleExercise('corrida','🏃 Corrida')">🏃 Corrida</button>
-            <button class="exercise-btn" id="ex-musculacao" onclick="toggleExercise('musculacao','🏋️ Musculação')">🏋️ Musculação</button>
-            <button class="exercise-btn" id="ex-yoga" onclick="toggleExercise('yoga','🧘 Yoga')">🧘 Yoga</button>
-            <button class="exercise-btn" id="ex-natacao" onclick="toggleExercise('natacao','🏊 Natação')">🏊 Natação</button>
-            <button class="exercise-btn" id="ex-ciclismo" onclick="toggleExercise('ciclismo','🚴 Ciclismo')">🚴 Ciclismo</button>
-          </div>
-          <div class="exercise-log" id="exercise-log">Nenhum exercício registrado hoje.</div>
-        </div>
-
-        <!-- Nutrição no progresso -->
-        <div class="card">
-          <div class="card-title">🥗 Nutrição — Metas do Dia</div>
-          <div class="prog-nutr-row">
-            <div class="prog-nutr-header">
-              <span style="color:var(--protein)">🥩 Proteína</span>
-              <strong id="prog-protein-val">0g de 120g</strong>
-              <span id="prog-protein-pct">0%</span>
-            </div>
-            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-protein-bar" style="width:0%;background:var(--protein)"></div></div>
-          </div>
-          <div class="prog-nutr-row">
-            <div class="prog-nutr-header">
-              <span style="color:#cd853f">🍚 Carboidratos</span>
-              <strong id="prog-carb-val">0g de 250g</strong>
-              <span id="prog-carb-pct">0%</span>
-            </div>
-            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-carb-bar" style="width:0%;background:#cd853f"></div></div>
-          </div>
-          <div class="prog-nutr-row">
-            <div class="prog-nutr-header">
-              <span style="color:var(--fat)">🥑 Gordura</span>
-              <strong id="prog-fat-val">0g de 60g</strong>
-              <span id="prog-fat-pct">0%</span>
-            </div>
-            <div class="prog-nutr-bar"><div class="prog-nutr-fill" id="prog-fat-bar" style="width:0%;background:var(--fat)"></div></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Status de Metas</div>
-          <div class="goal-row">
-            <div class="goal-row-header"><span>Hidratação Diária</span><strong id="prog-hydra-val">0L de 2L</strong><span id="prog-hydra-pct">0%</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-hydra-bar" style="width:0%"></div></div>
-          </div>
-          <div class="goal-row" style="margin-top:14px">
-            <div class="goal-row-header"><span>Consistência de Logs</span><strong id="prog-log-val">0 registros totais</strong><span id="prog-log-pct">0%</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-log-bar" style="width:0%"></div></div>
-          </div>
-        </div>
-
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-label">Média de Humor</div><div class="stat-value" id="avg-mood">0</div></div>
-          <div class="stat-box"><div class="stat-label">Água Hoje</div><div class="stat-value teal" id="water-today">0L</div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Resumo Geral</div>
-          <div class="stat-grid" style="margin:0">
-            <div class="stat-box"><div class="stat-label">IA Consultas</div><div class="stat-value" id="ai-count">0</div></div>
-            <div class="stat-box"><div class="stat-label">Check-ins</div><div class="stat-value" id="checkin-count">0</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════
-           PLANOS
-      ═══════════════════════════════════ -->
-      <div id="page-plans" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">Seu Plano IA</div><div class="page-subtitle">Personalizado para seu estado atual.</div></div></div>
-        <div class="plans-hero">
-          <div class="brain-icon">🧠</div>
-          <h2>Pronto para seu guia?</h2>
-          <p>Nossa IA analisará seu perfil real para criar um roteiro de qualidade de vida exclusivo para você hoje.</p>
-          <div class="plans-btns">
-            <button class="btn-teal" onclick="generatePlan()">GERAR PLANO PERSONALIZADO</button>
-            <button class="btn-outline" onclick="generatePlan()">REFAZER PLANO</button>
-          </div>
-        </div>
-        <div id="plan-loading" style="display:none"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-        <div id="plan-result" class="plan-result"></div>
-      </div>
-
-      <!-- ═══════════════════════════════════
-           LABS
-      ═══════════════════════════════════ -->
-      <div id="page-labs" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">Laboratório IA</div><div class="page-subtitle">Ferramentas avançadas para sua saúde.</div></div></div>
-        <div id="lab-list-view" class="lab-list">
-          <div class="lab-item" onclick="openLabScreen('visao')">
-            <div class="lab-left"><div class="lab-icon">👁️</div><div><div class="lab-name">Visão Pro</div><div class="lab-desc">Analise fotos de alimentos ou treinos</div></div></div>
-            <div class="lab-arrow">›</div>
-          </div>
-          <div class="lab-item" onclick="openLabScreen('explorador')">
-            <div class="lab-left"><div class="lab-icon">📍</div><div><div class="lab-name">Explorador</div><div class="lab-desc">Encontre locais saudáveis próximos</div></div></div>
-            <div class="lab-arrow">›</div>
-          </div>
-          <div class="lab-item" onclick="openLabScreen('deepthink')">
-            <div class="lab-left"><div class="lab-icon">💡</div><div><div class="lab-name">Deep Think</div><div class="lab-desc">Consultas complexas com foco em razão</div></div></div>
-            <div class="lab-arrow">›</div>
-          </div>
-          <div class="lab-item" onclick="openLabScreen('voz')">
-            <div class="lab-left"><div class="lab-icon">🔊</div><div><div class="lab-name">Voz Vital</div><div class="lab-desc">Ouça as orientações da IA</div></div></div>
-            <div class="lab-arrow">›</div>
-          </div>
-        </div>
-        <div id="lab-screen-visao" class="lab-screen">
-          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
-          <div class="lab-inner-card">
-            <div class="lab-inner-title">👁️ Visão Pro</div>
-            <div class="img-upload-area" id="visao-upload-area">
-              <input type="file" accept="image/*" id="visao-file-input" onchange="handleImageUpload(event)">
-              <div class="img-upload-icon">📷</div>
-              <div class="img-upload-label">TIRAR FOTO OU CARREGAR</div>
-            </div>
-            <img id="visao-preview" class="img-preview" alt="Preview">
-            <div class="lab-textarea-wrap">
-              <textarea class="lab-textarea" id="visao-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="visao-mic" onclick="toggleMic('visao-input','visao-mic')" title="Falar">🎤</button>
-            </div>
-            <button class="btn-execute" id="visao-btn" onclick="executeLab('visao')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="visao-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Análise</div><div class="lab-response-text" id="visao-response-text"></div></div></div>
-          </div>
-        </div>
-        <div id="lab-screen-explorador" class="lab-screen">
-          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
-          <div class="lab-inner-card">
-            <div class="lab-inner-title">📍 Explorador</div>
-            <div class="lab-textarea-wrap">
-              <textarea class="lab-textarea" id="explorador-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="explorador-mic" onclick="toggleMic('explorador-input','explorador-mic')" title="Falar">🎤</button>
-            </div>
-            <button class="btn-execute" id="explorador-btn" onclick="executeLab('explorador')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="explorador-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Resposta</div><div class="lab-response-text" id="explorador-response-text"></div></div></div>
-          </div>
-        </div>
-        <div id="lab-screen-deepthink" class="lab-screen">
-          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
-          <div class="lab-inner-card">
-            <div class="lab-inner-title">💡 Deep Think</div>
-            <div class="lab-textarea-wrap">
-              <textarea class="lab-textarea" id="deepthink-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="deepthink-mic" onclick="toggleMic('deepthink-input','deepthink-mic')" title="Falar">🎤</button>
-            </div>
-            <button class="btn-execute" id="deepthink-btn" onclick="executeLab('deepthink')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="deepthink-response"><div class="lab-response-inner"><div class="lab-response-title">🤖 Análise Profunda</div><div class="lab-response-text" id="deepthink-response-text"></div></div></div>
-          </div>
-        </div>
-        <div id="lab-screen-voz" class="lab-screen">
-          <button class="lab-back" onclick="closeLabScreen()">← VOLTAR</button>
-          <div class="lab-inner-card">
-            <div class="lab-inner-title">🔊 Voz Vital</div>
-            <div class="lab-textarea-wrap">
-              <textarea class="lab-textarea" id="voz-input" placeholder="O que você deseja saber?" rows="3"></textarea>
-              <button class="mic-btn" id="voz-mic" onclick="toggleMic('voz-input','voz-mic')" title="Falar">🎤</button>
-            </div>
-            <button class="btn-execute" id="voz-btn" onclick="executeLab('voz')">EXECUTAR IA</button>
-            <div class="lab-response-area" id="voz-response"><div class="lab-response-inner"><div class="lab-response-title">🔊 Orientação</div><div class="lab-response-text" id="voz-response-text"></div></div></div>
-            <div class="voz-player" id="voz-player">
-              <button class="voz-play-btn" id="voz-play-btn" onclick="toggleVozPlayback()">▶</button>
-              <div class="voz-wave" id="voz-wave"></div>
-              <div class="voz-label">Reproduzindo em pt-BR</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════
-           TELESAÚDE
-      ═══════════════════════════════════ -->
-      <div id="page-tele" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">TeleSaúde</div><div class="page-subtitle">Consultas virtuais com profissionais.</div></div></div>
-
-        <!-- IA sugere -->
-        <div class="tele-ia-box">
-          <div class="tele-ia-title">🤖 Sugestão IA</div>
-          <div class="tele-ia-text" id="tele-ia-suggestion">Com base nos seus dados, a IA está pronta para sugerir o profissional ideal. Registre seu humor na Home primeiro!</div>
-        </div>
-
-        <!-- Segurança -->
-        <div class="tele-secure-banner">
-          <div class="tele-secure-icon">🔒</div>
-          <div>
-            <div class="tele-secure-title">Segurança & Privacidade</div>
-            <div class="tele-secure-desc">Criptografia de ponta a ponta · Login seguro · Conformidade com LGPD · Seus dados são protegidos.</div>
-          </div>
-        </div>
-
-        <!-- Tipo de atendimento -->
-        <div class="tele-section-title">Tipo de Atendimento</div>
-        <div class="tele-types">
-          <div class="tele-type-card" onclick="selectTeleType('chat')">
-            <div class="tele-type-icon">💬</div>
-            <div class="tele-type-name">Chat</div>
-            <div class="tele-type-desc">Conversa em tempo real ou assíncrona. Envio de fotos e relatórios.</div>
-          </div>
-          <div class="tele-type-card" onclick="selectTeleType('video')">
-            <div class="tele-type-icon">📹</div>
-            <div class="tele-type-name">Vídeo</div>
-            <div class="tele-type-desc">Consulta completa ao vivo com avaliação personalizada.</div>
-          </div>
-        </div>
-
-        <!-- Profissionais -->
-        <div class="tele-section-title">Profissionais Disponíveis</div>
-        <div class="tele-prof-list">
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">🥗</div>
-            <div>
-              <div class="tele-prof-name">Dra. Ana Ribeiro</div>
-              <div class="tele-prof-spec">Nutricionista · CRN 12345</div>
-              <div class="tele-prof-rating">★★★★★ 4.9</div>
-            </div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Ana Ribeiro','Nutricionista')">💬</button>
-              <button class="btn-tele-action btn-video" onclick="scheduleTele('Dra. Ana Ribeiro')">📹</button>
-            </div>
-          </div>
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">💪</div>
-            <div>
-              <div class="tele-prof-name">Carlos Mendes</div>
-              <div class="tele-prof-spec">Personal Trainer · CREF 98765</div>
-              <div class="tele-prof-rating">★★★★☆ 4.7</div>
-            </div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Carlos Mendes','Personal Trainer')">💬</button>
-              <button class="btn-tele-action btn-video" onclick="scheduleTele('Carlos Mendes')">📹</button>
-            </div>
-          </div>
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">🩺</div>
-            <div>
-              <div class="tele-prof-name">Dra. Mariana Costa</div>
-              <div class="tele-prof-spec">Clínica Geral · CRM 54321</div>
-              <div class="tele-prof-rating">★★★★★ 5.0</div>
-            </div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Mariana Costa','Médica')">💬</button>
-              <button class="btn-tele-action btn-video" onclick="scheduleTele('Dra. Mariana Costa')">📹</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Próximas consultas -->
-        <div class="tele-section-title">Próximas Consultas</div>
-        <div class="tele-schedule-list" id="tele-schedule-list">
-          <div style="font-size:13px;color:var(--muted);padding:12px 0;">Nenhuma consulta agendada. Escolha um profissional acima!</div>
-        </div>
-
-        <!-- Avaliação -->
-        <div class="card" style="margin-top:4px">
-          <div class="card-title">Avalie seu último atendimento</div>
-          <div class="tele-rating-stars" id="tele-stars">
-            <span class="tele-rating-star" onclick="rateTele(1)">★</span>
-            <span class="tele-rating-star" onclick="rateTele(2)">★</span>
-            <span class="tele-rating-star" onclick="rateTele(3)">★</span>
-            <span class="tele-rating-star" onclick="rateTele(4)">★</span>
-            <span class="tele-rating-star" onclick="rateTele(5)">★</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-top:8px" id="tele-rating-msg">Clique nas estrelas para avaliar</div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════
-           SUPORTE
-      ═══════════════════════════════════ -->
-      <div id="page-support" class="page" style="display:none">
-        <div class="page-header"><div><div class="page-title">Suporte</div><div class="page-subtitle">Estamos aqui para ajudar você.</div></div></div>
-        <div class="card" style="padding:0 20px">
-          <div class="card-title" style="padding-top:16px">Perguntas Frequentes</div>
-          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como a IA gera os planos? <span>›</span></button><div class="faq-a">Nossa IA analisa seu humor registrado, nível de hidratação e histórico de check-ins para gerar um plano personalizado. O plano é recriado sempre que você clicar em "Gerar Plano".</div></div>
-          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Meus dados estão seguros? <span>›</span></button><div class="faq-a">Seus dados ficam armazenados localmente no seu navegador. Não enviamos informações pessoais sem seu consentimento.</div></div>
-          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Posso usar offline? <span>›</span></button><div class="faq-a">Funcionalidades básicas funcionam offline. IA (planos, Ajuda Imediata) requerem conexão.</div></div>
-          <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como resetar meu perfil? <span>›</span></button><div class="faq-a">Recarregue a página. Isso limpará todos os dados da sessão.</div></div>
-        </div>
-        <div style="padding:0 4px">
-          <div style="font-size:12px;color:var(--muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.7px">Contato</div>
-          <div class="contact-card">📧 frontwork08@gmail.com</div>
-          <div style="margin-top:16px;display:flex;gap:16px">
-            <a href="#" style="color:var(--muted);font-size:13px">Política de Privacidade</a>
-            <a href="#" style="color:var(--muted);font-size:13px">Termos de Uso</a>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /page-content -->
-
-    <nav class="bottom-nav">
-      <div class="nav-item active" onclick="goTo('home',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início
-      </div>
-      <div class="nav-item" onclick="goTo('progress',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progresso
-      </div>
-      <div class="nav-item" onclick="goTo('plans',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Planos
-      </div>
-      <div class="nav-item" onclick="goTo('labs',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Labs
-      </div>
-      <div class="nav-item" onclick="goTo('tele',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .95h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>TeleSaúde
-      </div>
-    </nav>
-  </div>
+        <nav class="menuBaixo" role="navigation" aria-label="Menu principal">
+            <div class="menuItem ativo" data-pagina="home"      onclick="mudarPagina('home',this)">🏠<span>Home</span></div>
+            <div class="menuItem"       data-pagina="progresso" onclick="mudarPagina('progresso',this)">📈<span>Progresso</span></div>
+            <div class="menuItem"       data-pagina="plano"     onclick="mudarPagina('plano',this)">🎯<span>Plano</span></div>
+            <div class="menuItem"       data-pagina="labs"      onclick="mudarPagina('labs',this)">🧪<span>Labs</span></div>
+            <div class="menuItem"       data-pagina="tele"      onclick="mudarPagina('tele',this)">🩺<span>Tele</span></div>
+        </nav>
+    </div>
 </div>
 
-<!-- MODAL: AJUDA IMEDIATA -->
-<div class="modal-overlay" id="modal-ajuda">
-  <div class="modal-sheet">
-    <button class="modal-close" onclick="closeModal('modal-ajuda')">×</button>
-    <div class="modal-handle"></div>
-    <div class="modal-title">Ajuda Imediata</div>
-    <div class="modal-sub" id="ajuda-sub">Como posso guiar você hoje?</div>
-    <div class="chat-area" id="ajuda-chat"></div>
-    <div class="chat-input-row">
-      <textarea id="ajuda-input" placeholder="Escreva aqui..."
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAjuda()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-      <button class="chat-send-btn" id="ajuda-btn" onclick="sendAjuda()">OBTER ORIENTAÇÃO IA</button>
+<!-- ===== modal chat ===== -->
+<div id="modalChat" class="modal" onclick="if(event.target===this)fechaModal('modalChat')">
+    <div class="modalConteudo">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3>💬 Ajuda Imediata</h3>
+            <button onclick="fechaModal('modalChat')" class="btnFechar" aria-label="Fechar">×</button>
+        </div>
+        <div id="chatArea" class="chatArea"></div>
+        <div class="chatInputArea">
+            <textarea id="chatInput" placeholder="Digite aqui..." rows="2"></textarea>
+            <button onclick="enviarChat()" class="btn btnEnviar">Enviar</button>
+        </div>
     </div>
-  </div>
-</div>
-
-<!-- MODAL: TELESAÚDE CHAT -->
-<div class="modal-overlay" id="modal-tele-chat">
-  <div class="modal-sheet">
-    <button class="modal-close" onclick="closeModal('modal-tele-chat')">×</button>
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="tele-chat-title">Chat com Profissional</div>
-    <div class="modal-sub" id="tele-chat-sub">Consulta via chat seguro</div>
-    <div class="chat-area" id="tele-chat-area"></div>
-    <div class="chat-input-row">
-      <textarea id="tele-chat-input" placeholder="Escreva sua dúvida..."
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTeleChat()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-      <button class="chat-send-btn" id="tele-chat-btn" onclick="sendTeleChat()">ENVIAR</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: AGENDAMENTO -->
-<div class="modal-overlay" id="modal-schedule">
-  <div class="modal-sheet">
-    <button class="modal-close" onclick="closeModal('modal-schedule')">×</button>
-    <div class="modal-handle"></div>
-    <div class="modal-title">Agendar Consulta</div>
-    <div class="modal-sub" id="schedule-prof-name">Profissional</div>
-    <div style="margin-bottom:14px">
-      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.7px">Data e Horário</label>
-      <input type="datetime-local" id="schedule-datetime" style="width:100%;padding:12px;background:#f7fbff;border:1.5px solid #c8e0ff;border-radius:10px;color:var(--text);font-size:14px;outline:none;">
-    </div>
-    <div style="margin-bottom:18px">
-      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.7px">Tipo</label>
-      <select id="schedule-type" style="width:100%;padding:12px;background:#f7fbff;border:1.5px solid #c8e0ff;border-radius:10px;color:var(--text);font-size:14px;outline:none;">
-        <option value="video">📹 Vídeo Chamada</option>
-        <option value="chat">💬 Chat</option>
-      </select>
-    </div>
-    <button class="btn-primary" onclick="confirmSchedule()">✓ Confirmar Agendamento</button>
-  </div>
 </div>
 
 <script>
-/* ============================================================
-   BANCO DE DADOS DE ALIMENTOS
-   ============================================================ */
-const FOOD_DB = [
-  { nome:'Frango grelhado (100g)', protein:31, carb:0, fat:3.6 },
-  { nome:'Arroz branco cozido (100g)', protein:2.5, carb:28, fat:0.3 },
-  { nome:'Feijão cozido (100g)', protein:8.7, carb:14, fat:0.5 },
-  { nome:'Ovo cozido (1 unidade)', protein:6.3, carb:0.6, fat:5 },
-  { nome:'Ovo mexido (1 unidade)', protein:5.5, carb:0.4, fat:5.5 },
-  { nome:'Batata doce cozida (100g)', protein:1.6, carb:20, fat:0.1 },
-  { nome:'Aveia (40g)', protein:5.2, carb:25, fat:2.8 },
-  { nome:'Banana (1 média)', protein:1.3, carb:27, fat:0.3 },
-  { nome:'Maçã (1 média)', protein:0.3, carb:25, fat:0.2 },
-  { nome:'Leite integral (200ml)', protein:6.6, carb:9.6, fat:6.4 },
-  { nome:'Iogurte grego natural (100g)', protein:9.9, carb:3.6, fat:0.7 },
-  { nome:'Whey protein (30g)', protein:22, carb:3, fat:1.5 },
-  { nome:'Amendoim (30g)', protein:7.7, carb:6, fat:14 },
-  { nome:'Azeite de oliva (1 colher)', protein:0, carb:0, fat:14 },
-  { nome:'Atum em lata (100g)', protein:26, carb:0, fat:0.8 },
-  { nome:'Salmão grelhado (100g)', protein:25, carb:0, fat:12 },
-  { nome:'Queijo mussarela (30g)', protein:6.5, carb:0.6, fat:6 },
-  { nome:'Pão integral (1 fatia)', protein:3.6, carb:13, fat:1 },
-  { nome:'Massa (100g cozida)', protein:3.6, carb:25, fat:0.5 },
-  { nome:'Brócolis (100g)', protein:2.8, carb:6.6, fat:0.4 },
-  { nome:'Cenoura (100g)', protein:0.9, carb:9.6, fat:0.2 },
-  { nome:'Alface (100g)', protein:1.4, carb:2.9, fat:0.2 },
-  { nome:'Tomate (1 médio)', protein:0.9, carb:4.8, fat:0.2 },
-  { nome:'Manteiga (10g)', protein:0.1, carb:0, fat:8 },
-  { nome:'Mel (1 colher)', protein:0.1, carb:17, fat:0 },
-  { nome:'Castanha do Pará (30g)', protein:4.2, carb:3.5, fat:20 },
-  { nome:'Abacate (100g)', protein:2, carb:6.5, fat:16 },
-  { nome:'Carne bovina magra (100g)', protein:26, carb:0, fat:5 },
-  { nome:'Batata cozida (100g)', protein:2, carb:17, fat:0.1 },
-  { nome:'Laranja (1 média)', protein:1, carb:15, fat:0.2 },
-  { nome:'Morango (100g)', protein:0.7, carb:7.7, fat:0.3 },
-  { nome:'Chocolate 70% (20g)', protein:2, carb:6, fat:8 },
-  { nome:'Granola (40g)', protein:4, carb:24, fat:6 },
-  { nome:'Proteína vegetal texturizada (30g)', protein:15, carb:8, fat:0.5 },
-  { nome:'Tapioca (50g)', protein:0.2, carb:40, fat:0.1 },
-];
+// ============================================
+// VitaIA — script unificado (corrigido)
+// ============================================
 
-/* ============================================================
-   ESTADO GLOBAL
-   ============================================================ */
-const moodLabels = ['','Mal','Instável','Neutro','Bem','Ótimo'];
-const moodSubs   = ['','Vai ficar tudo bem, estou aqui.','Estou aqui com você.','Seguindo em frente!','Que ótimo estar bem!','Você é incrível hoje!'];
-const moodCtx    = ['','Percebi que você está se sentindo mal. Como posso te ajudar agora?','Percebi que seu humor está instável. Como posso ajudar?','Oi! Tudo neutro por aí. Tem algo que posso fazer por você?','Que bom que você está bem! Posso potencializar isso?','Incrível que você está ótimo! Como posso tornar seu dia ainda melhor?'];
+let usuarioAtual   = null;
+let dadosUsuario   = null;
+let historicoChat  = [];
+let ultimoHumor    = 3;
+let aguaHoje       = 0;
+let proteinaHoje   = 0;
+let carboHoje      = 0;
+let gorduraHoje    = 0;
+let comidaLog      = [];
+let exerciciosHoje = [];
+let consultasAgendadas = [];
+let paginaAtual    = 'home';
 
-const state = {
-  name:'', hydra:0, moodLog:[],
-  planCount:0, checkins:0,
-  chatHistory:[], visaoImageData:null,
-  vozText:'', vozUtterance:null,
-  nutrition:{ protein:0, carb:0, fat:0 },
-  foodLog:[],
-  exercises:[],
-  teleSchedules:[],
-  teleChatProf:null, teleChatHistory:[]
-};
+const CHAVE_API = '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';
 
-const NUTR_GOALS = { protein:120, carb:250, fat:60 };
-const HYDRA_GOAL = 2;
-
-let selectedFood = null;
-
-/* ════════════════════════════════════
-   API
-════════════════════════════════════ */
-function checkKey() {
-  if (!API_KEY || API_KEY === 'SUA_API_KEY_AQUI') throw new Error('API Key não configurada.');
-}
-async function callAI(prompt, imageData) {
-  checkKey();
-  const messages = [];
-  if (imageData) {
-    messages.push({ role:'user', content:[{ type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+imageData } },{ type:'text', text:prompt }] });
-  } else {
-    messages.push({ role:'user', content:prompt });
-  }
-  let res, data;
-  try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
-    data = await res.json();
-  } catch(e) { throw new Error('Falha de conexão. Detalhe: '+e.message); }
-  if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
-  return data.choices?.[0]?.message?.content||'';
-}
-async function callAIChat(sysPrompt, history) {
-  checkKey();
-  const messages = [{ role:'system', content:sysPrompt }, ...history];
-  let res, data;
-  try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
-    data = await res.json();
-  } catch(e) { throw new Error('Falha de conexão. Detalhe: '+e.message); }
-  if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
-  return data.choices?.[0]?.message?.content||'';
+// ===== helpers =====
+function mostrarToast(msg, cor) {
+    document.querySelectorAll('.vita-toast').forEach(t => t.remove());
+    let toast = document.createElement('div');
+    toast.className = 'vita-toast';
+    toast.textContent = msg;
+    toast.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:${cor||'#333'};color:white;padding:12px 24px;border-radius:30px;text-align:center;z-index:9999;font-size:14px;font-family:'Inter',sans-serif;max-width:90vw;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:toastIn 0.2s ease;`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.3s'; setTimeout(()=>toast.remove(),300); }, 2700);
 }
 
-/* ════════════════════════════════════
-   AUTH — LOGIN / CADASTRO
-════════════════════════════════════ */
-
-// Banco de usuários no localStorage
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem('vitaia_users') || '[]'); } catch(e) { return []; }
+function pegarUsuarios() {
+    try { let t=localStorage.getItem('vitaia_users'); return t?JSON.parse(t):[]; } catch { return []; }
 }
-function saveUsers(users) { localStorage.setItem('vitaia_users', JSON.stringify(users)); }
-
-function switchTab(tab) {
-  const isLogin = tab === 'login';
-  document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
-  document.getElementById('tab-login').classList.toggle('active', isLogin);
-  document.getElementById('tab-register').classList.toggle('active', !isLogin);
-  // Limpa erros ao trocar aba
-  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
+function salvarUsuarios(lista) {
+    try { localStorage.setItem('vitaia_users', JSON.stringify(lista)); } catch {}
+}
+function salvarDadosUsuario() {
+    if (!usuarioAtual) return;
+    let todos = pegarUsuarios();
+    let idx = todos.findIndex(u => u.email === usuarioAtual.email);
+    if (idx !== -1) { todos[idx].dados = dadosUsuario; salvarUsuarios(todos); }
 }
 
-function setFieldError(fieldId, show) {
-  const f = document.getElementById(fieldId);
-  f.classList.toggle('has-error', show);
+// ===== login / cadastro =====
+function limparErros() {
+    document.querySelectorAll('.erro').forEach(el => { el.textContent=''; el.classList.remove('visivel'); });
 }
-function clearFieldError(fieldId) { document.getElementById(fieldId).classList.remove('has-error'); }
-
-function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-
-// Render saved users
-function renderSavedUsers() {
-  const users = getUsers();
-  const wrap = document.getElementById('saved-users-wrap');
-  const chips = document.getElementById('saved-users-chips');
-  if (!users.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  chips.innerHTML = users.map(u =>
-    `<span class="saved-user-chip" onclick="quickLogin('${u.email}')">👤 ${u.name}</span>`
-  ).join('');
+function mostrarErro(id, msg) {
+    let el = document.getElementById(id);
+    if (el) { el.innerText=msg; el.classList.add('visivel'); }
 }
 
-function quickLogin(email) {
-  document.getElementById('login-email').value = email;
-  document.getElementById('login-pass').focus();
-}
-
-function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const pass2 = document.getElementById('reg-pass2').value;
-
-  let valid = true;
-  if (!name) { setFieldError('field-reg-name', true); valid = false; }
-  if (!isValidEmail(email)) { setFieldError('field-reg-email', true); valid = false; }
-  if (pass.length < 6) { setFieldError('field-reg-pass', true); valid = false; }
-  if (pass !== pass2) { setFieldError('field-reg-pass2', true); valid = false; }
-  if (!valid) return;
-
-  const users = getUsers();
-  if (users.find(u => u.email === email)) {
-    setFieldError('field-reg-email', true);
-    document.getElementById('err-reg-email').textContent = 'Este e-mail já está cadastrado.';
-    return;
-  }
-
-  // Salva usuário
-  users.push({ name, email, pass });
-  saveUsers(users);
-
-  // Faz login automático após cadastro
-  enterApp(name);
-}
-
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-
-  let valid = true;
-  if (!isValidEmail(email)) { setFieldError('field-login-email', true); valid = false; }
-  if (!pass) { setFieldError('field-login-pass', true); document.getElementById('err-login-pass').textContent = 'Informe sua senha.'; valid = false; }
-  if (!valid) return;
-
-  const users = getUsers();
-  const user = users.find(u => u.email === email);
-  if (!user) {
-    // Usuário não existe — sugere cadastro
-    setFieldError('field-login-email', true);
-    document.getElementById('err-login-email').textContent = 'E-mail não encontrado. Crie uma conta!';
-    setTimeout(() => switchTab('register'), 1800);
-    return;
-  }
-  if (user.pass !== pass) {
-    setFieldError('field-login-pass', true);
-    document.getElementById('err-login-pass').textContent = 'Senha incorreta.';
-    return;
-  }
-
-  enterApp(user.name);
-}
-
-function enterApp(name) {
-  state.name = name;
-  document.getElementById('username-display').textContent = name;
-  document.getElementById('avatar-btn').textContent = name[0].toUpperCase();
-  const h = new Date().getHours();
-  document.getElementById('greeting').textContent = h<12?'Bom dia,':h<18?'Boa tarde,':'Boa noite,';
-  document.getElementById('screen-login').classList.remove('active');
-  document.getElementById('screen-app').classList.add('active');
-  startWaterReminder();
-  updateTeleSuggestion();
-}
-
-// Inicializa
-renderSavedUsers();
-
-function doLogout() {
-  if (!confirm('Deseja sair da conta?')) return;
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-login').classList.add('active');
-  // Limpa campos
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-pass').value = '';
-  switchTab('login');
-  renderSavedUsers();
-}
-
-/* ════════════════════════════════════
-   NAV
-════════════════════════════════════ */
-function goTo(page, el) {
-  document.querySelectorAll('.page').forEach(p => p.style.display='none');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+page).style.display='block';
-  el.classList.add('active');
-  if (page === 'labs') closeLabScreen();
-  if (page === 'progress') checkCongrats();
-}
-
-/* ════════════════════════════════════
-   MOOD
-════════════════════════════════════ */
-function selectMood(btn) {
-  const mood = parseInt(btn.dataset.mood);
-  state.moodLog.push({ mood, time: Date.now() });
-  state.checkins++;
-  syncMoodUI();
-  document.getElementById('mood-selector').style.display = 'none';
-  document.getElementById('mood-registered').style.display = 'flex';
-  document.getElementById('mood-reg-sub').textContent = moodSubs[mood];
-  openAjuda(mood);
-  generateInsight(mood);
-  updateTeleSuggestion();
-}
-function resetMoodCard() {
-  document.getElementById('mood-selector').style.display = 'block';
-  document.getElementById('mood-registered').style.display = 'none';
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-}
-function syncMoodUI() {
-  const avg = state.moodLog.length ? (state.moodLog.reduce((a,b)=>a+b.mood,0)/state.moodLog.length).toFixed(1) : 0;
-  document.getElementById('avg-mood').textContent = avg;
-  document.getElementById('checkin-count').textContent = state.checkins;
-  document.getElementById('ai-count').textContent = state.planCount;
-  const logPct = Math.min(state.checkins*10,100);
-  document.getElementById('prog-log-val').textContent = state.checkins+' registros totais';
-  document.getElementById('prog-log-pct').textContent = logPct+'%';
-  document.getElementById('prog-log-bar').style.width = logPct+'%';
-  if (state.checkins > 0) document.getElementById('chart-placeholder').style.display = 'none';
-}
-
-/* ════════════════════════════════════
-   INSIGHT
-════════════════════════════════════ */
-async function generateInsight(mood) {
-  const el=document.getElementById('insight-body'), card=document.getElementById('insight-card'), title=card.querySelector('.insight-title');
-  title.textContent='🤖 Gerando insight...'; el.textContent='';
-  document.getElementById('insight-progress').style.display='block';
-  document.getElementById('progress-fill').style.width=Math.min((state.hydra/HYDRA_GOAL)*100,100)+'%';
-  document.getElementById('progress-goal').textContent='META: '+HYDRA_GOAL+'L';
-  try {
-    const nutrSummary = `Proteína: ${state.nutrition.protein}g, Carboidratos: ${state.nutrition.carb}g, Gordura: ${state.nutrition.fat}g`;
-    const exList = state.exercises.length ? state.exercises.join(', ') : 'nenhum';
-    const text = await callAI(`Você é um assistente de qualidade de vida. O usuário "${state.name}" registrou humor: ${moodLabels[mood]} (${mood}/5). Hidratação hoje: ${state.hydra}L. Nutrição: ${nutrSummary}. Exercícios: ${exList}. Dê um insight motivacional e uma recomendação prática em 2-3 frases curtas. Seja positivo e personalizado.`);
-    title.textContent = ['','💙 Vai ficar tudo bem','🌤️ Você está melhorando','⚡ Seguindo em frente','✨ Você está bem!','🌟 Você é um exemplo!'][mood];
-    el.textContent = text;
-    state.planCount++; syncMoodUI();
-  } catch(e) {
-    title.textContent='✨ Insight';
-    el.textContent= e.message.includes('API Key') ? '⚠️ '+e.message : 'Continue registrando seu humor diariamente para receber orientações personalizadas!';
-  }
-}
-
-/* ════════════════════════════════════
-   HIDRATAÇÃO + AVISO + COPO
-════════════════════════════════════ */
-function addHydra(l) { state.hydra+=l; syncHydraUI(); checkWaterAlert(); }
-function resetHydra() { state.hydra=0; syncHydraUI(); checkWaterAlert(); }
-
-function syncHydraUI() {
-  const h=state.hydra, pct=Math.min((h/HYDRA_GOAL)*100,100);
-  document.getElementById('hydra-count').textContent = h;
-  document.getElementById('hydra-cup-pct').textContent = Math.round(pct)+'%';
-  document.getElementById('progress-fill').style.width = pct+'%';
-  document.getElementById('water-today').textContent = h+'L';
-  document.getElementById('prog-hydra-val').textContent = h+'L de '+HYDRA_GOAL+'L';
-  document.getElementById('prog-hydra-pct').textContent = Math.round(pct)+'%';
-  document.getElementById('prog-hydra-bar').style.width = pct+'%';
-  // Animar copo SVG
-  const cupWater = document.getElementById('cup-water');
-  const cupWave  = document.getElementById('cup-wave');
-  if (cupWater) {
-    const fillH = Math.round(pct * 0.63); // 63px de altura interna do copo
-    const y = 74 - fillH;
-    cupWater.setAttribute('y', y);
-    cupWater.setAttribute('height', fillH);
-    // Onda
-    const waveY = y;
-    cupWave.setAttribute('d', `M11 ${waveY} Q20 ${waveY-3} 29 ${waveY} Q38 ${waveY+3} 49 ${waveY}`);
-  }
-  checkCongrats();
-}
-
-function checkWaterAlert() {
-  const alert = document.getElementById('water-alert');
-  if (state.hydra === 0) {
-    document.getElementById('water-alert-msg').textContent = 'Lembre-se de se hidratar! Você ainda não registrou água hoje.';
-    alert.classList.add('show');
-  } else if (state.hydra < HYDRA_GOAL) {
-    document.getElementById('water-alert-msg').textContent = `💧 Você bebeu ${state.hydra}L. Meta: ${HYDRA_GOAL}L. Continue se hidratando!`;
-    alert.classList.add('show');
-  } else {
-    alert.classList.remove('show');
-  }
-}
-
-function startWaterReminder() {
-  // Aviso inicial
-  setTimeout(() => checkWaterAlert(), 1000);
-  // A cada 30 minutos, lembra de beber água
-  setInterval(() => {
-    if (state.hydra < HYDRA_GOAL) {
-      checkWaterAlert();
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('💧 VitaIA – Hora de se hidratar!', { body: `Você bebeu ${state.hydra}L hoje. Meta: ${HYDRA_GOAL}L` });
-      }
+function mostrarTab(tab) {
+    limparErros();
+    if (tab === 'login') {
+        document.getElementById('formLogin').style.display    = 'block';
+        document.getElementById('formCadastro').style.display = 'none';
+        document.getElementById('btnTabLogin').classList.add('ativo');
+        document.getElementById('btnTabCad').classList.remove('ativo');
+        renderizarUsuariosSalvos();
+    } else {
+        document.getElementById('formLogin').style.display    = 'none';
+        document.getElementById('formCadastro').style.display = 'block';
+        document.getElementById('btnTabCad').classList.add('ativo');
+        document.getElementById('btnTabLogin').classList.remove('ativo');
     }
-  }, 30 * 60 * 1000);
-  // Solicitar permissão de notificação
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
 }
 
-/* ════════════════════════════════════
-   NUTRIÇÃO
-════════════════════════════════════ */
-function searchFood() {
-  const q = document.getElementById('food-search').value.toLowerCase().trim();
-  const suggsEl = document.getElementById('food-suggestions');
-  if (!q) { suggsEl.style.display='none'; selectedFood=null; return; }
-  const matches = FOOD_DB.filter(f => f.nome.toLowerCase().includes(q)).slice(0,6);
-  if (!matches.length) { suggsEl.style.display='none'; return; }
-  suggsEl.innerHTML = matches.map((f,i) =>
-    `<div class="food-sugg-item" onclick="selectFoodSugg(${i},'${f.nome.replace(/'/g,"\\'")}')">
-      ${f.nome}
-      <div class="food-sugg-macros">
-        <span style="color:var(--protein)">P: ${f.protein}g</span>
-        <span style="color:#cd853f">C: ${f.carb}g</span>
-        <span style="color:var(--fat)">G: ${f.fat}g</span>
-      </div>
-    </div>`
-  ).join('');
-  suggsEl.style.display='block';
-  // Guardar matches no estado temporário
-  suggsEl._matches = matches;
+function renderizarUsuariosSalvos() {
+    let users = pegarUsuarios();
+    let div = document.getElementById('usuariosSalvos');
+    if (!div) return;
+    if (!users.length) { div.innerHTML=''; return; }
+    div.innerHTML = '<div style="margin-bottom:6px;font-size:11px;color:#aaa;">⚡ rápido:</div>' +
+        users.map(u=>`<span style="display:inline-block;background:#f0f0f0;padding:4px 12px;border-radius:20px;margin:2px;font-size:11px;cursor:pointer" onclick="preencherLogin('${u.email}')">${u.nome||u.email.split('@')[0]}</span>`).join('');
 }
 
-function selectFoodSugg(idx, nome) {
-  const matches = document.getElementById('food-suggestions')._matches;
-  selectedFood = matches[idx];
-  document.getElementById('food-search').value = nome;
-  document.getElementById('food-suggestions').style.display='none';
+function preencherLogin(email) {
+    document.getElementById('loginEmail').value = email;
+    document.getElementById('loginSenha').focus();
 }
 
-function addSelectedFood() {
-  if (!selectedFood) {
-    // Tenta match direto pelo texto
-    const q = document.getElementById('food-search').value.toLowerCase().trim();
-    selectedFood = FOOD_DB.find(f => f.nome.toLowerCase().includes(q));
-  }
-  if (!selectedFood) { alert('Selecione um alimento da lista!'); return; }
-  state.foodLog.push({...selectedFood});
-  state.nutrition.protein += selectedFood.protein;
-  state.nutrition.carb    += selectedFood.carb;
-  state.nutrition.fat     += selectedFood.fat;
-  document.getElementById('food-search').value = '';
-  document.getElementById('food-suggestions').style.display = 'none';
-  selectedFood = null;
-  syncNutritionUI();
-  checkCongrats();
+function fazerLogin() {
+    limparErros();
+    let email = document.getElementById('loginEmail').value.trim();
+    let senha = document.getElementById('loginSenha').value;
+    let users = pegarUsuarios();
+    let user  = users.find(u => u.email === email);
+    if (!user)              { mostrarErro('erroLoginEmail','E-mail não encontrado'); return; }
+    if (user.senha !== senha){ mostrarErro('erroLoginSenha','Senha errada'); return; }
+
+    usuarioAtual = { email: user.email, nome: user.nome };
+    dadosUsuario = user.dados || { metaAgua:2, createdAt:new Date().toISOString(), ultimoReset:new Date().toDateString() };
+
+    let hoje = new Date().toDateString();
+    if (dadosUsuario.ultimoReset !== hoje) {
+        aguaHoje=proteinaHoje=carboHoje=gorduraHoje=0;
+        comidaLog=[]; exerciciosHoje=[];
+        dadosUsuario.ultimoReset=hoje; salvarDadosUsuario();
+    } else {
+        aguaHoje      = dadosUsuario.agua      || 0;
+        proteinaHoje  = dadosUsuario.proteina  || 0;
+        carboHoje     = dadosUsuario.carbo     || 0;
+        gorduraHoje   = dadosUsuario.gordura   || 0;
+        comidaLog     = dadosUsuario.comidas   || [];
+        exerciciosHoje= dadosUsuario.exercicios|| [];
+    }
+
+    document.getElementById('nomeUser').innerText = user.nome;
+    let hora = new Date().getHours();
+    document.getElementById('saudacaoMsg').innerText = hora<12?'Bom dia,':hora<18?'Boa tarde,':'Boa noite,';
+    document.getElementById('telaLogin').style.display = 'none';
+    document.getElementById('telaApp').style.display   = 'flex';
+    mudarPagina('home');
+    mostrarToast(`Bem vindo de volta, ${user.nome}! 🌿`);
 }
 
-function removeFood(idx) {
-  const food = state.foodLog[idx];
-  state.nutrition.protein -= food.protein;
-  state.nutrition.carb    -= food.carb;
-  state.nutrition.fat     -= food.fat;
-  state.foodLog.splice(idx, 1);
-  syncNutritionUI();
-  checkCongrats();
+function fazerCadastro() {
+    limparErros();
+    let nome   = document.getElementById('cadNome').value.trim();
+    let email  = document.getElementById('cadEmail').value.trim();
+    let senha  = document.getElementById('cadSenha').value;
+    let senha2 = document.getElementById('cadSenha2').value;
+    let ok = true;
+    if (!nome)               { mostrarErro('erroCadNome',   'Coloca seu nome aí'); ok=false; }
+    if (!email.includes('@')){ mostrarErro('erroCadEmail',  'Email inválido');      ok=false; }
+    if (senha.length < 4)    { mostrarErro('erroCadSenha',  'Senha muito curta');   ok=false; }
+    if (senha !== senha2)    { mostrarErro('erroCadSenha2', 'Senhas diferentes');   ok=false; }
+    if (!ok) return;
+
+    let users = pegarUsuarios();
+    if (users.find(u=>u.email===email)) { mostrarErro('erroCadEmail','Email já cadastrado'); return; }
+    users.push({ nome, email, senha, dados:{ metaAgua:2, createdAt:new Date().toISOString(), ultimoReset:new Date().toDateString() } });
+    salvarUsuarios(users);
+    mostrarToast('Conta criada! Faça o login','#00b87a');
+    mostrarTab('login');
+    preencherLogin(email);
 }
 
-function syncNutritionUI() {
-  const { protein, carb, fat } = state.nutrition;
-  const pPct = Math.min((protein/NUTR_GOALS.protein)*100,100);
-  const cPct = Math.min((carb/NUTR_GOALS.carb)*100,100);
-  const fPct = Math.min((fat/NUTR_GOALS.fat)*100,100);
-
-  document.getElementById('nutr-protein-val').textContent = Math.round(protein);
-  document.getElementById('nutr-carb-val').textContent    = Math.round(carb);
-  document.getElementById('nutr-fat-val').textContent     = Math.round(fat);
-  document.getElementById('nutr-protein-bar').style.width = pPct+'%';
-  document.getElementById('nutr-carb-bar').style.width    = cPct+'%';
-  document.getElementById('nutr-fat-bar').style.width     = fPct+'%';
-
-  // Progresso
-  document.getElementById('prog-protein-val').textContent = Math.round(protein)+'g de '+NUTR_GOALS.protein+'g';
-  document.getElementById('prog-carb-val').textContent    = Math.round(carb)+'g de '+NUTR_GOALS.carb+'g';
-  document.getElementById('prog-fat-val').textContent     = Math.round(fat)+'g de '+NUTR_GOALS.fat+'g';
-  document.getElementById('prog-protein-pct').textContent = Math.round(pPct)+'%';
-  document.getElementById('prog-carb-pct').textContent    = Math.round(cPct)+'%';
-  document.getElementById('prog-fat-pct').textContent     = Math.round(fPct)+'%';
-  document.getElementById('prog-protein-bar').style.width = pPct+'%';
-  document.getElementById('prog-carb-bar').style.width    = cPct+'%';
-  document.getElementById('prog-fat-bar').style.width     = fPct+'%';
-
-  // Log de alimentos
-  const logEl = document.getElementById('food-log-list');
-  if (!state.foodLog.length) {
-    logEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">Nenhum alimento registrado ainda</div>';
-    return;
-  }
-  logEl.innerHTML = state.foodLog.map((f,i) =>
-    `<div class="food-log-item">
-      <span class="food-log-name">${f.nome}</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="food-log-macros">
-          <span class="food-log-macro-p">P:${Math.round(f.protein)}g</span>
-          <span class="food-log-macro-c">C:${Math.round(f.carb)}g</span>
-          <span class="food-log-macro-f">G:${Math.round(f.fat)}g</span>
-        </span>
-        <button class="btn-del-food" onclick="removeFood(${i})">✕</button>
-      </div>
-    </div>`
-  ).join('');
+function sair() {
+    if (confirm('Sair da conta?')) {
+        usuarioAtual=dadosUsuario=null;
+        document.getElementById('telaApp').style.display   = 'none';
+        document.getElementById('telaLogin').style.display = 'flex';
+        mostrarTab('login');
+    }
 }
 
-/* ════════════════════════════════════
-   EXERCÍCIOS
-════════════════════════════════════ */
-function toggleExercise(id, label) {
-  const btn = document.getElementById('ex-'+id);
-  const idx = state.exercises.indexOf(label);
-  if (idx >= 0) {
-    state.exercises.splice(idx, 1);
-    btn.classList.remove('done');
-  } else {
-    state.exercises.push(label);
-    btn.classList.add('done');
-  }
-  const logEl = document.getElementById('exercise-log');
-  logEl.textContent = state.exercises.length ? '✓ ' + state.exercises.join(' · ') : 'Nenhum exercício registrado hoje.';
-  checkCongrats();
+// ===== navegação =====
+async function mudarPagina(pagina, el) {
+    paginaAtual = pagina;
+    document.querySelectorAll('.menuItem').forEach(i=>i.classList.remove('ativo'));
+    (el || document.querySelector(`.menuItem[data-pagina="${pagina}"]`))?.classList.add('ativo');
+    let conteudo = document.getElementById('conteudo');
+    conteudo.scrollTop = 0;
+
+    if (pagina === 'home') {
+        conteudo.innerHTML = gerarHome();
+        document.querySelectorAll('.moodBtn').forEach(btn=>
+            btn.addEventListener('click',()=>registrarHumor(parseInt(btn.dataset.mood))));
+        document.querySelectorAll('.aguaBtn').forEach(btn=>
+            btn.addEventListener('click',()=>adicionarAgua(parseFloat(btn.dataset.litros))));
+        await carregarInsight();
+    } else if (pagina === 'progresso') {
+        conteudo.innerHTML = gerarProgresso();
+    } else if (pagina === 'plano') {
+        conteudo.innerHTML = gerarPlano();
+        document.getElementById('btnGerarPlano').addEventListener('click', gerarPlanoIA);
+    } else if (pagina === 'labs') {
+        conteudo.innerHTML = gerarLabs();
+    } else if (pagina === 'tele') {
+        conteudo.innerHTML = gerarTele();
+    }
 }
 
-/* ════════════════════════════════════
-   PARABÉNS
-════════════════════════════════════ */
-function checkCongrats() {
-  const hydraOk   = state.hydra >= HYDRA_GOAL;
-  const proteinOk = state.nutrition.protein >= NUTR_GOALS.protein;
-  const carbOk    = state.nutrition.carb    >= NUTR_GOALS.carb;
-  const fatOk     = state.nutrition.fat     >= NUTR_GOALS.fat;
-  const banner    = document.getElementById('congrats-banner');
-  const sub       = document.getElementById('congrats-sub');
-  if (!banner) return;
-
-  const metas = [];
-  if (hydraOk) metas.push('Hidratação 💧');
-  if (proteinOk) metas.push('Proteína 🥩');
-  if (carbOk) metas.push('Carboidratos 🍚');
-  if (fatOk) metas.push('Gordura 🥑');
-  if (state.exercises.length) metas.push('Exercícios 💪');
-
-  if (hydraOk && proteinOk) {
-    banner.classList.add('show');
-    sub.textContent = 'Metas atingidas: ' + metas.join(', ') + '!';
-  } else {
-    banner.classList.remove('show');
-  }
+// ===== geradores de HTML =====
+function gerarHome() {
+    let metaAgua    = dadosUsuario?.metaAgua || 2;
+    let pctAgua     = Math.min((aguaHoje/metaAgua)*100, 100);
+    let pctProteina = Math.min((proteinaHoje/120)*100, 100);
+    return `
+        <div class="cardGrande" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white">
+            <div style="font-size:13px;opacity:0.8;margin-bottom:12px">Como você está hoje?</div>
+            <div style="display:flex;justify-content:space-around">
+                ${[['1','😢','Mal'],['2','😟','Instável'],['3','😐','Neutro'],['4','🙂','Bem'],['5','😄','Ótimo']].map(([m,e,l])=>`
+                <button class="moodBtn" data-mood="${m}" style="background:none;border:none;color:white;text-align:center;cursor:pointer;padding:8px 4px;border-radius:12px;font-family:'Inter',sans-serif">
+                    <div style="font-size:26px">${e}</div><small style="font-size:10px">${l}</small>
+                </button>`).join('')}
+            </div>
+        </div>
+        <div class="cardGrande">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>💧 Água hoje</span>
+                <span style="font-weight:600">${aguaHoje.toFixed(1)}L / ${metaAgua}L</span>
+            </div>
+            <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:12px">
+                <div style="height:100%;width:${pctAgua}%;background:#00b87a;border-radius:4px;transition:width 0.4s"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button class="aguaBtn" data-litros="0.2" style="flex:1;padding:10px 0;background:#e0f2fe;border:none;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600">+200ml</button>
+                <button class="aguaBtn" data-litros="0.5" style="flex:1;padding:10px 0;background:#e0f2fe;border:none;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600">+500ml</button>
+                <button class="aguaBtn" data-litros="1"   style="flex:1;padding:10px 0;background:#e0f2fe;border:none;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600">+1L</button>
+            </div>
+        </div>
+        <div class="cardGrande">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>🥩 Proteína</span>
+                <span style="font-weight:600">${Math.round(proteinaHoje)}g / 120g</span>
+            </div>
+            <div style="height:6px;background:#eee;border-radius:4px;margin-bottom:14px">
+                <div style="height:100%;width:${pctProteina}%;background:#ff5e7a;border-radius:4px;transition:width 0.4s"></div>
+            </div>
+            <div style="background:#f5f5ff;padding:14px;border-radius:12px">
+                <div style="font-weight:600">🤖 Insight</div>
+                <div id="insightTexto" style="font-size:13px;margin-top:6px;color:#555">Carregando...</div>
+            </div>
+        </div>
+        <button class="btn" id="btnAjuda" style="margin-top:4px">🆘 Preciso de ajuda agora</button>`;
 }
 
-/* ════════════════════════════════════
-   AJUDA IMEDIATA
-════════════════════════════════════ */
-function openAjuda(mood) {
-  state.chatHistory = [];
-  const chatEl = document.getElementById('ajuda-chat');
-  chatEl.innerHTML = '';
-  document.getElementById('ajuda-input').value = '';
-  document.getElementById('ajuda-input').style.height = 'auto';
-  document.getElementById('ajuda-btn').textContent = 'OBTER ORIENTAÇÃO IA';
-  document.getElementById('ajuda-btn').disabled = false;
-  const intro = (mood !== undefined && moodCtx[mood]) ? moodCtx[mood] : 'Olá! Como posso te ajudar hoje?';
-  appendBubble('ajuda-chat','ai', intro);
-  state.chatHistory.push({ role:'assistant', content:intro });
-  document.getElementById('modal-ajuda').classList.add('active');
-  setTimeout(() => document.getElementById('ajuda-input').focus(), 300);
-}
-function appendBubble(areaId, who, text) {
-  const chat = document.getElementById(areaId);
-  const div = document.createElement('div');
-  div.className = 'chat-bubble ' + who;
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div;
-}
-async function sendAjuda() {
-  const input = document.getElementById('ajuda-input');
-  const text = input.value.trim();
-  if (!text) return;
-  appendBubble('ajuda-chat','user', text);
-  input.value = ''; input.style.height = 'auto';
-  state.chatHistory.push({ role:'user', content:text });
-  const btn = document.getElementById('ajuda-btn');
-  btn.disabled = true; btn.textContent = 'Pensando...';
-  const typing = appendBubble('ajuda-chat','ai typing','...');
-  const nutrInfo = `Nutrição hoje: Proteína ${Math.round(state.nutrition.protein)}g, Carb ${Math.round(state.nutrition.carb)}g, Gordura ${Math.round(state.nutrition.fat)}g.`;
-  const exInfo = state.exercises.length ? 'Exercícios: '+state.exercises.join(', ')+'.' : '';
-  const sysPrompt = `Você é VitaIA, assistente empático de qualidade de vida. Usuário: "${state.name}". Humor atual: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não informado'}. Hidratação: ${state.hydra}L. ${nutrInfo} ${exInfo} Responda de forma calorosa, prática e concisa (máximo 4 frases). Se perceber crise emocional severa, indique gentilmente o CVV (188).`;
-  try {
-    const reply = await callAIChat(sysPrompt, state.chatHistory);
-    typing.classList.remove('typing'); typing.textContent = reply;
-    state.chatHistory.push({ role:'assistant', content:reply });
-    state.planCount++; syncMoodUI();
-    btn.textContent = 'OUTRA PERGUNTA';
-  } catch(e) {
-    typing.classList.remove('typing');
-    typing.textContent = e.message.includes('API Key') ? '⚠️ '+e.message : 'Respire fundo. Você não está sozinho. Tente novamente em instantes.';
-    btn.textContent = 'TENTAR NOVAMENTE';
-  } finally {
-    btn.disabled = false;
-    document.getElementById('ajuda-chat').scrollTop = 9999;
-  }
+function gerarProgresso() {
+    return `
+        <div class="cardGrande">
+            <div class="cardGrande" style="margin-bottom:12px;background:#f0f0ff">
+                <div style="font-size:12px;color:#888">Média de humor</div>
+                <div style="font-size:28px;font-weight:700;color:#667eea">Ainda sem registros</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div style="background:#f9f9ff;padding:14px;border-radius:14px"><div style="font-size:11px;color:#888">Água hoje</div><div style="font-size:22px;font-weight:700;color:#00b87a">${aguaHoje.toFixed(1)}L</div></div>
+                <div style="background:#f9f9ff;padding:14px;border-radius:14px"><div style="font-size:11px;color:#888">Proteína</div><div style="font-size:22px;font-weight:700;color:#ff5e7a">${Math.round(proteinaHoje)}g</div></div>
+                <div style="background:#f9f9ff;padding:14px;border-radius:14px"><div style="font-size:11px;color:#888">Carboidratos</div><div style="font-size:22px;font-weight:700;color:#667eea">${Math.round(carboHoje)}g</div></div>
+                <div style="background:#f9f9ff;padding:14px;border-radius:14px"><div style="font-size:11px;color:#888">Gordura</div><div style="font-size:22px;font-weight:700;color:#f59e0b">${Math.round(gorduraHoje)}g</div></div>
+            </div>
+        </div>
+        <div class="cardGrande">
+            <div style="font-weight:600;margin-bottom:12px">💪 Exercícios hoje</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+                ${['Caminhada','Corrida','Musculação','Yoga','Natação','Ciclismo'].map(ex=>`
+                <button class="exBtn" data-ex="${ex}" style="padding:8px 14px;background:${exerciciosHoje.includes(ex)?'#667eea':'#f0f0f0'};color:${exerciciosHoje.includes(ex)?'white':'#333'};border:none;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;transition:background 0.15s,color 0.15s">${ex}</button>`).join('')}
+            </div>
+            <div id="exLog" style="margin-top:12px;font-size:12px;color:#888">${exerciciosHoje.length?'✓ '+exerciciosHoje.join(' · '):'Nenhum exercício registrado'}</div>
+        </div>`;
 }
 
-/* ════════════════════════════════════
-   PLANOS
-════════════════════════════════════ */
-async function generatePlan() {
-  document.querySelector('.plans-hero').style.display='none';
-  document.getElementById('plan-loading').style.display='block';
-  document.getElementById('plan-result').classList.remove('visible');
-  const lastMood = state.moodLog.length?state.moodLog[state.moodLog.length-1].mood:3;
-  const nutrInfo = `Proteína: ${Math.round(state.nutrition.protein)}g/${NUTR_GOALS.protein}g, Carb: ${Math.round(state.nutrition.carb)}g/${NUTR_GOALS.carb}g, Gordura: ${Math.round(state.nutrition.fat)}g/${NUTR_GOALS.fat}g`;
-  const exInfo = state.exercises.length ? state.exercises.join(', ') : 'nenhum';
-  try {
-    const text = await callAI(`Crie um plano de qualidade de vida para "${state.name}". Humor: ${moodLabels[lastMood]} (${lastMood}/5). Hidratação: ${state.hydra}L de ${HYDRA_GOAL}L. Nutrição: ${nutrInfo}. Exercícios hoje: ${exInfo}. Responda APENAS em JSON sem markdown: {"saudacao":"...","manha":["..."],"almoco":["..."],"tarde":["..."],"noite":["..."]}`);
-    const plan = JSON.parse(text.replace(/```json|```/g,'').trim());
-    document.getElementById('plan-loading').style.display='none';
-    const result = document.getElementById('plan-result');
-    result.innerHTML = `<div class="insight-card" style="margin-bottom:16px"><div class="insight-title">✦ Seu plano para hoje</div><div class="insight-body">${plan.saudacao||''}</div></div>${rPS('🌅 Manhã',plan.manha)}${rPS('🥗 Alimentação',plan.almoco)}${rPS('☀️ Tarde',plan.tarde)}${rPS('🌙 Noite',plan.noite)}<button class="btn-outline" style="width:100%;margin-top:8px" onclick="resetPlan()">Refazer Plano</button>`;
-    result.classList.add('visible');
-    state.planCount++; syncMoodUI();
-  } catch(e) {
-    document.getElementById('plan-loading').style.display='none';
-    document.getElementById('plan-result').innerHTML=`<div class="plan-item">${e.message.includes('API Key')?'⚠️ '+e.message:'Não foi possível gerar o plano agora. Tente novamente.'}</div>`;
-    document.getElementById('plan-result').classList.add('visible');
-  }
-}
-function rPS(t,items){ return items?.length?`<div class="plan-section"><h3>${t}</h3>${items.map(i=>`<div class="plan-item">${i}</div>`).join('')}</div>`:''; }
-function resetPlan(){ document.querySelector('.plans-hero').style.display='flex'; document.getElementById('plan-result').classList.remove('visible'); document.getElementById('plan-result').innerHTML=''; }
-
-/* ════════════════════════════════════
-   LABS
-════════════════════════════════════ */
-function openLabScreen(name) {
-  document.getElementById('lab-list-view').style.display='none';
-  document.querySelectorAll('.lab-screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('lab-screen-'+name).classList.add('active');
-}
-function closeLabScreen() {
-  document.querySelectorAll('.lab-screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('lab-list-view').style.display='flex';
-}
-function handleImageUpload(event) {
-  const file = event.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    const preview = document.getElementById('visao-preview');
-    preview.src = dataUrl; preview.style.display = 'block';
-    document.getElementById('visao-upload-area').style.display = 'none';
-    state.visaoImageData = dataUrl.split(',')[1];
-  };
-  reader.readAsDataURL(file);
-}
-const labPrompts = {
-  visao: (input) => `Você é nutricionista e personal trainer. Analise a imagem e: "${input}". Dê análise detalhada com 3-5 pontos práticos.`,
-  explorador: (input) => `Você é guia de bem-estar. O usuário busca: "${input}". Dê dicas práticas sobre locais saudáveis.`,
-  deepthink: (input) => `Você é consultor de saúde com embasamento científico. Analise com profundidade: "${input}". Estruture com contexto, análise e recomendações práticas.`,
-  voz: (input) => `Você é guia de bem-estar. Crie orientação calorosa e motivacional sobre: "${input}". Tom calmo e encorajador. Máximo 5 frases.`
-};
-async function executeLab(labName) {
-  const inputEl=document.getElementById(labName+'-input'), btnEl=document.getElementById(labName+'-btn'), responseEl=document.getElementById(labName+'-response'), responseTextEl=document.getElementById(labName+'-response-text');
-  const input=inputEl.value.trim(); if (!input) { inputEl.focus(); return; }
-  btnEl.disabled=true; btnEl.textContent='Consultando IA...'; responseEl.classList.remove('visible');
-  const imageData = labName==='visao' ? state.visaoImageData : null;
-  try {
-    const text = await callAI(labPrompts[labName](input), imageData);
-    responseTextEl.textContent = text; responseEl.classList.add('visible');
-    if (labName==='voz') { state.vozText=text; setupVozPlayer(text); }
-    state.planCount++; syncMoodUI();
-  } catch(e) {
-    responseTextEl.textContent = e.message.includes('API Key') ? '⚠️ '+e.message : '❌ Erro ao consultar a IA.';
-    responseEl.classList.add('visible');
-  } finally { btnEl.disabled=false; btnEl.textContent='EXECUTAR IA'; }
+function gerarPlano() {
+    return `
+        <div class="cardGrande" style="text-align:center;padding:28px 18px">
+            <div style="font-size:48px;margin-bottom:12px">🧠</div>
+            <h3 style="margin-bottom:8px;font-size:18px">Seu plano personalizado</h3>
+            <p style="color:#666;font-size:13px;margin-bottom:20px">Baseado no seu humor e hábitos</p>
+            <button class="btn" id="btnGerarPlano">Gerar Plano IA →</button>
+        </div>
+        <div id="resultadoPlano" style="display:none"></div>`;
 }
 
-/* ════════════════════════════════════
-   VOZ VITAL
-════════════════════════════════════ */
-function setupVozPlayer(text) {
-  if (!window.speechSynthesis) return;
-  const player = document.getElementById('voz-player');
-  player.classList.add('visible');
-  const wave = document.getElementById('voz-wave'); wave.innerHTML='';
-  for (let i=0;i<28;i++){const span=document.createElement('span');const h=4+Math.random()*24;span.style.height=h+'px';span.style.animationDelay=(i*0.06)+'s';wave.appendChild(span);}
-  speakVoz(text);
-}
-function speakVoz(text){if(!window.speechSynthesis)return;speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.lang='pt-BR';utt.rate=0.9;utt.pitch=1;state.vozUtterance=utt;utt.onstart=()=>document.getElementById('voz-play-btn').textContent='⏸';utt.onend=()=>document.getElementById('voz-play-btn').textContent='▶';speechSynthesis.speak(utt);}
-function toggleVozPlayback(){if(!window.speechSynthesis)return;if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();document.getElementById('voz-play-btn').textContent='▶';}else if(speechSynthesis.paused){speechSynthesis.resume();document.getElementById('voz-play-btn').textContent='⏸';}else if(state.vozText){speakVoz(state.vozText);}}
-
-/* ════════════════════════════════════
-   MIC
-════════════════════════════════════ */
-let recognition = null;
-function toggleMic(inputId, micBtnId) {
-  const micBtn = document.getElementById(micBtnId);
-  if (!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome para reconhecimento de voz.');return;}
-  if (recognition && recognition._active){recognition.stop();return;}
-  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR(); recognition.lang='pt-BR'; recognition.continuous=false; recognition.interimResults=false; recognition._active=true;
-  micBtn.classList.add('recording');
-  recognition.onresult=(e)=>{const t=e.results[0][0].transcript;const el=document.getElementById(inputId);el.value=(el.value?el.value+' ':'')+t;};
-  recognition.onend=()=>{recognition._active=false;micBtn.classList.remove('recording');};
-  recognition.onerror=()=>{recognition._active=false;micBtn.classList.remove('recording');};
-  recognition.start();
+function gerarLabs() {
+    return `
+        <div class="cardGrande" onclick="labVisaoPro()" style="cursor:pointer;display:flex;align-items:center;gap:14px">
+            <span style="font-size:32px">👁️</span><div><strong>Visão Pro</strong><br><small style="color:#888">Analisar foto de comida</small></div>
+        </div>
+        <div class="cardGrande" onclick="labExplorador()" style="cursor:pointer;display:flex;align-items:center;gap:14px">
+            <span style="font-size:32px">📍</span><div><strong>Explorador</strong><br><small style="color:#888">Dicas de lugares saudáveis</small></div>
+        </div>
+        <div class="cardGrande" onclick="labDeepThink()" style="cursor:pointer;display:flex;align-items:center;gap:14px">
+            <span style="font-size:32px">💡</span><div><strong>Deep Think</strong><br><small style="color:#888">Consultas profundas</small></div>
+        </div>`;
 }
 
-/* ════════════════════════════════════
-   TELESAÚDE
-════════════════════════════════════ */
-let currentSchedProf = '';
-function selectTeleType(type) {
-  alert(type==='chat' ? '💬 Chat selecionado! Escolha um profissional abaixo.' : '📹 Vídeo selecionado! Escolha um profissional abaixo.');
-}
-function openTeleChat(profName, spec) {
-  state.teleChatProf = profName;
-  state.teleChatHistory = [];
-  document.getElementById('tele-chat-title').textContent = '💬 Chat com '+profName;
-  document.getElementById('tele-chat-sub').textContent = spec+' · Consulta segura e criptografada';
-  const chatEl = document.getElementById('tele-chat-area');
-  chatEl.innerHTML = '';
-  const intro = `Olá! Sou ${profName}, ${spec}. Como posso te ajudar hoje? Você pode me enviar fotos de refeições, dúvidas sobre treinos ou qualquer questão de saúde.`;
-  appendBubble('tele-chat-area','ai', intro);
-  state.teleChatHistory.push({ role:'assistant', content:intro });
-  document.getElementById('modal-tele-chat').classList.add('active');
-}
-async function sendTeleChat() {
-  const input = document.getElementById('tele-chat-input');
-  const text = input.value.trim(); if (!text) return;
-  appendBubble('tele-chat-area','user', text);
-  input.value=''; input.style.height='auto';
-  state.teleChatHistory.push({ role:'user', content:text });
-  const btn = document.getElementById('tele-chat-btn');
-  btn.disabled=true; btn.textContent='...';
-  const typing = appendBubble('tele-chat-area','ai typing','...');
-  const nutrInfo = `Dados do paciente: Proteína ${Math.round(state.nutrition.protein)}g, Carb ${Math.round(state.nutrition.carb)}g, Gordura ${Math.round(state.nutrition.fat)}g. Água: ${state.hydra}L. Humor: ${state.moodLog.length?moodLabels[state.moodLog[state.moodLog.length-1].mood]:'não registrado'}.`;
-  const sysPrompt = `Você é ${state.teleChatProf}, um profissional de saúde compassivo. ${nutrInfo} Responda de forma profissional, prática e empática. Máximo 4 frases.`;
-  try {
-    const reply = await callAIChat(sysPrompt, state.teleChatHistory);
-    typing.classList.remove('typing'); typing.textContent = reply;
-    state.teleChatHistory.push({ role:'assistant', content:reply });
-  } catch(e) {
-    typing.classList.remove('typing');
-    typing.textContent = '⚠️ Erro de conexão. Tente novamente.';
-  } finally { btn.disabled=false; btn.textContent='ENVIAR'; document.getElementById('tele-chat-area').scrollTop=9999; }
-}
-function scheduleTele(profName) {
-  currentSchedProf = profName;
-  document.getElementById('schedule-prof-name').textContent = '📹 Consulta por vídeo com '+profName;
-  const now = new Date(); now.setMinutes(0,0,0); now.setHours(now.getHours()+1);
-  document.getElementById('schedule-datetime').value = now.toISOString().slice(0,16);
-  document.getElementById('modal-schedule').classList.add('active');
-}
-function confirmSchedule() {
-  const dt = document.getElementById('schedule-datetime').value;
-  const type = document.getElementById('schedule-type').value;
-  if (!dt) { alert('Selecione data e horário.'); return; }
-  const d = new Date(dt);
-  const label = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} • ${d.toLocaleDateString('pt-BR')}`;
-  state.teleSchedules.push({ prof:currentSchedProf, time:label, type });
-  renderSchedules();
-  closeModal('modal-schedule');
-  alert(`✓ Consulta agendada com ${currentSchedProf} em ${label}!`);
-}
-function renderSchedules() {
-  const el = document.getElementById('tele-schedule-list');
-  if (!state.teleSchedules.length) { el.innerHTML='<div style="font-size:13px;color:var(--muted);padding:12px 0;">Nenhuma consulta agendada. Escolha um profissional acima!</div>'; return; }
-  el.innerHTML = state.teleSchedules.map(s =>
-    `<div class="tele-sched-item">
-      <div class="tele-sched-time">${s.time}</div>
-      <div><div class="tele-sched-name">${s.prof}</div><div class="tele-sched-type">${s.type==='video'?'📹 Vídeo':'💬 Chat'}</div></div>
-      <span class="tele-badge ${s.type==='video'?'badge-video':'badge-chat'}">${s.type==='video'?'VIDEO':'CHAT'}</span>
-    </div>`
-  ).join('');
-}
-function rateTele(stars) {
-  document.querySelectorAll('.tele-rating-star').forEach((s,i)=>{s.style.color=i<stars?'#ffd700':'#333';});
-  document.getElementById('tele-rating-msg').textContent = ['','⭐ Precisa melhorar','⭐⭐ Regular','⭐⭐⭐ Bom','⭐⭐⭐⭐ Muito bom!','⭐⭐⭐⭐⭐ Excelente! Obrigado!'][stars];
-}
-function updateTeleSuggestion() {
-  const el = document.getElementById('tele-ia-suggestion');
-  if (!el) return;
-  const mood = state.moodLog.length ? state.moodLog[state.moodLog.length-1].mood : null;
-  const proteinLow = state.nutrition.protein < NUTR_GOALS.protein * 0.5;
-  if (mood && mood <= 2) {
-    el.textContent = '🧠 Sua IA detectou humor baixo. Recomendamos uma consulta com um profissional de saúde mental. Clique em um dos profissionais abaixo!';
-  } else if (proteinLow && state.foodLog.length > 0) {
-    el.textContent = '🥗 Com base nos seus dados, sua ingestão de proteína está abaixo do ideal. Sugerimos uma consulta com nossa nutricionista Dra. Ana Ribeiro!';
-  } else if (state.hydra < HYDRA_GOAL && state.hydra > 0) {
-    el.textContent = '💧 Sua hidratação está abaixo da meta. Um personal trainer pode ajudar a criar hábitos saudáveis. Fale com Carlos Mendes!';
-  } else {
-    el.textContent = 'Continue registrando seus dados (humor, nutrição, água) e a IA irá sugerir o profissional ideal para você!';
-  }
+function gerarTele() {
+    return `
+        <div class="cardGrande" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);color:white;text-align:center;padding:24px">
+            <div style="font-size:36px;margin-bottom:8px">🩺</div>
+            <div style="font-weight:700;font-size:18px">TeleSaúde</div>
+            <div style="font-size:13px;opacity:0.9;margin-top:4px">Consultas online com profissionais</div>
+        </div>
+        <div class="cardGrande">
+            <div style="font-weight:600;margin-bottom:12px">Profissionais</div>
+            <div onclick="agendarConsulta('Dra. Ana - Nutri')"      style="padding:14px;background:#f9f9ff;border-radius:12px;margin-bottom:8px;cursor:pointer">🥗 Dra. Ana Ribeiro - Nutricionista</div>
+            <div onclick="agendarConsulta('Carlos - Personal')"     style="padding:14px;background:#f9f9ff;border-radius:12px;margin-bottom:8px;cursor:pointer">💪 Carlos Mendes - Personal Trainer</div>
+            <div onclick="agendarConsulta('Dra. Mariana - Médica')" style="padding:14px;background:#f9f9ff;border-radius:12px;cursor:pointer">🩺 Dra. Mariana Costa - Clínica Geral</div>
+        </div>
+        <div class="cardGrande">
+            <div style="font-weight:600;margin-bottom:8px">Próximas consultas</div>
+            ${consultasAgendadas.length
+                ? consultasAgendadas.map(c=>`<div style="padding:8px;border-bottom:1px solid #eee">📅 ${c.data} - ${c.prof}</div>`).join('')
+                : '<div style="color:#888;font-size:13px">Nenhuma consulta agendada</div>'}
+        </div>`;
 }
 
-/* ════════════════════════════════════
-   FAQ & MODALS
-════════════════════════════════════ */
-function toggleFaq(btn) {
-  const ans=btn.nextElementSibling, isOpen=ans.classList.contains('open');
-  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
-  if (!isOpen) ans.classList.add('open');
+// ===== ações =====
+function registrarHumor(valor) {
+    ultimoHumor = valor;
+    mostrarToast(`Humor registrado: ${['','Mal','Instável','Neutro','Bem','Ótimo'][valor]} 💙`);
+    carregarInsight();
 }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target===el) el.classList.remove('active'); });
+
+function adicionarAgua(litros) {
+    aguaHoje += litros;
+    dadosUsuario.agua = aguaHoje;
+    salvarDadosUsuario();
+    mostrarToast(`+${litros}L de água! Total: ${aguaHoje.toFixed(1)}L 💧`, '#00b87a');
+    mudarPagina('home');
+}
+
+async function carregarInsight() {
+    let el = document.getElementById('insightTexto');
+    if (!el) return;
+    el.innerHTML = '<em style="color:#aaa">Gerando insight...</em>';
+    try {
+        let r = await chamarGroq(`Você é um coach de saúde. Usuário está com humor ${ultimoHumor}/5, bebeu ${aguaHoje}L de água hoje. Dê 1 frase motivacional curta.`);
+        el.innerHTML = r;
+    } catch { el.innerHTML = 'Continue assim! Seu bem-estar é importante. 💪'; }
+}
+
+async function gerarPlanoIA() {
+    let resultado = document.getElementById('resultadoPlano');
+    let btn       = document.getElementById('btnGerarPlano');
+    if (!btn||!resultado) return;
+    btn.disabled=true; btn.innerText='Gerando...';
+    resultado.style.display='block';
+    resultado.innerHTML='<div class="cardGrande" style="text-align:center;padding:20px">⏳ Pensando no seu plano...</div>';
+    try {
+        let labels=['','mal','instável','neutro','bem','ótimo'];
+        let prompt=`Crie um pequeno plano de qualidade de vida para alguém que se sente ${labels[ultimoHumor]}, bebeu ${aguaHoje}L de água e consumiu ${Math.round(proteinaHoje)}g de proteína, ${Math.round(carboHoje)}g de carboidrato. Responda em 2-3 frases curtas.`;
+        let r = await chamarGroq(prompt);
+        resultado.innerHTML=`<div class="cardGrande" style="background:#e8f5e9;border-color:#c8e6c9">✨ ${r}</div>`;
+    } catch {
+        resultado.innerHTML=`<div class="cardGrande" style="color:#e74c3c;border-color:#fdd">⚠️ Não consegui gerar o plano agora. Tente de novo!</div>`;
+    }
+    btn.disabled=false; btn.innerText='Gerar Plano IA →';
+}
+
+// ===== chat =====
+function iniciarChat() {
+    historicoChat=[];
+    let area=document.getElementById('chatArea');
+    if (area) area.innerHTML='<div class="bolha ai">Olá! Como posso te ajudar hoje? 😊</div>';
+    let input=document.getElementById('chatInput');
+    if (input) input.value='';
+}
+
+async function enviarChat() {
+    let input=document.getElementById('chatInput');
+    let msg=input?.value.trim();
+    if (!msg) return;
+    let area=document.getElementById('chatArea');
+    area.innerHTML+=`<div class="bolha user">${msg}</div>`;
+    input.value=''; area.scrollTop=area.scrollHeight;
+    let typing=document.createElement('div');
+    typing.className='bolha ai'; typing.innerHTML='<em>digitando...</em>';
+    area.appendChild(typing); area.scrollTop=area.scrollHeight;
+    historicoChat.push({role:'user',content:msg});
+    try {
+        let r=await chamarGroqChat('Você é VitaIA, assistente de saúde empático. Responda de forma acolhedora e curta.',historicoChat);
+        typing.remove();
+        area.innerHTML+=`<div class="bolha ai">${r}</div>`;
+        historicoChat.push({role:'assistant',content:r});
+    } catch { typing.innerHTML='Tente novamente em alguns segundos.'; }
+    area.scrollTop=area.scrollHeight;
+}
+
+document.addEventListener('keydown', e => {
+    if (e.target.id==='chatInput' && e.key==='Enter' && !e.shiftKey) { e.preventDefault(); enviarChat(); }
 });
 
-// Fechar sugestões ao clicar fora
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.food-search-wrap')) {
-    document.getElementById('food-suggestions').style.display = 'none';
-  }
+// ===== API Groq =====
+async function chamarGroq(prompt) {
+    let res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${CHAVE_API}`},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:300})
+    });
+    let data=await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+}
+async function chamarGroqChat(sys, history) {
+    let res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${CHAVE_API}`},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'system',content:sys},...history],max_tokens:400})
+    });
+    let data=await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+}
+
+// ===== labs / tele =====
+function labVisaoPro()   { alert('📸 Função de foto chegará em breve! Por enquanto, diga o que comeu no chat de ajuda.'); }
+function labExplorador() { alert('📍 Explorador: tente usar o chat de ajuda para dicas de locais saudáveis!'); }
+function labDeepThink()  { alert('💡 DeepThink: perguntas complexas podem ser feitas no chat de ajuda.'); }
+function agendarConsulta(prof) { alert(`✅ Consulta agendada com ${prof}! Você receberá um lembrete.`); }
+function fechaModal(id)  { document.getElementById(id)?.classList.remove('visivel'); }
+
+// ===== delegação de eventos globais =====
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('exBtn')) {
+        let ex    = e.target.dataset.ex;
+        let ativo = exerciciosHoje.includes(ex);
+        if (ativo) exerciciosHoje = exerciciosHoje.filter(i=>i!==ex);
+        else       exerciciosHoje.push(ex);
+        ativo = !ativo;
+        e.target.style.background = ativo ? '#667eea' : '#f0f0f0';
+        e.target.style.color      = ativo ? 'white'   : '#333';
+        dadosUsuario.exercicios   = exerciciosHoje;
+        salvarDadosUsuario();
+        let log=document.getElementById('exLog');
+        if (log) log.innerHTML = exerciciosHoje.length ? '✓ '+exerciciosHoje.join(' · ') : 'Nenhum exercício registrado';
+        mostrarToast(ativo ? `✓ ${ex} adicionado!` : `✗ ${ex} removido`);
+    }
+    if (e.target.id === 'btnAjuda') {
+        document.getElementById('modalChat').classList.add('visivel');
+        iniciarChat();
+    }
 });
+
+// ===== inicialização =====
+renderizarUsuariosSalvos();
 </script>
 </body>
 </html>
