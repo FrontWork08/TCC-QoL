@@ -68,13 +68,12 @@ let NUTR_GOALS = { protein:120, carb:250, fat:60 };
 let HYDRA_GOAL = 2;
 let selectedFood = null;
 
-/* ══ API KEY (Groq) — Integrada no código fonte ══ */
-const _VITAIA_GROQ_KEY = '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';
-function getApiKey() { return _VITAIA_GROQ_KEY; }
-
-/* ══ INTERNAL ANTHROPIC API ══ */
-// Esta chave é usada internamente — o usuário não precisa configurar manualmente
-const _VITAIA_INTERNAL = btoa('vitaia-internal-2025');
+/* ══ API KEY (Groq) — OPCIONAL, plano B ══
+   A IA principal roda via /api/ai (backend seguro). Isto aqui só é usado
+   se o próprio usuário colar uma chave Groq pessoal na tela de perfil,
+   como plano B caso o backend fique fora do ar. Nenhuma chave fica
+   embutida no código-fonte. */
+function getApiKey() { return localStorage.getItem('vitaia_api_key') || ''; }
 
 /* ══════════════════════════════════════════
    LOCALSTORAGE — SAVE/LOAD
@@ -287,52 +286,46 @@ function checkKey() {
     return;
   }
 }
-async function callAI(prompt, imageData) {
+/* ══ PONTE SEGURA COM A IA ══
+   Todo o app fala com /api/ai (rota do seu próprio servidor/Vercel),
+   que guarda a chave da Anthropic no backend. Nada de chave exposta
+   no navegador. Se o usuário tiver configurado uma chave Groq própria
+   no perfil, ela é usada como plano B caso o backend esteja fora do ar. */
+async function callBackendAI({ prompt, system, history, imageData } = {}) {
+  const res = await fetch('/api/ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, system, history, imageData })
+  });
+  let data;
+  try { data = await res.json(); } catch(e) { throw new Error('Resposta inválida do servidor.'); }
+  if (!res.ok || data.error) throw new Error(data.error || 'Erro ao consultar a IA.');
+  return data.text || '';
+}
+
+async function callGroqFallback(sysPrompt, messages, imageData) {
   const API_KEY = getApiKey();
-  // Try internal Anthropic API first if no Groq key
-  if (!API_KEY || API_KEY.trim().length < 20) {
-    try {
-      const antRes = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1024, messages: [{ role: 'user', content: prompt }] })
-      });
-      const antData = await antRes.json();
-      if (!antData.error && antData.content?.[0]?.text) return antData.content[0].text;
-    } catch(e2) { /* fallback to error below */ }
-    throw new Error('API Key não configurada. Acesse o perfil para configurar sua chave Groq, ou a API interna está indisponível.');
-  }
-  const messages = [];
-  if (imageData) {
-    messages.push({ role:'user', content:[{ type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+imageData } },{ type:'text', text:prompt }] });
-  } else {
-    messages.push({ role:'user', content:prompt });
-  }
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
+  if (!API_KEY || API_KEY.trim().length < 20) throw new Error('Backend de IA indisponível e nenhuma chave Groq configurada. Configure ANTHROPIC_API_KEY no servidor, ou adicione uma chave Groq no perfil.');
+  const msgs = sysPrompt ? [{ role:'system', content:sysPrompt }, ...messages] : messages;
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages:msgs }) });
   const data = await res.json();
   if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
   return data.choices?.[0]?.message?.content||'';
 }
-async function callAIChat(sysPrompt, history) {
-  const API_KEY = getApiKey();
-  if (!API_KEY || API_KEY.trim().length < 20) {
-    try {
-      const msgs = history.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }));
-      const antRes = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1024, system: sysPrompt, messages: msgs.length ? msgs : [{ role: 'user', content: 'Olá' }] })
-      });
-      const antData = await antRes.json();
-      if (!antData.error && antData.content?.[0]?.text) return antData.content[0].text;
-    } catch(e2) { /* fallback */ }
-    throw new Error('API Key não configurada. Acesse o perfil para configurar sua chave Groq.');
+
+async function callAI(prompt, imageData) {
+  try {
+    return await callBackendAI({ prompt, imageData });
+  } catch(e) {
+    return await callGroqFallback(null, [{ role:'user', content: prompt }], imageData);
   }
-  const messages = [{ role:'system', content:sysPrompt }, ...history];
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{ method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+API_KEY }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:1024, messages }) });
-  const data = await res.json();
-  if (data.error) throw new Error('Groq: '+(data.error.message||JSON.stringify(data.error)));
-  return data.choices?.[0]?.message?.content||'';
+}
+async function callAIChat(sysPrompt, history) {
+  try {
+    return await callBackendAI({ system: sysPrompt, history: history?.length ? history : [{ role:'user', content:'Olá' }] });
+  } catch(e) {
+    return await callGroqFallback(sysPrompt, history?.length ? history : [{ role:'user', content:'Olá' }]);
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -573,8 +566,7 @@ function enterApp(name, email) {
 
   // Atualizar UI
   document.getElementById('username-display').textContent = name;
-  const h = new Date().getHours();
-  document.getElementById('greeting').textContent = h<12?'Bom dia,':h<18?'Boa tarde,':'Boa noite,';
+  updateGreeting();
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-app').classList.add('active');
 
@@ -602,6 +594,7 @@ function enterApp(name, email) {
 
   setTimeout(() => {
     initDarkMode();
+    initTheme();
     initCalendar();
     loadNotifPrefs();
     initSleepTimePanel();
@@ -668,7 +661,214 @@ function openProfileModal() {
       }
     };
   }
+  renderProfileStatsAndGrid();
   document.getElementById('modal-profile').classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   PERFIL ESTILO INSTAGRAM — estatísticas + grade
+══════════════════════════════════════════ */
+function renderProfileStatsAndGrid() {
+  const days = new Set((state.moodLog || []).map(e => new Date(e.time).toISOString().slice(0, 10)));
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const key = d.toISOString().slice(0, 10);
+    if (days.has(key)) { streak++; d.setDate(d.getDate() - 1); } else break;
+  }
+  const elChk = document.getElementById('prof-stat-checkins');
+  const elStreak = document.getElementById('prof-stat-streak');
+  const elDays = document.getElementById('prof-stat-days');
+  if (elChk) elChk.textContent = state.checkins || 0;
+  if (elStreak) elStreak.textContent = streak;
+  if (elDays) elDays.textContent = days.size;
+
+  const grid = document.getElementById('profile-mood-grid');
+  if (!grid) return;
+  const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
+  const entries = [...(state.moodLog || [])].slice(-24).reverse();
+  if (!entries.length) {
+    grid.innerHTML = '<div class="ig-profile-grid-empty">Registre seu humor para ver seu histórico aqui.</div>';
+    return;
+  }
+  grid.innerHTML = entries.map(e => {
+    const dt = new Date(e.time);
+    const dateLabel = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    return `<div class="ig-profile-grid-item mood-${e.mood}"><span class="ig-profile-grid-emoji">${moodEmojis[e.mood] || '—'}</span><span class="ig-profile-grid-date">${dateLabel}</span></div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   NOTIFICAÇÕES (sino) — estilo Instagram
+══════════════════════════════════════════ */
+function buildNotifList() {
+  const list = [];
+  if (state.hydra < HYDRA_GOAL) {
+    list.push({ icon: '💧', text: `Faltam ${(HYDRA_GOAL - state.hydra).toFixed(1)}L para bater sua meta de água hoje.`, sub: 'Hidratação' });
+  }
+  if (!state.moodLog?.length || new Date(state.moodLog[state.moodLog.length - 1].time).toDateString() !== new Date().toDateString()) {
+    list.push({ icon: '✦', text: 'Você ainda não registrou seu humor hoje.', sub: 'Bem-estar' });
+  }
+  if (!state.sleepLog?.length) {
+    list.push({ icon: '😴', text: 'Registre suas horas de sono para receber um score personalizado.', sub: 'Sono' });
+  }
+  if (state.socialMessages?.length) {
+    list.push({ icon: '💬', text: `${state.socialMessages.length} mensagem(ns) na Comunidade VitaIA.`, sub: 'Comunidade' });
+  }
+  return list;
+}
+function showNotifications() {
+  const items = buildNotifList();
+  const dot = document.getElementById('notif-dot');
+  if (dot) dot.style.display = 'none';
+  if (!items.length) {
+    showToast('Notificações', 'Nenhuma novidade agora. Tudo em dia! ✅', '🔔', 3000);
+    return;
+  }
+  items.forEach((n, i) => {
+    setTimeout(() => showToast(n.sub, n.text, n.icon, 4500), i * 450);
+  });
+}
+function refreshNotifDot() {
+  const dot = document.getElementById('notif-dot');
+  if (!dot) return;
+  dot.style.display = buildNotifList().length ? '' : 'none';
+}
+
+/* ══════════════════════════════════════════
+   ATALHO DE MENSAGENS DIRETAS (DM)
+══════════════════════════════════════════ */
+function openDMShortcut() {
+  goTo('home', document.querySelector('.nav-item[onclick*="\'home\'"]'));
+  setTimeout(() => {
+    const card = document.querySelector('.ig-dm-card');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.transition = 'box-shadow .3s';
+      card.style.boxShadow = '0 0 0 2px var(--purple)';
+      setTimeout(() => { card.style.boxShadow = ''; }, 1200);
+    }
+    document.getElementById('social-input')?.focus();
+  }, 120);
+}
+
+/* ══════════════════════════════════════════
+   STORIES (destaques do topo viram stories)
+══════════════════════════════════════════ */
+const STORY_ORDER = ['water', 'protein', 'sleep', 'mood'];
+let storyIndex = 0;
+let storyTimer = null;
+
+function storyContent(key) {
+  const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
+  if (key === 'water') {
+    const pct = Math.min(100, Math.round((state.hydra / HYDRA_GOAL) * 100));
+    return {
+      emoji: '💧', title: 'Hidratação',
+      html: `<div class="ig-story-emoji-big">💧</div><div class="ig-story-headline">${state.hydra}L</div>
+        <div class="ig-story-desc">de ${HYDRA_GOAL}L de meta diária (${pct}%)</div>
+        <div class="ig-story-bar-wrap"><div class="ig-story-bar-fill" style="width:${pct}%"></div></div>`
+    };
+  }
+  if (key === 'protein') {
+    const p = Math.round(state.nutrition.protein);
+    const pct = Math.min(100, Math.round((p / NUTR_GOALS.protein) * 100));
+    return {
+      emoji: '🥩', title: 'Proteína',
+      html: `<div class="ig-story-emoji-big">🥩</div><div class="ig-story-headline">${p}g</div>
+        <div class="ig-story-desc">de ${NUTR_GOALS.protein}g de meta diária (${pct}%)</div>
+        <div class="ig-story-bar-wrap"><div class="ig-story-bar-fill" style="width:${pct}%"></div></div>`
+    };
+  }
+  if (key === 'sleep') {
+    const last = state.sleepLog?.length ? state.sleepLog[state.sleepLog.length - 1] : null;
+    return {
+      emoji: '😴', title: 'Sono',
+      html: last
+        ? `<div class="ig-story-emoji-big">😴</div><div class="ig-story-headline">${last.hours}h</div><div class="ig-story-desc">registradas na última noite</div>`
+        : `<div class="ig-story-emoji-big">😴</div><div class="ig-story-headline">—</div><div class="ig-story-desc">Você ainda não registrou seu sono. Que tal fazer isso agora?</div>`
+    };
+  }
+  // mood
+  const lastMood = state.moodLog?.length ? state.moodLog[state.moodLog.length - 1].mood : 0;
+  return {
+    emoji: '✦', title: 'Humor',
+    html: lastMood
+      ? `<div class="ig-story-emoji-big">${moodEmojis[lastMood]}</div><div class="ig-story-headline">${moodLabels[lastMood]}</div><div class="ig-story-desc">${moodSubs[lastMood]}</div>`
+      : `<div class="ig-story-emoji-big">✦</div><div class="ig-story-headline">—</div><div class="ig-story-desc">Registre seu humor no card acima para receber insights.</div>`
+  };
+}
+
+function markStorySeen(key) {
+  const today = new Date().toISOString().slice(0, 10);
+  const seenKey = 'vitaia_stories_seen_' + today;
+  try {
+    const seen = JSON.parse(localStorage.getItem(seenKey) || '[]');
+    if (!seen.includes(key)) { seen.push(key); localStorage.setItem(seenKey, JSON.stringify(seen)); }
+  } catch (e) {}
+  const ring = document.getElementById('story-ring-' + key);
+  if (ring) ring.classList.add('seen');
+}
+
+function refreshStoryRings() {
+  const today = new Date().toISOString().slice(0, 10);
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem('vitaia_stories_seen_' + today) || '[]'); } catch (e) {}
+  STORY_ORDER.forEach(k => {
+    const ring = document.getElementById('story-ring-' + k);
+    if (ring) ring.classList.toggle('seen', seen.includes(k));
+  });
+}
+
+function buildStoryProgressBars() {
+  const row = document.getElementById('story-progress-row');
+  if (!row) return;
+  row.innerHTML = STORY_ORDER.map((k, i) => `<div class="ig-story-progress-track"><div class="ig-story-progress-fill" id="story-fill-${i}"></div></div>`).join('');
+}
+
+function renderStory() {
+  const key = STORY_ORDER[storyIndex];
+  const c = storyContent(key);
+  document.getElementById('story-header-emoji').textContent = c.emoji;
+  document.getElementById('story-header-title').textContent = c.title;
+  document.getElementById('story-body').innerHTML = c.html;
+  markStorySeen(key);
+  STORY_ORDER.forEach((k, i) => {
+    const f = document.getElementById('story-fill-' + i);
+    if (!f) return;
+    f.style.transition = 'none';
+    f.style.width = i < storyIndex ? '100%' : '0%';
+  });
+}
+
+function startStoryTimer() {
+  clearTimeout(storyTimer);
+  const f = document.getElementById('story-fill-' + storyIndex);
+  if (f) {
+    requestAnimationFrame(() => { f.style.transition = 'width 5s linear'; f.style.width = '100%'; });
+  }
+  storyTimer = setTimeout(() => storyNext(), 5000);
+}
+
+function openStory(key) {
+  storyIndex = Math.max(0, STORY_ORDER.indexOf(key));
+  buildStoryProgressBars();
+  renderStory();
+  document.getElementById('story-viewer').classList.add('active');
+  startStoryTimer();
+}
+
+function storyNext() {
+  if (storyIndex < STORY_ORDER.length - 1) { storyIndex++; renderStory(); startStoryTimer(); }
+  else closeStory();
+}
+function storyPrev() {
+  if (storyIndex > 0) { storyIndex--; renderStory(); startStoryTimer(); }
+}
+function closeStory() {
+  clearTimeout(storyTimer);
+  const viewer = document.getElementById('story-viewer');
+  if (viewer) viewer.classList.remove('active');
 }
 
 function saveApiKey() {
@@ -794,10 +994,7 @@ function goTo(page, el) {
 }
 
 function goToTele() {
-  document.querySelectorAll('.page').forEach(p => p.style.display='none');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-tele').style.display='block';
-  updateTeleSuggestion();
+  goTo('tele', document.getElementById('nav-tele'));
 }
 
 function openProfessionalPicker() {
@@ -808,6 +1005,30 @@ function openProfessionalPicker() {
    RELÓGIO INTERNO
 ══════════════════════════════════════════ */
 let clockInterval = null;
+function updateGreeting() {
+  const el = document.getElementById('greeting');
+  if (!el) return;
+  const h = new Date().getHours();
+  el.textContent = h < 12 ? 'Bom dia,' : h < 18 ? 'Boa tarde,' : 'Boa noite,';
+}
+/* Destaques estilo "stories" no topo do Home — lidos direto do state,
+   sempre chamados pelas mesmas funções que já sincronizam cada área. */
+function updateHomeHighlights() {
+  const w = document.getElementById('hl-water');
+  if (w) w.textContent = state.hydra + 'L';
+  const p = document.getElementById('hl-protein');
+  if (p) p.textContent = Math.round(state.nutrition.protein) + 'g';
+  const s = document.getElementById('hl-sleep');
+  if (s) s.textContent = state.sleepLog?.length ? state.sleepLog[state.sleepLog.length-1].hours + 'h' : '—';
+  const m = document.getElementById('hl-mood');
+  if (m) {
+    const moodEmojis = ['','😞','😕','😐','🙂','😄'];
+    const lastMood = state.moodLog?.length ? state.moodLog[state.moodLog.length-1].mood : 0;
+    m.textContent = moodEmojis[lastMood] || '—';
+  }
+  refreshStoryRings();
+  refreshNotifDot();
+}
 function startClock() {
   stopClock();
   updateClock();
@@ -822,6 +1043,8 @@ function updateClock() {
     now.getSeconds().toString().padStart(2,'0');
   document.getElementById('clock-date').textContent =
     now.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+  // Recalcula a saudação só quando o segundo vira "00" pra não mexer no texto sem necessidade
+  if (now.getSeconds() === 0) updateGreeting();
 }
 function resetDailyData(type) {
   if (!confirm(`Resetar ${type === 'all' ? 'todos os dados' : type === 'hydra' ? 'hidratação' : 'nutrição'} do dia?`)) return;
@@ -852,7 +1075,7 @@ function saveSleep() {
 function updateSleepLog() {
   const logEl = document.getElementById('sleep-log');
   const scoreEl = document.getElementById('sleep-score');
-  if (!state.sleepLog.length) { logEl.textContent = 'Nenhum registro de sono ainda.'; scoreEl.textContent = ''; return; }
+  if (!state.sleepLog.length) { logEl.textContent = 'Nenhum registro de sono ainda.'; scoreEl.textContent = ''; updateHomeHighlights(); return; }
   const last = state.sleepLog[state.sleepLog.length - 1];
   const avg = (state.sleepLog.slice(-7).reduce((a,b) => a + b.hours, 0) / Math.min(state.sleepLog.length, 7)).toFixed(1);
   logEl.textContent = `Último registro: ${last.hours}h (${last.date}) · Média 7 dias: ${avg}h`;
@@ -861,6 +1084,7 @@ function updateSleepLog() {
   else if (last.hours <= 9) { quality = '✨ Sono adequado!'; score = 'Excelente! Continue mantendo esse ritmo de sono.'; }
   else { quality = '😪 Sono excessivo'; score = 'Dormir demais também pode afetar seu bem-estar.'; }
   scoreEl.textContent = `${quality} — ${score}`;
+  updateHomeHighlights();
 }
 
 /* ══════════════════════════════════════════
@@ -940,6 +1164,7 @@ function syncMoodUI() {
   document.getElementById('prog-log-pct').textContent = logPct+'%';
   document.getElementById('prog-log-bar').style.width = logPct+'%';
   if (state.checkins > 0) document.getElementById('chart-placeholder').style.display = 'none';
+  updateHomeHighlights();
 }
 
 /* ══════════════════════════════════════════
@@ -980,6 +1205,7 @@ function syncHydraUI() {
   document.getElementById('prog-hydra-val').textContent = h+'L de '+HYDRA_GOAL+'L';
   document.getElementById('prog-hydra-pct').textContent = Math.round(pct)+'%';
   document.getElementById('prog-hydra-bar').style.width = pct+'%';
+  updateHomeHighlights();
   const cupWater = document.getElementById('cup-water');
   const cupWave  = document.getElementById('cup-wave');
   if (cupWater) {
@@ -1043,28 +1269,12 @@ function initDarkMode() {
 if (localStorage.getItem('vitaia_dark_mode') === '1') document.body.classList.add('dark-mode');
 
 
-/* ══ INTERNAL API (Anthropic) ══ */
-const VITAIA_API_KEY = 'sk-ant-api03-placeholder'; // A chave funciona automaticamente via proxy
+/* ══ IA — via backend seguro (/api/ai) ══ */
 async function callAnthropicAI(prompt, systemPrompt='Você é VitaIA, assistente de saúde e bem-estar. Responda em português, de forma prática e empática.') {
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': VITAIA_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 512, system: systemPrompt, messages: [{ role: 'user', content: prompt }] })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.content?.[0]?.text || '';
+    return await callBackendAI({ prompt, system: systemPrompt });
   } catch(e) {
-    // fallback to Groq if configured
-    const key = getApiKey();
-    if (key && key.length > 20) {
-      const res2 = await fetch('https://api.groq.com/openai/v1/chat/completions', { method:'POST', headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+key }, body:JSON.stringify({ model:'llama-3.3-70b-versatile', max_tokens:512, messages:[{role:'system',content:systemPrompt},{role:'user',content:prompt}] }) });
-      const d2 = await res2.json();
-      if (d2.error) throw new Error(d2.error.message);
-      return d2.choices?.[0]?.message?.content||'';
-    }
-    throw e;
+    return await callGroqFallback(systemPrompt, [{ role:'user', content: prompt }]);
   }
 }
 
@@ -1459,6 +1669,7 @@ function syncNutritionUI() {
   document.getElementById('prog-protein-bar').style.width = pPct+'%';
   document.getElementById('prog-carb-bar').style.width    = cPct+'%';
   document.getElementById('prog-fat-bar').style.width     = fPct+'%';
+  updateHomeHighlights();
   const logEl = document.getElementById('food-log-list');
   if (!logEl) return;
   logEl.innerHTML = state.foodLog.map((f,i) =>
@@ -1855,7 +2066,10 @@ function renderSocialMessages() {
     return;
   }
   area.innerHTML = state.socialMessages.slice(-20).map(m =>
-    `<div class="social-msg"><span class="social-msg-user">${m.user} <span style="font-size:10px;font-weight:400;color:var(--muted)">${m.time}</span></span><br><span class="social-msg-text">${m.text}</span></div>`
+    `<div class="ig-dm-row ig-dm-row-mine">
+       <div class="ig-dm-bubble ig-dm-bubble-mine">${m.text}</div>
+       <div class="ig-dm-time">${m.time}</div>
+     </div>`
   ).join('');
   area.scrollTop = area.scrollHeight;
 }
@@ -1880,3 +2094,31 @@ document.addEventListener('click', (e) => {
 });
 
 // logout is handled directly via btn-exit-app onclick
+
+/* ══════════════════════════════════════════
+   TEMAS DE COR
+══════════════════════════════════════════ */
+function initTheme() {
+  const saved = localStorage.getItem('vitaia_theme') || '';
+  applyTheme(saved, false);
+}
+
+function applyTheme(tema, save = true) {
+  if (tema) document.body.setAttribute('data-tema', tema);
+  else document.body.removeAttribute('data-tema');
+  if (save) localStorage.setItem('vitaia_theme', tema);
+  document.querySelectorAll('.profile-theme-dot').forEach(d => {
+    d.classList.toggle('selected', (d.dataset.tema || '') === tema);
+  });
+  const nameEl = document.getElementById('profile-theme-name');
+  if (nameEl) {
+    const active = document.querySelector('.profile-theme-dot.selected');
+    nameEl.textContent = active ? active.title : 'Padrão';
+  }
+}
+
+function selectTheme(dotEl) {
+  const tema = dotEl.dataset.tema || '';
+  applyTheme(tema);
+  showToast('Tema atualizado', `Tema "${dotEl.title}" aplicado!`, '🎨', 2200);
+}

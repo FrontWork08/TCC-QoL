@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "functions": {
+    "api/ai.js": { "memory": 512, "maxDuration": 20 }
+  }
+}

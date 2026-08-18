@@ -17,6 +17,11 @@
 <!-- Toast Notifications Container -->
 <div id="toast-container"></div>
 
+<!-- Bolinha flutuante de acessibilidade -->
+<button id="access-fab" onclick="toggleAccessBar()" aria-label="Abrir menu de acessibilidade" aria-expanded="false" aria-controls="access-bar" title="Acessibilidade">
+  <span id="access-fab-icon">☰</span>
+</button>
+
 <!-- ══════════════════════════════════════
      BARRA DE ACESSIBILIDADE GLOBAL
 ══════════════════════════════════════ -->
@@ -373,16 +378,62 @@
 
       <!-- ════════════ HOME ════════════ -->
       <div id="page-home" class="page">
-        <div class="page-header">
-          <div>
-            <div class="page-title"><span id="greeting">Bom dia,</span> <span id="username-display"></span>! 👋</div>
-            <div class="page-subtitle">Como você está se sentindo hoje?</div>
-          </div>
-          <div class="header-right">
+        <div class="page-header ig-header">
+          <div class="ig-header-row">
+            <div class="ig-avatar-ring">
+              <div class="avatar" id="avatar-btn" onclick="openProfileModal()"></div>
+            </div>
+            <div class="ig-header-info">
+              <div class="page-title ig-name"><span id="username-display"></span></div>
+              <div class="page-subtitle"><span id="greeting">Bom dia,</span> como você está hoje? 👋</div>
+            </div>
+            <div class="ig-header-actions">
+              <button class="ig-icon-btn" id="btn-notif" onclick="showNotifications()" title="Notificações" aria-label="Notificações">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span class="ig-icon-dot" id="notif-dot" style="display:none"></span>
+              </button>
+              <button class="ig-icon-btn" id="btn-dm" onclick="openDMShortcut()" title="Mensagens diretas" aria-label="Mensagens diretas">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </button>
+            </div>
             <button class="btn-ai-direct" onclick="openAjuda()" title="Conversar com IA">🤖</button>
-            <div class="avatar" id="avatar-btn" onclick="openProfileModal()"></div>
+          </div>
+          <div class="ig-highlights">
+            <div class="ig-highlight" onclick="openStory('water')">
+              <div class="ig-highlight-ringwrap" id="story-ring-water"><div class="ig-highlight-ring"><span class="ig-highlight-emoji">💧</span></div></div>
+              <span class="ig-highlight-label" id="hl-water">0L</span>
+            </div>
+            <div class="ig-highlight" onclick="openStory('protein')">
+              <div class="ig-highlight-ringwrap" id="story-ring-protein"><div class="ig-highlight-ring"><span class="ig-highlight-emoji">🥩</span></div></div>
+              <span class="ig-highlight-label" id="hl-protein">0g</span>
+            </div>
+            <div class="ig-highlight" onclick="openStory('sleep')">
+              <div class="ig-highlight-ringwrap" id="story-ring-sleep"><div class="ig-highlight-ring"><span class="ig-highlight-emoji">😴</span></div></div>
+              <span class="ig-highlight-label" id="hl-sleep">—</span>
+            </div>
+            <div class="ig-highlight" onclick="openStory('mood')">
+              <div class="ig-highlight-ringwrap" id="story-ring-mood"><div class="ig-highlight-ring"><span class="ig-highlight-emoji">✦</span></div></div>
+              <span class="ig-highlight-label" id="hl-mood">—</span>
+            </div>
           </div>
         </div>
+
+        <!-- Visualizador de Stories (estilo Instagram) -->
+        <div class="ig-story-viewer" id="story-viewer">
+          <div class="ig-story-progress-row" id="story-progress-row"></div>
+          <div class="ig-story-header">
+            <div class="ig-story-header-avatar" id="story-header-emoji">💧</div>
+            <div class="ig-story-header-info">
+              <div class="ig-story-header-title" id="story-header-title">Hidratação</div>
+              <div class="ig-story-header-time">agora</div>
+            </div>
+            <button class="ig-story-close" onclick="closeStory()" aria-label="Fechar">✕</button>
+          </div>
+          <div class="ig-story-body" id="story-body"></div>
+          <div class="ig-story-nav-zone ig-story-nav-prev" onclick="storyPrev()"></div>
+          <div class="ig-story-nav-zone ig-story-nav-next" onclick="storyNext()"></div>
+        </div>
+
 
         <!-- HUMOR -->
         <div class="mood-card" id="mood-card">
@@ -497,18 +548,24 @@
         </div>
 
         <!-- Socialização -->
-        <div class="social-card">
-          <div class="social-title">💬 Chat da Comunidade</div>
+        <div class="social-card ig-dm-card">
+          <div class="ig-dm-header">
+            <div class="ig-dm-header-avatar">💬</div>
+            <div class="ig-dm-header-info">
+              <div class="social-title">Comunidade VitaIA</div>
+              <div class="ig-dm-header-status"><span class="social-online-dot"></span>Ativo agora</div>
+            </div>
+          </div>
           <div class="social-sub">Conecte-se com outros usuários VitaIA e compartilhe sua jornada!</div>
           <div class="social-online-row" id="social-online-row">
-            <div class="social-online-chip"><span class="social-online-dot"></span>Ana M.</div>
-            <div class="social-online-chip"><span class="social-online-dot"></span>Carlos R.</div>
-            <div class="social-online-chip"><span class="social-online-dot"></span>Juliana P.</div>
+            <div class="ig-dm-contact"><span class="ig-dm-contact-avatar">A</span>Ana M.</div>
+            <div class="ig-dm-contact"><span class="ig-dm-contact-avatar">C</span>Carlos R.</div>
+            <div class="ig-dm-contact"><span class="ig-dm-contact-avatar">J</span>Juliana P.</div>
           </div>
-          <div class="social-chat-area" id="social-chat-area"></div>
-          <div class="social-input-row">
-            <input type="text" class="social-input" id="social-input" placeholder="Mensagem para a comunidade..." onkeydown="if(event.key==='Enter')sendSocialMsg()">
-            <button class="social-send" onclick="sendSocialMsg()">ENVIAR</button>
+          <div class="social-chat-area ig-dm-area" id="social-chat-area"></div>
+          <div class="social-input-row ig-dm-input-row">
+            <input type="text" class="social-input ig-dm-input" id="social-input" placeholder="Mensagem..." onkeydown="if(event.key==='Enter')sendSocialMsg()">
+            <button class="social-send ig-dm-send" onclick="sendSocialMsg()" title="Enviar" aria-label="Enviar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
           </div>
         </div>
       </div>
@@ -717,9 +774,12 @@
       <div id="page-tele" class="page" style="display:none">
         <div class="page-header"><div><div class="page-title">TeleSaúde</div><div class="page-subtitle">Consultas virtuais com profissionais.</div></div></div>
 
-        <div class="tele-ia-box">
-          <div class="tele-ia-title">🤖 Sugestão IA</div>
-          <div class="tele-ia-text" id="tele-ia-suggestion">Com base nos seus dados, a IA está pronta para sugerir o profissional ideal. Registre seu humor na Home primeiro!</div>
+        <div class="tele-ia-box ig-suggestion-box">
+          <div class="ig-suggestion-avatar">🤖</div>
+          <div>
+            <div class="tele-ia-title">Sugestão IA</div>
+            <div class="tele-ia-text" id="tele-ia-suggestion">Com base nos seus dados, a IA está pronta para sugerir o profissional ideal. Registre seu humor na Home primeiro!</div>
+          </div>
         </div>
 
         <!-- Limite de consultas -->
@@ -734,41 +794,57 @@
         </div>
 
         <div class="tele-section-title">Profissionais Disponíveis</div>
-        <div class="tele-prof-list">
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">🥗</div>
-            <div style="flex:1"><div class="tele-prof-name">Dra. Ana Ribeiro</div><div class="tele-prof-spec">Nutricionista · CRN 12345</div><div class="tele-prof-rating">★★★★★ 4.9</div></div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Ana Ribeiro','Nutricionista')">💬 Chat</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#8b5cf6,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="openTeleVideo('Dra. Ana Ribeiro')">📹 Vídeo</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#00b87a,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="scheduleTele('Dra. Ana Ribeiro')">📅 Agendar</button>
+        <div class="ig-prof-list">
+          <div class="ig-prof-card">
+            <div class="ig-prof-avatar-ring"><div class="ig-prof-avatar">🥗</div></div>
+            <div class="ig-prof-info">
+              <div class="ig-prof-name">Dra. Ana Ribeiro <span class="ig-verified-badge" title="Verificado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+              <div class="ig-prof-spec">Nutricionista · CRN 12345</div>
+              <div class="ig-prof-rating">★ 4.9</div>
+            </div>
+            <div class="ig-prof-actions">
+              <button class="ig-btn-message" onclick="openTeleChat('Dra. Ana Ribeiro','Nutricionista')">Mensagem</button>
+              <button class="ig-btn-icon" onclick="openTeleVideo('Dra. Ana Ribeiro')" title="Vídeo" aria-label="Vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>
+              <button class="ig-btn-icon" onclick="scheduleTele('Dra. Ana Ribeiro')" title="Agendar" aria-label="Agendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
             </div>
           </div>
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">💪</div>
-            <div style="flex:1"><div class="tele-prof-name">Carlos Mendes</div><div class="tele-prof-spec">Personal Trainer · CREF 98765</div><div class="tele-prof-rating">★★★★☆ 4.7</div></div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Carlos Mendes','Personal Trainer')">💬 Chat</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#8b5cf6,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="openTeleVideo('Carlos Mendes')">📹 Vídeo</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#00b87a,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="scheduleTele('Carlos Mendes')">📅 Agendar</button>
+          <div class="ig-prof-card">
+            <div class="ig-prof-avatar-ring"><div class="ig-prof-avatar">💪</div></div>
+            <div class="ig-prof-info">
+              <div class="ig-prof-name">Carlos Mendes <span class="ig-verified-badge" title="Verificado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+              <div class="ig-prof-spec">Personal Trainer · CREF 98765</div>
+              <div class="ig-prof-rating">★ 4.7</div>
+            </div>
+            <div class="ig-prof-actions">
+              <button class="ig-btn-message" onclick="openTeleChat('Carlos Mendes','Personal Trainer')">Mensagem</button>
+              <button class="ig-btn-icon" onclick="openTeleVideo('Carlos Mendes')" title="Vídeo" aria-label="Vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>
+              <button class="ig-btn-icon" onclick="scheduleTele('Carlos Mendes')" title="Agendar" aria-label="Agendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
             </div>
           </div>
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">🩺</div>
-            <div style="flex:1"><div class="tele-prof-name">Dra. Mariana Costa</div><div class="tele-prof-spec">Clínica Geral · CRM 54321</div><div class="tele-prof-rating">★★★★★ 5.0</div></div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dra. Mariana Costa','Médica')">💬 Chat</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#8b5cf6,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="openTeleVideo('Dra. Mariana Costa')">📹 Vídeo</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#00b87a,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="scheduleTele('Dra. Mariana Costa')">📅 Agendar</button>
+          <div class="ig-prof-card">
+            <div class="ig-prof-avatar-ring"><div class="ig-prof-avatar">🩺</div></div>
+            <div class="ig-prof-info">
+              <div class="ig-prof-name">Dra. Mariana Costa <span class="ig-verified-badge" title="Verificado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+              <div class="ig-prof-spec">Clínica Geral · CRM 54321</div>
+              <div class="ig-prof-rating">★ 5.0</div>
+            </div>
+            <div class="ig-prof-actions">
+              <button class="ig-btn-message" onclick="openTeleChat('Dra. Mariana Costa','Médica')">Mensagem</button>
+              <button class="ig-btn-icon" onclick="openTeleVideo('Dra. Mariana Costa')" title="Vídeo" aria-label="Vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>
+              <button class="ig-btn-icon" onclick="scheduleTele('Dra. Mariana Costa')" title="Agendar" aria-label="Agendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
             </div>
           </div>
-          <div class="tele-prof-item">
-            <div class="tele-prof-avatar">🧠</div>
-            <div style="flex:1"><div class="tele-prof-name">Dr. Ricardo Alves</div><div class="tele-prof-spec">Psicólogo · CRP 67890</div><div class="tele-prof-rating">★★★★★ 4.8</div></div>
-            <div class="tele-prof-actions">
-              <button class="btn-tele-action btn-chat" onclick="openTeleChat('Dr. Ricardo Alves','Psicólogo')">💬 Chat</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#8b5cf6,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="openTeleVideo('Dr. Ricardo Alves')">📹 Vídeo</button>
-              <button class="btn-tele-action" style="background:linear-gradient(135deg,#00b87a,#0ea5e9);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer" onclick="scheduleTele('Dr. Ricardo Alves')">📅 Agendar</button>
+          <div class="ig-prof-card">
+            <div class="ig-prof-avatar-ring"><div class="ig-prof-avatar">🧠</div></div>
+            <div class="ig-prof-info">
+              <div class="ig-prof-name">Dr. Ricardo Alves <span class="ig-verified-badge" title="Verificado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+              <div class="ig-prof-spec">Psicólogo · CRP 67890</div>
+              <div class="ig-prof-rating">★ 4.8</div>
+            </div>
+            <div class="ig-prof-actions">
+              <button class="ig-btn-message" onclick="openTeleChat('Dr. Ricardo Alves','Psicólogo')">Mensagem</button>
+              <button class="ig-btn-icon" onclick="openTeleVideo('Dr. Ricardo Alves')" title="Vídeo" aria-label="Vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>
+              <button class="ig-btn-icon" onclick="scheduleTele('Dr. Ricardo Alves')" title="Agendar" aria-label="Agendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
             </div>
           </div>
         </div>
@@ -776,7 +852,7 @@
         <div class="tele-section-title">Próximas Consultas</div>
         <div class="tele-schedule-list" id="tele-schedule-list"><div style="font-size:13px;color:var(--muted);padding:12px 0;">Nenhuma consulta agendada. Escolha um profissional acima!</div></div>
 
-        <div class="card" style="margin-top:4px">
+        <div class="card ig-rate-card" style="margin-top:4px">
           <div class="card-title">Avalie seu último atendimento</div>
           <div class="tele-rating-stars" id="tele-stars">
             <span class="tele-rating-star" onclick="rateTele(1)">★</span>
@@ -877,24 +953,24 @@
       </div>
 
     </div><!-- /page-content -->
-    <nav class="bottom-nav">
-      <div class="nav-item active" onclick="goTo('home',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início
+    <nav class="bottom-nav ig-tabbar">
+      <div class="nav-item active" onclick="goTo('home',this)" title="Início">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Início</span>
       </div>
-      <div class="nav-item" onclick="goTo('progress',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progresso
+      <div class="nav-item" onclick="goTo('progress',this)" title="Progresso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Progresso</span>
       </div>
-      <div class="nav-item" onclick="goTo('plans',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Planos
+      <div class="nav-item nav-item-center" onclick="goTo('plans',this)" title="Planos">
+        <span class="nav-item-center-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="nav-label">Planos</span>
       </div>
-      <div class="nav-item" onclick="goTo('calendar',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda
+      <div class="nav-item" onclick="goTo('calendar',this)" title="Agenda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">Agenda</span>
       </div>
-      <div class="nav-item" onclick="goTo('labs',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Labs
+      <div class="nav-item" onclick="goTo('labs',this)" title="Labs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><span class="nav-label">Labs</span>
       </div>
-      <div class="nav-item" onclick="openProfessionalPicker()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .95h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>TeleSaúde
+      <div class="nav-item nav-item-avatar" id="nav-tele" onclick="goTo('tele',this)" title="TeleSaúde">
+        <span class="nav-avatar-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .95h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><span class="nav-label">TeleSaúde</span>
       </div>
     </nav>
   </div>
@@ -1000,6 +1076,14 @@
     </div>
     <div class="profile-name-display" id="profile-name-display"></div>
     <div class="profile-email-display" id="profile-email-display"></div>
+
+    <!-- Estatísticas estilo perfil Instagram -->
+    <div class="ig-profile-stats">
+      <div class="ig-profile-stat"><strong id="prof-stat-checkins">0</strong><span>Registros</span></div>
+      <div class="ig-profile-stat"><strong id="prof-stat-streak">0</strong><span>Sequência</span></div>
+      <div class="ig-profile-stat"><strong id="prof-stat-days">0</strong><span>Dias ativos</span></div>
+    </div>
+
     <div class="profile-settings-list">
       <div class="profile-settings-item">
         <div class="profile-settings-label">🔔 Lembretes de hidratação</div>
@@ -1027,6 +1111,25 @@
         <div class="profile-color-dot" style="background:linear-gradient(135deg,#0ea5e9,#00b4d8)" data-color="linear-gradient(135deg,#0ea5e9,#00b4d8)" onclick="selectAvatarColor(this)"></div>
         <div class="profile-color-dot" style="background:linear-gradient(135deg,#ef4444,#f97316)" data-color="linear-gradient(135deg,#ef4444,#f97316)" onclick="selectAvatarColor(this)"></div>
       </div>
+
+      <div class="profile-custom-title">🎨 Tema de cores do app</div>
+      <div class="profile-theme-row" id="profile-theme-row">
+        <div class="profile-theme-dot selected" style="background:linear-gradient(135deg,#4f6ef7,#8b5cf6)" data-tema="" onclick="selectTheme(this)" title="Padrão"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#10b981,#22c55e)" data-tema="vitalidade" onclick="selectTheme(this)" title="Vitalidade"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#f97316,#ec4899)" data-tema="pordosol" onclick="selectTheme(this)" title="Pôr do Sol"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4)" data-tema="oceano" onclick="selectTheme(this)" title="Oceano"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#a855f7,#ec4899)" data-tema="aurora" onclick="selectTheme(this)" title="Aurora"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#15803d,#84cc16)" data-tema="floresta" onclick="selectTheme(this)" title="Floresta"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#9f1239,#db2777)" data-tema="ameixa" onclick="selectTheme(this)" title="Ameixa"></div>
+        <div class="profile-theme-dot" style="background:linear-gradient(135deg,#38bdf8,#a5b4fc)" data-tema="ceu" onclick="selectTheme(this)" title="Céu"></div>
+      </div>
+      <div class="profile-theme-name" id="profile-theme-name">Padrão</div>
+    </div>
+
+    <!-- Grade estilo Instagram: histórico de humor -->
+    <div class="ig-profile-grid-section">
+      <div class="ig-profile-grid-title">📅 Seu histórico de humor</div>
+      <div class="ig-profile-grid" id="profile-mood-grid"></div>
     </div>
 
     <!-- Botão de saída polido -->
@@ -1151,6 +1254,7 @@
 </div>
 
 <script src="app.js"></script>
+<script src="animations.js"></script>
 
 <!-- ══ MODAL: TROCAR FOTO DE PERFIL ══ -->
 <div class="modal-overlay" id="modal-photo-crop" style="align-items:center;z-index:500">

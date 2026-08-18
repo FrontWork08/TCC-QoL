@@ -125,6 +125,29 @@ function t(key) {
   return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || (TRANSLATIONS['pt'][key]) || key;
 }
 
+// ── BOLINHA FLUTUANTE DE ACESSIBILIDADE ──
+function toggleAccessBar(forceState) {
+  const bar = document.getElementById('access-bar');
+  const fab = document.getElementById('access-fab');
+  const icon = document.getElementById('access-fab-icon');
+  const isOpen = typeof forceState === 'boolean' ? forceState : !bar.classList.contains('open');
+  bar.classList.toggle('open', isOpen);
+  fab.classList.toggle('open', isOpen);
+  fab.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  icon.textContent = isOpen ? '✕' : '☰';
+  if (!isOpen) {
+    // Fecha também os submenus internos ao recolher a bolinha
+    const lm = document.getElementById('lang-menu'); if (lm) lm.style.display = 'none';
+    const cm = document.getElementById('color-menu'); if (cm) cm.style.display = 'none';
+  }
+}
+// Fecha a bolinha ao clicar fora dela
+document.addEventListener('click', function(e) {
+  const bar = document.getElementById('access-bar');
+  if (!bar || !bar.classList.contains('open')) return;
+  if (!e.target.closest('#access-bar') && !e.target.closest('#access-fab')) toggleAccessBar(false);
+});
+
 // ── INICIALIZAÇÃO ──
 document.addEventListener('DOMContentLoaded', function() {
   applyColorFilter(ACC.colorFilter);
