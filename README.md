@@ -1,37 +1,52 @@
-TCC-QoL
-Sobre o projeto
+🚀 TCC-QoL
+👋 Sobre o projeto
 
-O TCC-QoL é um projeto desenvolvido como Trabalho de Conclusão de Curso (TCC), com o objetivo de aplicar na prática os conhecimentos adquiridos durante a formação técnica.
+O TCC-QoL é o nosso projeto de Trabalho de Conclusão de Curso (TCC)! 🎓
 
-O projeto busca apresentar uma solução para o problema definido pela equipe, utilizando conceitos de desenvolvimento de software, organização de código e versionamento.
+A ideia é colocar em prática tudo aquilo que aprendemos durante o curso, desde programação até organização e desenvolvimento de um projeto completo.
 
-Objetivo
+🎯 Objetivo
 
-Desenvolver uma solução funcional para atender às necessidades identificadas durante a elaboração do TCC, aplicando boas práticas de programação e de organização de projetos.
+Nosso objetivo é desenvolver uma solução que ajude a resolver o problema escolhido para o TCC, utilizando programação, tecnologia e boas práticas de desenvolvimento. 💻
 
-Versionamento
+🛠️ Tecnologias
 
-O projeto utiliza Git para o controle de versões e GitHub para o armazenamento e gerenciamento do código-fonte.
+As principais tecnologias utilizadas no projeto são:
 
-O versionamento permite acompanhar a evolução do projeto, registrar alterações e facilitar a organização do trabalho realizado pela equipe.
+💻 JavaScript
+⚙️ HTML
+🗄️ CSS
+🎨 Python
+🔄 Versionamento
 
-Desenvolvimento
+Para organizar o desenvolvimento, utilizamos Git e GitHub.
 
-Durante o desenvolvimento, foram realizadas alterações incrementais no projeto, utilizando commits para registrar as principais etapas e modificações.
+Com eles conseguimos:
 
-A utilização do GitHub também permite manter o código organizado e facilitar o acompanhamento da evolução do TCC.
+📌 Acompanhar as mudanças no projeto;
+🕐 Ver a evolução do código;
+🔙 Recuperar versões anteriores;
+👥 Trabalhar melhor em equipe;
+📂 Manter o projeto organizado.
 
-Equipe
+Os commits também ajudam a registrar o que foi feito em cada etapa do desenvolvimento.
 
-Integrantes:
+👨‍💻 Equipe
 
-Guilerme Telles Meira
-Daniel Luis dos Santos
-Lucas Neves
+Projeto desenvolvido por:
 
-Curso: Técnico em Desenvolvimento de Sistemas
-Ano: 2026
+👤 Daniel Luis dos Santos
+👤 Eduarda Chaves Baptista
+👤 Guilherme Teles Meira
+👤 Renato Segura
+👤 Gustavo Luiz Lima
+👤 Matheus Gonzales Jardim
 
-Finalidade
+🎓 Curso: Técnico em Desenvolvimento de Sistemas
+📅 Ano: 2026
 
-Este repositório possui finalidade acadêmica e foi desenvolvido como parte do Trabalho de Conclusão de Curso.
+📚 Finalidade
+
+Este repositório foi criado para armazenar e acompanhar o desenvolvimento do nosso TCC, servindo também como registro da evolução do projeto durante o curso.
+
+💡 Feito por alunos, para aprender, testar, errar, corrigir e evoluir! 🚀
