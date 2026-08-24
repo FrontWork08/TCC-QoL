@@ -1,0 +1,45 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "presence": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name', 'uid', 'online'])",
+        "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
+        "uid": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+        "online": { ".validate": "newData.isBoolean()" }
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$friendUid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['uid', 'name']) && newData.child('uid').val() === $friendUid && newData.child('name').isString() && newData.child('name').val().length <= 80"
+        }
+      }
+    },
+    "rooms": {
+      "comunidade": {
+        "messages": {
+          ".read": "auth != null && query.limitToLast != null && query.limitToLast <= 100",
+          "$messageId": {
+            ".write": "auth != null && (!data.exists() ? newData.child('uid').val() === auth.uid : data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['uid', 'name', 'text', 'ts']) && newData.child('uid').isString() && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 80 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 2000"
+          }
+        }
+      },
+      "$roomId": {
+        "messages": {
+          ".read": "auth != null && ($roomId.beginsWith(auth.uid + '_') || $roomId.endsWith('_' + auth.uid)) && query.limitToLast != null && query.limitToLast <= 100",
+          "$messageId": {
+            ".write": "auth != null && ($roomId.beginsWith(auth.uid + '_') || $roomId.endsWith('_' + auth.uid)) && (!data.exists() ? newData.child('uid').val() === auth.uid : data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['uid', 'name', 'text', 'ts']) && newData.child('uid').isString() && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 80 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 2000"
+          }
+        }
+      }
+    }
+  }
+}
