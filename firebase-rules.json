@@ -3,6 +3,16 @@
     ".read": false,
     ".write": false,
 
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "state": {
+          ".validate": "newData.isObject()"
+        }
+      }
+    },
+
     "presence": {
       "$uid": {
         ".read": "auth != null",
