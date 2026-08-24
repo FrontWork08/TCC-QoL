@@ -2,6 +2,14 @@
   "rules": {
     ".read": false,
     ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
     "presence": {
       "$uid": {
         ".read": "auth != null",
@@ -12,6 +20,7 @@
         "online": { ".validate": "newData.isBoolean()" }
       }
     },
+
     "friends": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -21,6 +30,7 @@
         }
       }
     },
+
     "rooms": {
       "comunidade": {
         "messages": {
@@ -31,6 +41,7 @@
           }
         }
       },
+
       "$roomId": {
         "messages": {
           ".read": "auth != null && ($roomId.beginsWith(auth.uid + '_') || $roomId.endsWith('_' + auth.uid)) && query.limitToLast != null && query.limitToLast <= 100",
