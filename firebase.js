@@ -11,18 +11,14 @@ import {
   getAuth, signInAnonymously, updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ══════════════════════════════════════════════
-   🔴 SUBSTITUA OS VALORES ABAIXO PELOS DO SEU
-      PROJETO NO FIREBASE CONSOLE
-   ══════════════════════════════════════════════ */
 const firebaseConfig = {
-  apiKey:            "SUA_API_KEY",
-  authDomain:        "SEU_PROJETO.firebaseapp.com",
-  databaseURL:       "https://SEU_PROJETO-default-rtdb.firebaseio.com",
-  projectId:         "SEU_PROJETO",
-  storageBucket:     "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId:             "SEU_APP_ID"
+  apiKey:            "AIzaSyAQJ7GMQg2Bdrtqt6bN1DHXmcVgfkIfMiA",
+  authDomain:        "tcc-qol.firebaseapp.com",
+  databaseURL:       "https://tcc-qol-default-rtdb.firebaseio.com",
+  projectId:         "tcc-qol",
+  storageBucket:     "tcc-qol.firebasestorage.app",
+  messagingSenderId: "788642843582",
+  appId:             "1:788642843582:web:ec12a0f6435ef6834bc7ef"
 };
 
 let fbApp, db, auth, currentUser, friendsRef, messagesRef, currentRoom = 'comunidade';
