@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>VitaIA — Administração</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#e9eef5;background:#0b1220}body{margin:0}.wrap{max-width:1180px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.card{background:#121c2e;border:1px solid #26344c;border-radius:16px;padding:18px;margin-top:16px}.muted{color:#9fb0c8}.error{color:#ff9b9b}.ok{color:#9de7b3}button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #26344c;vertical-align:top}pre{white-space:pre-wrap;word-break:break-word;max-height:420px;overflow:auto;background:#0b1220;padding:14px;border-radius:12px}.hidden{display:none}@media(max-width:700px){.wrap{padding:14px}.top{align-items:flex-start;flex-direction:column}.table-wrap{overflow:auto}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><div><h1>Painel administrativo</h1><div class="muted">VitaIA / TCC-QoL</div></div><button id="logout">Sair</button></div>
+  <section class="card" id="status">Verificando permissão administrativa…</section>
+  <section class="card hidden" id="panel"><h2>Dados dos usuários</h2><p class="muted">Acesso somente leitura. Clique em um UID para inspecionar o estado salvo.</p><div class="table-wrap"><table><thead><tr><th>UID</th><th>Resumo</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+  <section class="card hidden" id="detail"><h2 id="detail-title">Usuário</h2><pre id="json"></pre></section>
+</main>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getDatabase,ref,get} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+const firebaseConfig={apiKey:'AIzaSyA0aGhW1F5VXGctJmM0QQ7YkqFsSc41SWg',authDomain:'tcc-qol.firebaseapp.com',databaseURL:'https://tcc-qol-default-rtdb.firebaseio.com',projectId:'tcc-qol',storageBucket:'tcc-qol.firebasestorage.app',messagingSenderId:'87692165075',appId:'1:87692165075:web:94f5c89530cb34b018ef98'};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+const status=document.getElementById('status'),panel=document.getElementById('panel'),rows=document.getElementById('rows'),detail=document.getElementById('detail'),json=document.getElementById('json');
+document.getElementById('logout').onclick=async()=>{await signOut(auth);location.href='index.html'};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function summary(state){if(!state)return 'Sem estado salvo';const parts=[];if(state.hydra!=null)parts.push('Água: '+state.hydra);if(state.hydraGoal!=null)parts.push('Meta: '+state.hydraGoal);if(state.planCount!=null)parts.push('Planos: '+state.planCount);return parts.join(' · ')||'Estado salvo';}
+async function load(){try{const snap=await get(ref(db,'users'));const users=snap.val()||{};rows.innerHTML='';Object.entries(users).forEach(([uid,data])=>{const tr=document.createElement('tr');tr.innerHTML=`<td><button class="uid" data-uid="${esc(uid)}">${esc(uid)}</button></td><td>${esc(summary(data?.state))}</td>`;rows.appendChild(tr)});rows.querySelectorAll('.uid').forEach(b=>b.onclick=()=>{const d=users[b.dataset.uid]||{};document.getElementById('detail-title').textContent='Usuário '+b.dataset.uid;json.textContent=JSON.stringify(d,null,2);detail.classList.remove('hidden')});status.className='card ok';status.textContent=`Administrador autenticado. ${Object.keys(users).length} usuário(s) encontrado(s).`;panel.classList.remove('hidden')}catch(e){status.className='card error';status.textContent='Não foi possível ler os usuários: '+e.message}}
+onAuthStateChanged(auth,async user=>{if(!user){status.className='card error';status.textContent='Entre no VitaIA com a conta administradora antes de abrir este painel.';return}try{const token=await user.getIdTokenResult(true);if(token.claims.admin!==true){status.className='card error';status.textContent='Acesso negado: esta conta não possui a permissão admin.';return}await load()}catch(e){status.className='card error';status.textContent='Falha ao validar administrador: '+e.message}});
+</script>
+</body></html>
