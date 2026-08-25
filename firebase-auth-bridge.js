@@ -8,7 +8,8 @@
         window.firebaseInit &&
         window.firebaseOnAuthStateChanged &&
         window.firebaseSignInGoogle &&
-        window.firebaseSignInEmail
+        window.firebaseSignInEmail &&
+        window.firebaseResetPassword
       ) return resolve();
       if (Date.now() - start > timeout) return reject(new Error('Firebase não carregou a tempo.'));
       setTimeout(tick, 100);
@@ -190,6 +191,42 @@
           await handleAuthenticatedUser(user);
         } catch (e) {
           window.showToast?.('Cadastro', e.message, '⚠️', 4000);
+        }
+      };
+
+      /* O modal já existe em app.js; aqui trocamos a simulação pelo envio real do Firebase. */
+      window.sendForgotPassword = async function () {
+        const emailEl = document.getElementById('forgot-email');
+        const email = emailEl?.value.trim().toLowerCase() || '';
+
+        if (!email || !email.includes('@')) {
+          window.showToast?.('Recuperar senha', 'Informe um e-mail válido.', '⚠️', 3500);
+          emailEl?.focus();
+          return;
+        }
+
+        const form = document.getElementById('forgot-form');
+        const success = document.getElementById('forgot-success');
+        const submit = form?.querySelector('button[onclick="sendForgotPassword()"]');
+        const oldText = submit?.textContent;
+
+        if (submit) {
+          submit.disabled = true;
+          submit.textContent = 'ENVIANDO...';
+        }
+
+        try {
+          await window.firebaseResetPassword(email);
+          if (form) form.style.display = 'none';
+          if (success) success.style.display = 'block';
+          window.showToast?.('Recuperar senha', 'E-mail de recuperação enviado. Verifique sua caixa de entrada e o spam.', '✅', 5000);
+        } catch (e) {
+          window.showToast?.('Recuperar senha', e.message || 'Não foi possível enviar o e-mail.', '⚠️', 5000);
+        } finally {
+          if (submit) {
+            submit.disabled = false;
+            submit.textContent = oldText || 'ENVIAR LINK';
+          }
         }
       };
 
