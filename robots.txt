@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /api/
+
+Sitemap: https://tcc-qo-l.vercel.app/sitemap.xml
