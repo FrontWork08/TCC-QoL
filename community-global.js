@@ -363,6 +363,7 @@ async function activateForUser(user) {
 
 async function sendCommunityMessage() {
   const input = document.getElementById('social-input');
+  if (input?.disabled) return;
   const text = String(input?.value || '').trim();
   db = window._vitaiaDB || db;
   activeUser = window._vitaiaUser || activeUser;
@@ -384,10 +385,7 @@ async function sendCommunityMessage() {
   }
 
   const now = Date.now();
-  if (now - lastSendAt < SEND_COOLDOWN_MS) {
-    showNotice('Comunidade', 'Aguarde um instante antes de enviar outra mensagem.', '⏱️');
-    return;
-  }
+  if (now - lastSendAt < SEND_COOLDOWN_MS) return;
   lastSendAt = now;
 
   input.disabled = true;
@@ -440,17 +438,7 @@ function install() {
   };
   window.renderSocialMessages = renderAllMessages;
 
-  const input = document.getElementById('social-input');
-  if (input && !input.dataset.globalCommunityKeyHandler) {
-    input.dataset.globalCommunityKeyHandler = 'true';
-    input.addEventListener('keydown', event => {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendCommunityMessage();
-      }
-    });
-  }
-
+  // O campo já possui um handler inline no HTML; ele passa a chamar a função global acima.
   window.addEventListener('vitaia-auth-state-changed', event => {
     activateForUser(event.detail?.user || null);
   });
