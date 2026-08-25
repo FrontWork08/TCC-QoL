@@ -88,7 +88,6 @@
         return { found: true, source: 'firebase', data: remoteState };
       }
 
-      // Primeira utilização desta conta no Firebase: migra o cache local existente.
       const raw = localStorage.getItem(localKey);
       if (raw) {
         const localState = JSON.parse(raw);
@@ -107,8 +106,6 @@
 
   const handleAuthenticatedUser = async (user) => {
     if (!user || user.isAnonymous) return;
-
-    // Evita duas renderizações quando popup + onAuthStateChanged disparam juntos.
     if (handlingAuthUid === user.uid) return;
     handlingAuthUid = user.uid;
 
@@ -125,7 +122,6 @@
       await waitForFirebase();
       await window.firebaseInit();
 
-      // Firebase passa a ser a fonte de verdade da sessão principal.
       window.firebaseOnAuthStateChanged(async (user) => {
         if (user && !user.isAnonymous) {
           await handleAuthenticatedUser(user);
@@ -133,10 +129,8 @@
           localStorage.removeItem('vitaia_current_user');
           showLogin();
         }
-        // Usuário anônimo é reservado para a Comunidade e não entra no app principal.
       });
 
-      // Login por e-mail/senha usando os campos já existentes.
       window.doLogin = async function () {
         const emailEl = document.getElementById('login-email');
         const passEl = document.getElementById('login-pass');
@@ -161,7 +155,6 @@
         }
       };
 
-      // Cadastro por e-mail/senha usando os campos já existentes.
       window.doRegister = async function () {
         const name = document.getElementById('reg-name')?.value.trim() || '';
         const email = document.getElementById('reg-email')?.value.trim().toLowerCase() || '';
@@ -193,7 +186,6 @@
         }
       };
 
-      // Google usa Firebase Authentication; não usa mais o Client ID/OAuth antigo do GSI.
       window.socialLoginOAuth = async function (provider) {
         if (provider !== 'google') {
           window.showToast?.(
@@ -213,7 +205,6 @@
         }
       };
 
-      // Logout salva o estado atual antes de encerrar a sessão Firebase.
       window.doLogout = async function () {
         if (!confirm('Deseja sair da conta?')) return;
 
@@ -237,11 +228,23 @@
         window.switchTab?.('login');
       };
 
-      // Ao salvar localmente, replica o estado para users/{uid}/state.
+      /*
+       * app.js ainda possui uma gravação legada por e-mail dentro de saveState().
+       * As Rules atuais aceitam apenas users/{uid}, então essa chamada gerava
+       * permission_denied no console. Ao executar o save local, ocultamos
+       * temporariamente o handle do banco e em seguida sincronizamos pelo UID.
+       */
       if (typeof window.saveState === 'function' && !window.saveState.__firebaseWrapped) {
         const originalSaveState = window.saveState;
         const wrappedSaveState = function () {
-          originalSaveState.apply(this, arguments);
+          const activeDb = window._vitaiaDB;
+          try {
+            window._vitaiaDB = null;
+            originalSaveState.apply(this, arguments);
+          } finally {
+            window._vitaiaDB = activeDb;
+          }
+
           const user = window.firebaseGetUser?.();
           if (user && !user.isAnonymous) syncStateToFirebase(user);
         };
@@ -250,7 +253,6 @@
       }
     } catch (error) {
       console.error('Firebase Auth Bridge:', error);
-      // Mantém a tela local funcionando caso o Firebase esteja indisponível.
     }
   };
 
