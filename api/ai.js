@@ -1,4 +1,4 @@
-/* VitaIA — endpoint serverless seguro para Vercel */
+/* VitaIA — endpoint serverless seguro para Vercel usando Gemini */
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -6,51 +6,72 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada no ambiente de produção.' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY não configurada no ambiente.' });
 
   try {
-    const { system, prompt, history, imageData, model, max_tokens } = req.body || {};
-    let messages = [];
+    const { system, prompt, history, imageData, max_tokens } = req.body || {};
 
+    const contents = [];
     if (Array.isArray(history) && history.length) {
-      messages = history.map(m => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.content
-      }));
+      for (const m of history) {
+        if (!m?.content) continue;
+        contents.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: String(m.content) }]
+        });
+      }
     } else if (prompt) {
-      messages = imageData
-        ? [{ role: 'user', content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageData } },
-            { type: 'text', text: prompt }
-          ] }]
-        : [{ role: 'user', content: prompt }];
+      const parts = [];
+      if (imageData) {
+        parts.push({ inlineData: { mimeType: 'image/jpeg', data: imageData } });
+      }
+      parts.push({ text: String(prompt) });
+      contents.push({ role: 'user', parts });
     } else {
       return res.status(400).json({ error: 'Envie prompt ou history.' });
     }
 
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: model || 'claude-haiku-4-5-20251001',
-        max_tokens: Math.min(Number(max_tokens) || 1024, 2048),
-        ...(system ? { system } : {}),
-        messages
-      })
-    });
+    const body = {
+      contents,
+      generationConfig: {
+        maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048),
+        temperature: 0.7
+      }
+    };
 
-    const data = await anthropicRes.json();
-    if (!anthropicRes.ok || data.error) {
-      return res.status(anthropicRes.status || 500).json({ error: data.error?.message || 'Erro ao consultar a IA.' });
+    if (system) {
+      body.systemInstruction = { parts: [{ text: String(system) }] };
     }
 
-    const text = data.content?.find(part => part.type === 'text')?.text || '';
-    return res.status(200).json({ text });
+    const model = 'gemini-2.5-flash';
+    const googleRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    const data = await googleRes.json();
+    if (!googleRes.ok || data.error) {
+      return res.status(googleRes.status || 500).json({
+        error: data.error?.message || 'Erro ao consultar o Gemini.'
+      });
+    }
+
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const text = parts.map(p => p.text || '').join('').trim();
+
+    if (!text) {
+      return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
+    }
+
+    return res.status(200).json({ text, provider: 'gemini' });
   } catch (error) {
     console.error('api/ai:', error);
     return res.status(500).json({ error: 'Erro interno ao processar a solicitação.' });
