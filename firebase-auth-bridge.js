@@ -16,6 +16,12 @@
     tick();
   });
 
+  const removeUnsupportedSocialButtons = () => {
+    document
+      .querySelectorAll("button[onclick*=\"socialLoginOAuth('facebook')\"]")
+      .forEach(button => button.remove());
+  };
+
   const getUserIdentity = (user) => ({
     name: user.displayName || user.email?.split('@')[0] || 'Usuário',
     email: (user.email || `${user.uid}@firebase.local`).toLowerCase(),
@@ -119,6 +125,7 @@
 
   const install = async () => {
     try {
+      removeUnsupportedSocialButtons();
       await waitForFirebase();
       await window.firebaseInit();
 
@@ -187,15 +194,7 @@
       };
 
       window.socialLoginOAuth = async function (provider) {
-        if (provider !== 'google') {
-          window.showToast?.(
-            'Login',
-            'Facebook ainda não está configurado no Firebase deste projeto.',
-            'ℹ️',
-            3500
-          );
-          return;
-        }
+        if (provider !== 'google') return;
 
         try {
           const result = await window.firebaseSignInGoogle();
