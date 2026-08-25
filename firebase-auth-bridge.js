@@ -17,10 +17,67 @@
     tick();
   });
 
+  const upsertMeta = (selector, attrs) => {
+    let el = document.head.querySelector(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      document.head.appendChild(el);
+    }
+    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+  };
+
+  const ensureDocumentMetadata = () => {
+    const canonicalUrl = 'https://tcc-qo-l.vercel.app/';
+    const description = 'VitaIA é uma plataforma acadêmica de qualidade de vida com acompanhamento de hábitos, Firebase e inteligência artificial.';
+
+    document.documentElement.lang = 'pt-BR';
+    upsertMeta('meta[name="description"]', { name: 'description', content: description });
+    upsertMeta('meta[name="robots"]', { name: 'robots', content: 'index,follow' });
+    upsertMeta('meta[name="theme-color"]', { name: 'theme-color', content: '#4f6ef7' });
+    upsertMeta('meta[property="og:title"]', { property: 'og:title', content: 'VitaIA — IA de Qualidade de Vida' });
+    upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description });
+    upsertMeta('meta[property="og:type"]', { property: 'og:type', content: 'website' });
+    upsertMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalUrl });
+    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary' });
+
+    let canonical = document.head.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
+
+    let favicon = document.head.querySelector('link[rel~="icon"]');
+    if (!favicon) {
+      favicon = document.createElement('link');
+      favicon.rel = 'icon';
+      document.head.appendChild(favicon);
+    }
+    favicon.type = 'image/svg+xml';
+    favicon.href = '/favicon.svg';
+  };
+
   const removeUnsupportedSocialButtons = () => {
     document
       .querySelectorAll("button[onclick*=\"socialLoginOAuth('facebook')\"]")
       .forEach(button => button.remove());
+
+    document.querySelectorAll('.social-login-row').forEach(row => {
+      const buttons = row.querySelectorAll('.btn-social');
+      if (buttons.length === 1) buttons[0].style.flex = '1 1 100%';
+    });
+  };
+
+  const ensureLegalLinks = () => {
+    const card = document.querySelector('#screen-login .login-card');
+    if (!card || card.querySelector('[data-vitaia-legal]')) return;
+
+    const legal = document.createElement('div');
+    legal.dataset.vitaiaLegal = 'true';
+    legal.style.cssText = 'margin-top:18px;text-align:center;font-size:11px;color:var(--muted);line-height:1.5';
+    legal.innerHTML = 'Ao usar o VitaIA, você concorda com os <a href="termos.html" style="color:var(--cyan)">Termos de Uso</a> e pode consultar a <a href="privacidade.html" style="color:var(--cyan)">Política de Privacidade</a>.';
+    card.appendChild(legal);
   };
 
   const getUserIdentity = (user) => ({
@@ -126,7 +183,9 @@
 
   const install = async () => {
     try {
+      ensureDocumentMetadata();
       removeUnsupportedSocialButtons();
+      ensureLegalLinks();
       await waitForFirebase();
       await window.firebaseInit();
 
