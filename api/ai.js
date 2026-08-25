@@ -7,20 +7,17 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || 'gemini-3.7-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY não configurada no ambiente.' });
 
   try {
     const { system, prompt, history, imageData, max_tokens } = req.body || {};
-
     const contents = [];
+
     if (Array.isArray(history) && history.length) {
       for (const m of history) {
         if (!m?.content) continue;
-        contents.push({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: String(m.content) }]
-        });
+        contents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content) }] });
       }
     } else if (prompt) {
       const parts = [];
@@ -31,39 +28,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Envie prompt ou history.' });
     }
 
-    const body = {
-      contents,
-      generationConfig: {
-        maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048)
-      }
-    };
-
+    const body = { contents, generationConfig: { maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048) } };
     if (system) body.systemInstruction = { parts: [{ text: String(system) }] };
 
-    const googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey.trim()
-        },
-        body: JSON.stringify(body)
-      }
-    );
+    const googleRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
+      body: JSON.stringify(body)
+    });
 
     const data = await googleRes.json().catch(() => ({}));
     if (!googleRes.ok || data.error) {
-      return res.status(googleRes.status || 500).json({
-        error: data.error?.message || 'Erro ao consultar o Gemini.'
-      });
+      return res.status(googleRes.status || 500).json({ error: data.error?.message || 'Erro ao consultar o Gemini.' });
     }
 
-    const text = (data?.candidates?.[0]?.content?.parts || [])
-      .map(p => p.text || '')
-      .join('')
-      .trim();
-
+    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
     if (!text) return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
 
     return res.status(200).json({ text, provider: 'gemini', model });
