@@ -8,6 +8,7 @@ firebase-admin-key*.json
 
 # Node
 node_modules/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -20,3 +21,6 @@ Thumbs.db
 # Firebase local
 .firebase/
 firebase-debug.log
+
+# Vercel local
+.vercel/
