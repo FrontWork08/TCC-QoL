@@ -1,64 +1,74 @@
 # Deploy do VitaIA no Vercel
 
-## 1. Antes de publicar
+## Status atual
 
-- Confirme que `.env`, `serviceAccountKey.json` e outras credenciais privadas não estão no GitHub.
-- Rode localmente com `npm start` e teste login, banco de dados e IA.
-- Confirme que `http://localhost:3000/api/ai/status` retorna `keyConfigured: true`.
+Produção: **https://tcc-qo-l.vercel.app**
 
-## 2. Criar o projeto no Vercel
+O projeto já está conectado à branch `main` do GitHub. Novos commits nessa branch geram novos deployments automaticamente no Vercel.
 
-1. Entre no Vercel com sua conta GitHub.
-2. Importe o repositório `FrontWork08/TCC-QoL`.
-3. Use a raiz do repositório como Root Directory.
-4. Não é necessário informar comando de build para o frontend atual.
+## Configuração do Vercel
 
-## 3. Variáveis de ambiente
+- Framework Preset: `Other`
+- Root Directory: `./`
+- Build Command: sem override
+- Output Directory: sem override
+- Variável `GEMINI_API_KEY`: configurada em Production/Preview
+- Variável `GEMINI_MODEL`: `gemini-3.5-flash-lite`
 
-Em Vercel → Project Settings → Environment Variables, adicione:
+A chave real nunca deve ser colocada em arquivos versionados.
 
-- `GEMINI_API_KEY` = sua chave real do Google AI Studio.
-- `GEMINI_MODEL` = `gemini-3.5-flash-lite` (opcional; o código já possui fallback).
+## Firebase em produção
 
-Nunca coloque a chave real em arquivos versionados.
+O domínio abaixo precisa permanecer em Firebase Authentication → Configurações → Domínios autorizados:
 
-## 4. Publicar
+```text
+tcc-qo-l.vercel.app
+```
 
-Faça o deploy e anote o domínio gerado, por exemplo:
+Caso o projeto ganhe um domínio próprio, o novo host também deverá ser autorizado.
 
-`tcc-qol.vercel.app`
+## Checklist funcional
 
-## 5. Autorizar o domínio no Firebase
+- [x] Frontend abre pela raiz do domínio.
+- [x] Firebase Authentication conectado.
+- [x] Login Google autorizado no domínio do Vercel.
+- [x] Realtime Database usando dados por UID.
+- [x] Painel administrativo protegido por custom claim.
+- [x] Endpoint `/api/ai` usando Gemini pelo backend.
+- [x] Variável secreta da IA fora do frontend/GitHub.
+- [x] Botão de Facebook não configurado removido.
+- [x] Recuperação de senha integrada ao Firebase.
+- [x] Política de Privacidade e Termos de Uso publicados.
+- [x] `robots.txt` e `sitemap.xml` configurados.
+- [x] Headers básicos de segurança configurados no Vercel.
+- [x] Limites de tamanho, timeout e rate limiting básico na API de IA.
+- [x] Favicon e página 404 adicionados.
 
-No Firebase Console:
+## Testes manuais recomendados após cada alteração importante
 
-Authentication → Configurações → Domínios autorizados → Adicionar domínio.
+1. Entrar com e-mail/senha.
+2. Entrar com Google.
+3. Usar "Esqueci minha senha" e confirmar o recebimento do e-mail.
+4. Alterar um registro, sair e entrar novamente.
+5. Abrir a mesma conta em outro navegador e conferir a sincronização.
+6. Enviar mensagens para a IA.
+7. Abrir `/admin.html` com a conta administrativa.
+8. Confirmar que uma conta comum não consegue ler dados de outros usuários.
+9. Abrir o Console do navegador e confirmar que não há erros recorrentes.
+10. Testar pelo menos uma tela de celular estreita e uma tela desktop.
 
-Adicione apenas o host do Vercel, sem `https://` e sem caminhos.
+## Segurança operacional
 
-Exemplo:
+- Nunca versionar `.env`.
+- Nunca versionar `serviceAccountKey.json`.
+- Não publicar capturas contendo credenciais ou tokens.
+- Se uma chave privada for exposta, revogue-a e gere outra imediatamente.
+- Acompanhe a cota do Gemini se o site for compartilhado publicamente.
 
-`tcc-qol.vercel.app`
+## Próximas melhorias opcionais
 
-Se usar um domínio próprio depois, adicione esse domínio também.
-
-## 6. Testes obrigatórios em produção
-
-- Cadastro por e-mail e senha.
-- Login por e-mail e senha.
-- Login com Google.
-- Logout e novo login.
-- Salvar dados e confirmar em Realtime Database.
-- Abrir em outro navegador e confirmar sincronização.
-- Enviar mensagem em Conversar com IA.
-- Entrar com a conta admin e abrir `/admin.html`.
-- Tentar abrir o painel com uma conta comum e confirmar acesso negado.
-- Verificar o Console do navegador e corrigir erros restantes.
-- Testar o site em tela de celular.
-
-## 7. Pós-deploy
-
-- Atualizar SEO e sitemap com o domínio definitivo.
-- Revisar Política de Privacidade.
-- Considerar domínio próprio.
-- Avaliar proteção adicional/rate limiting para `/api/ai` caso o site seja aberto ao público.
+- Domínio próprio.
+- Analytics/Speed Insights após consentimento e avaliação de privacidade.
+- Monitoramento externo de disponibilidade.
+- Testes automatizados de interface e autenticação.
+- Autenticação do endpoint de IA por token Firebase, caso o projeto evolua para uso público mais amplo.
