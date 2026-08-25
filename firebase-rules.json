@@ -35,6 +35,7 @@
           "$messageId": {
             ".write": "auth != null && (auth.token.admin === true || (!data.exists() ? newData.child('uid').val() === auth.uid : data.child('uid').val() === auth.uid))",
             ".validate": "newData.hasChildren(['uid', 'name', 'text', 'ts']) && newData.child('uid').isString() && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 80 && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500 && newData.child('ts').isNumber()",
+            "text": { ".validate": "newData.isString() && !newData.val().matches(/(filh[oa] da puta|vai se foder|vai tomar no cu|pau no cu|fdp|arrombad[oa]|retardad[oa])/i)" },
             "moderation": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 40)" }
           }
         }
