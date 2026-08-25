@@ -1,182 +1,71 @@
-# 🚀 VitaIA — TCC-QoL
+# 🌿 VitaIA
 
-O **VitaIA** é um projeto acadêmico de Trabalho de Conclusão de Curso (TCC) voltado à qualidade de vida. A plataforma reúne acompanhamento de hábitos, autenticação, sincronização em nuvem, comunidade em tempo real, recursos de acessibilidade e assistência por inteligência artificial.
+**Qualidade de vida com tecnologia, organização e inteligência artificial.**
 
-## 🌐 Site publicado
+O **VitaIA** é uma plataforma criada para ajudar pessoas a cuidarem melhor da própria rotina de forma simples, acessível e integrada. Em um único ambiente, o usuário pode acompanhar hábitos, registrar informações do dia a dia, conversar com uma inteligência artificial e participar de uma comunidade em tempo real.
 
-**Produção:** https://tcc-qo-l.vercel.app
+## 🌐 Acesse o VitaIA
 
-## 🎯 Objetivo
+**https://tcc-qo-l.vercel.app**
 
-Criar uma experiência simples e acessível para ajudar o usuário a acompanhar aspectos do dia a dia, como hidratação, alimentação, sono, exercícios e humor, utilizando tecnologia para organizar os registros, oferecer apoio informativo e permitir interação segura entre usuários.
+## 💙 Uma experiência voltada ao seu bem-estar
 
-> O VitaIA é um projeto acadêmico e não substitui avaliação, diagnóstico ou tratamento realizado por profissionais qualificados.
+O VitaIA reúne diferentes recursos para tornar o acompanhamento da rotina mais prático. A proposta é transformar pequenas informações do dia a dia em uma visão mais organizada sobre hábitos e qualidade de vida.
 
-## ✅ Recursos principais
+### ✨ Principais recursos
 
-- Cadastro e login com e-mail/senha pelo Firebase Authentication
-- Login com Google
-- Recuperação de senha por e-mail
-- Realtime Database com dados separados por UID
-- Sincronização de informações entre navegadores e dispositivos
-- Painel administrativo protegido por permissão `admin`
-- Chat com IA utilizando Google Gemini por endpoint serverless
-- Registro de hidratação, nutrição, sono, exercícios e humor
-- **Comunidade global em tempo real pelo Firebase Realtime Database**
-- **Lista de usuários realmente online, sem perfis demonstrativos/fakes**
-- **Filtro opcional de linguagem sensível no chat da comunidade**
-- **Bloqueio básico de insultos e linguagem ofensiva antes do envio**
-- Limite de tamanho e intervalo mínimo entre mensagens para reduzir spam
-- Usuários podem apagar as próprias mensagens; administradores podem moderar mensagens no banco
-- Recursos de acessibilidade e modo simplificado
-- Interface responsiva para celular e desktop
-- Política de Privacidade e Termos de Uso
-- SEO básico, sitemap, robots.txt, favicon e headers de segurança no Vercel
-
-## 💬 Comunidade global
-
-A aba **Comunidade** deixou de usar mensagens locais ou nomes de demonstração. O chat agora utiliza uma única sala pública compartilhada entre os usuários autenticados:
-
-```text
-rooms/comunidade/messages
-```
-
-As mensagens são sincronizadas em tempo real pelo Firebase Realtime Database. Quando um usuário envia uma mensagem em um navegador ou dispositivo, os demais usuários conectados recebem a atualização automaticamente.
-
-A presença online utiliza:
-
-```text
-presence/{uid}
-```
-
-O sistema usa `onDisconnect()` do Firebase para marcar o usuário como offline quando a conexão é encerrada, melhorando a precisão da lista de pessoas online.
-
-### Moderação da comunidade
-
-A comunidade possui duas camadas básicas de proteção no cliente:
-
-1. **Moderação de envio:** determinados insultos e expressões ofensivas impedem o envio da mensagem.
-2. **Filtro de linguagem:** ativado por padrão, mascara palavrões e termos sensíveis na tela do usuário. O filtro pode ser ativado ou desativado individualmente e a preferência fica salva no navegador.
-
-Também são aplicados:
-
-- máximo de **500 caracteres** por mensagem;
-- intervalo mínimo entre envios para reduzir spam;
-- escape/renderização segura de texto, sem inserir HTML enviado por usuários;
-- leitura limitada às mensagens recentes;
-- exclusão de mensagens pelo próprio autor;
-- possibilidade de exclusão administrativa por contas com claim `admin`.
-
-> A moderação implementada é uma camada básica adequada ao escopo acadêmico. Em uma operação pública de maior escala, recomenda-se complementar com moderação no servidor, denúncias, bloqueio de usuários e rate limiting centralizado.
-
-## 🛠️ Tecnologias
-
-- HTML5
-- CSS3
-- JavaScript
-- Node.js / Express para desenvolvimento local
-- Firebase Authentication
-- Firebase Realtime Database
-- Google Gemini API
-- Vercel para hospedagem e funções serverless
-- Git e GitHub para versionamento
+- 💧 **Hidratação** — acompanhe seu consumo de água ao longo do dia.
+- 🥗 **Alimentação** — registre informações nutricionais e acompanhe seus hábitos alimentares.
+- 😴 **Sono** — mantenha registros relacionados ao descanso e à rotina de sono.
+- 💪 **Exercícios** — organize e acompanhe suas atividades físicas.
+- 😊 **Humor e bem-estar** — registre como você está se sentindo e acompanhe sua rotina emocional.
+- 🤖 **Assistente com inteligência artificial** — converse com a VitaIA e receba orientações informativas de acordo com o contexto da sua rotina.
+- 🌎 **Comunidade global** — converse em tempo real com outros usuários da plataforma.
+- ♿ **Acessibilidade** — recursos pensados para tornar a experiência mais simples e inclusiva.
+- 📱 **Design responsivo** — experiência adaptada para computador, tablet e celular.
 
 ## 🤖 Inteligência artificial
 
-A chave do Gemini **não fica no frontend**. O navegador envia as solicitações para `/api/ai`, e o endpoint serverless consulta o Google Gemini utilizando a variável de ambiente `GEMINI_API_KEY`.
+A inteligência artificial do VitaIA funciona como uma assistente de apoio à experiência do usuário. Ela pode ajudar a interpretar informações registradas, responder dúvidas gerais e oferecer sugestões relacionadas à organização da rotina e ao bem-estar.
 
-Para desenvolvimento local, crie um arquivo `.env` na raiz:
+As respostas da IA têm caráter **informativo** e não substituem orientação, diagnóstico ou tratamento realizado por profissionais qualificados.
 
-```env
-GEMINI_API_KEY=sua_chave_gemini
-GEMINI_MODEL=gemini-3.5-flash-lite
-```
+## 🌎 Comunidade VitaIA
 
-Nunca publique o `.env` ou credenciais administrativas no GitHub.
+A Comunidade é um espaço compartilhado onde usuários podem conversar em tempo real.
 
-## ▶️ Executar localmente
+A experiência conta com:
 
-Com Node.js instalado:
+- usuários reais conectados;
+- mensagens sincronizadas em tempo real;
+- indicação de pessoas online;
+- filtro opcional para linguagem inadequada;
+- proteção básica contra insultos e spam;
+- possibilidade de excluir suas próprias mensagens.
 
-```bash
-npm install
-npm start
-```
+A proposta é manter um ambiente mais respeitoso, seguro e agradável para todos.
 
-Depois abra:
+## ♿ Acessibilidade
 
-```text
-http://localhost:3000
-```
+O VitaIA busca oferecer uma experiência que possa ser utilizada por diferentes perfis de usuários. A plataforma inclui recursos de acessibilidade, opções de visualização e um modo simplificado para facilitar a navegação.
 
-O Live Server pode ser usado para visualizar somente arquivos estáticos, mas o chat de IA local depende do servidor Node na porta 3000.
+## 🔐 Privacidade e segurança
 
-Para verificar a sintaxe dos principais arquivos JavaScript:
+A proteção das informações do usuário faz parte da proposta do VitaIA. O acesso à plataforma utiliza autenticação e os dados associados à conta são protegidos por regras de acesso.
 
-```bash
-npm run check
-```
-
-## 🔥 Firebase e regras
-
-As regras usadas pelo projeto estão em:
-
-```text
-database.rules.json
-firebase-rules.json
-```
-
-Elas mantêm os dados pessoais em `users/{uid}` restritos ao proprietário ou a contas administrativas autorizadas. A sala global da comunidade pode ser lida por usuários autenticados quando a consulta limita a quantidade de mensagens recentes.
-
-Depois de alterar as regras no repositório, elas também precisam ser **publicadas no Firebase Realtime Database** para entrarem em vigor no ambiente real.
-
-## 🔐 Segurança e dados
-
-- Regras do Realtime Database negam acesso global por padrão.
-- Usuários comuns acessam somente seus próprios dados em `users/{uid}`.
-- O painel administrativo depende de uma custom claim `admin: true`.
-- Arquivos `.env`, `serviceAccountKey.json`, `.vercel/` e `node_modules/` são ignorados pelo Git.
-- O endpoint de IA possui validação de entrada, limite de tamanho, timeout e limitação básica de requisições.
-- O chat global exige autenticação para leitura e escrita.
-- Mensagens da comunidade possuem limite de tamanho nas regras do Firebase.
-- Dados inseridos na comunidade devem ser tratados como conteúdo visível aos demais participantes da sala pública.
-
-Consulte também:
+Antes de utilizar a plataforma, recomendamos consultar:
 
 - [Política de Privacidade](https://tcc-qo-l.vercel.app/privacidade.html)
 - [Termos de Uso](https://tcc-qo-l.vercel.app/termos.html)
 
-## 🚀 Deploy
+## 🎓 Sobre o projeto
 
-O frontend é publicado no Vercel usando **Framework Preset: Other**. A API da IA fica em `api/ai.js`.
+O VitaIA nasceu como um **Trabalho de Conclusão de Curso (TCC)** na área de Desenvolvimento de Sistemas, com o objetivo de explorar como tecnologia, inteligência artificial, acessibilidade e ferramentas digitais podem contribuir para uma experiência de acompanhamento da qualidade de vida.
 
-Variáveis necessárias no Vercel:
+O projeto continua evoluindo com novas melhorias de experiência, segurança, acessibilidade e interação entre usuários.
 
-```text
-GEMINI_API_KEY
-GEMINI_MODEL
-```
+---
 
-O domínio de produção também precisa permanecer autorizado no Firebase Authentication:
+### 🌿 VitaIA
 
-```text
-tcc-qo-l.vercel.app
-```
-
-## 👨‍💻 Equipe
-
-Projeto desenvolvido por:
-
-- Daniel Luis dos Santos
-- Eduarda Chaves Baptista
-- Guilherme Teles Meira
-- Renato Segura
-- Gustavo Luiz Lima
-- Matheus Gonzales Jardim
-
-**Curso:** Técnico em Desenvolvimento de Sistemas  
-**Ano:** 2026
-
-## 📚 Finalidade
-
-Este repositório registra o desenvolvimento e a evolução do TCC, incluindo frontend, autenticação, banco de dados, comunidade em tempo real, inteligência artificial, segurança e publicação do sistema.
+**Tecnologia para ajudar você a cuidar melhor da sua rotina.**
