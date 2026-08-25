@@ -16,10 +16,19 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
+app.get('/api/ai/status', (req, res) => {
+  res.json({
+    ok: true,
+    provider: 'gemini',
+    keyConfigured: Boolean(process.env.GEMINI_API_KEY)
+  });
+});
+
 app.post('/api/ai', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY não configurada. Crie um arquivo .env com essa variável.' });
+    console.error('Gemini: GEMINI_API_KEY não encontrada no .env');
+    return res.status(500).json({ error: 'GEMINI_API_KEY não configurada. Verifique o arquivo .env e reinicie o servidor.' });
   }
 
   try {
@@ -59,15 +68,17 @@ app.post('/api/ai', async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
+          'x-goog-api-key': apiKey.trim()
         },
         body: JSON.stringify(body)
       }
     );
 
-    const data = await googleRes.json();
+    const data = await googleRes.json().catch(() => ({}));
     if (!googleRes.ok || data.error) {
-      return res.status(googleRes.status || 500).json({ error: data.error?.message || 'Erro ao consultar o Gemini.' });
+      const message = data.error?.message || `HTTP ${googleRes.status} ao consultar o Gemini.`;
+      console.error('Gemini API error:', googleRes.status, message);
+      return res.status(googleRes.status || 500).json({ error: message });
     }
 
     const text = (data?.candidates?.[0]?.content?.parts || [])
@@ -75,10 +86,15 @@ app.post('/api/ai', async (req, res) => {
       .join('')
       .trim();
 
-    if (!text) return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
+    if (!text) {
+      console.error('Gemini: resposta sem texto', JSON.stringify(data));
+      return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
+    }
+
+    console.log('Gemini: resposta gerada com sucesso.');
     return res.json({ text, provider: 'gemini' });
   } catch (err) {
-    console.error('Gemini:', err);
+    console.error('Gemini unexpected error:', err);
     return res.status(500).json({ error: 'Erro inesperado no servidor: ' + err.message });
   }
 });
