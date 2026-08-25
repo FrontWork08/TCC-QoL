@@ -357,3 +357,6 @@
     install();
   }
 })();
+
+// Mantém a comunidade desacoplada do fluxo de autenticação e carrega o chat global em tempo real.
+import('./community-global.js').catch(error => console.error('Comunidade global:', error));
