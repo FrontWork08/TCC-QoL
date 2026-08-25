@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
   const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL || 'gemini-3.7-flash';
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY não configurada no ambiente.' });
 
   try {
@@ -23,9 +24,7 @@ export default async function handler(req, res) {
       }
     } else if (prompt) {
       const parts = [];
-      if (imageData) {
-        parts.push({ inlineData: { mimeType: 'image/jpeg', data: imageData } });
-      }
+      if (imageData) parts.push({ inlineData: { mimeType: 'image/jpeg', data: imageData } });
       parts.push({ text: String(prompt) });
       contents.push({ role: 'user', parts });
     } else {
@@ -35,43 +34,39 @@ export default async function handler(req, res) {
     const body = {
       contents,
       generationConfig: {
-        maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048),
-        temperature: 0.7
+        maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048)
       }
     };
 
-    if (system) {
-      body.systemInstruction = { parts: [{ text: String(system) }] };
-    }
+    if (system) body.systemInstruction = { parts: [{ text: String(system) }] };
 
-    const model = 'gemini-2.5-flash';
     const googleRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
+          'x-goog-api-key': apiKey.trim()
         },
         body: JSON.stringify(body)
       }
     );
 
-    const data = await googleRes.json();
+    const data = await googleRes.json().catch(() => ({}));
     if (!googleRes.ok || data.error) {
       return res.status(googleRes.status || 500).json({
         error: data.error?.message || 'Erro ao consultar o Gemini.'
       });
     }
 
-    const parts = data?.candidates?.[0]?.content?.parts || [];
-    const text = parts.map(p => p.text || '').join('').trim();
+    const text = (data?.candidates?.[0]?.content?.parts || [])
+      .map(p => p.text || '')
+      .join('')
+      .trim();
 
-    if (!text) {
-      return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
-    }
+    if (!text) return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
 
-    return res.status(200).json({ text, provider: 'gemini' });
+    return res.status(200).json({ text, provider: 'gemini', model });
   } catch (error) {
     console.error('api/ai:', error);
     return res.status(500).json({ error: 'Erro interno ao processar a solicitação.' });
