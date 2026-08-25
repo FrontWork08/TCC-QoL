@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "check": "node --check server.js && node --check api/ai.js && node --check api/status.js && node --check firebase.js && node --check firebase-auth-bridge.js && node --check app.js"
+    "check": "node --check server.js && node --check api/ai.js && node --check api/status.js && node --check firebase.js && node --check firebase-auth-bridge.js && node --check community-global.js && node --check app.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
