@@ -18,10 +18,24 @@
 </main>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {getAuth,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getAuth,onAuthStateChanged,signOut,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getDatabase,ref,get} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-const firebaseConfig={apiKey:'AIzaSyA0aGhW1F5VXGctJmM0QQ7YkqFsSc41SWg',authDomain:'tcc-qol.firebaseapp.com',databaseURL:'https://tcc-qol-default-rtdb.firebaseio.com',projectId:'tcc-qol',storageBucket:'tcc-qol.firebasestorage.app',messagingSenderId:'87692165075',appId:'1:87692165075:web:94f5c89530cb34b018ef98'};
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+
+const firebaseConfig={
+  apiKey:'AIzaSyAQJ7GMQg2Bdrtqt6bN1DHXmcVgfkIfMiA',
+  authDomain:'tcc-qol.firebaseapp.com',
+  databaseURL:'https://tcc-qol-default-rtdb.firebaseio.com',
+  projectId:'tcc-qol',
+  storageBucket:'tcc-qol.firebasestorage.app',
+  messagingSenderId:'788642843582',
+  appId:'1:788642843582:web:ec12a0f6435ef6834bc7ef'
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+await setPersistence(auth,browserLocalPersistence);
+
 const status=document.getElementById('status'),panel=document.getElementById('panel'),rows=document.getElementById('rows'),detail=document.getElementById('detail'),json=document.getElementById('json');
 document.getElementById('logout').onclick=async()=>{await signOut(auth);location.href='index.html'};
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
