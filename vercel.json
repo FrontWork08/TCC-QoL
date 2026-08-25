@@ -4,7 +4,8 @@
     "api/ai.js": { "memory": 512, "maxDuration": 20 }
   },
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/favicon.ico", "destination": "/favicon.svg" }
   ],
   "headers": [
     {
