@@ -12,18 +12,13 @@ import 'dotenv/config';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.7-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
 app.get('/api/ai/status', (req, res) => {
-  res.json({
-    ok: true,
-    provider: 'gemini',
-    model: GEMINI_MODEL,
-    keyConfigured: Boolean(process.env.GEMINI_API_KEY)
-  });
+  res.json({ ok: true, provider: 'gemini', model: GEMINI_MODEL, keyConfigured: Boolean(process.env.GEMINI_API_KEY) });
 });
 
 app.post('/api/ai', async (req, res) => {
@@ -40,10 +35,7 @@ app.post('/api/ai', async (req, res) => {
     if (Array.isArray(history) && history.length) {
       for (const m of history) {
         if (!m?.content) continue;
-        contents.push({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: String(m.content) }]
-        });
+        contents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content) }] });
       }
     } else if (prompt) {
       const parts = [];
@@ -54,25 +46,14 @@ app.post('/api/ai', async (req, res) => {
       return res.status(400).json({ error: 'Envie prompt ou history.' });
     }
 
-    const body = {
-      contents,
-      generationConfig: {
-        maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048)
-      }
-    };
+    const body = { contents, generationConfig: { maxOutputTokens: Math.min(Number(max_tokens) || 1024, 2048) } };
     if (system) body.systemInstruction = { parts: [{ text: String(system) }] };
 
-    const googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey.trim()
-        },
-        body: JSON.stringify(body)
-      }
-    );
+    const googleRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
+      body: JSON.stringify(body)
+    });
 
     const data = await googleRes.json().catch(() => ({}));
     if (!googleRes.ok || data.error) {
@@ -81,11 +62,7 @@ app.post('/api/ai', async (req, res) => {
       return res.status(googleRes.status || 500).json({ error: message });
     }
 
-    const text = (data?.candidates?.[0]?.content?.parts || [])
-      .map(p => p.text || '')
-      .join('')
-      .trim();
-
+    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
     if (!text) {
       console.error('Gemini: resposta sem texto', JSON.stringify(data));
       return res.status(502).json({ error: 'O Gemini não retornou texto nesta resposta.' });
