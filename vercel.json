@@ -3,6 +3,9 @@
   "functions": {
     "api/ai.js": { "memory": 512, "maxDuration": 20 }
   },
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
