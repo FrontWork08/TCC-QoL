@@ -1,52 +1,100 @@
-🚀 TCC-QoL
-👋 Sobre o projeto
+# 🚀 VitaIA — TCC-QoL
 
-O TCC-QoL é o nosso projeto de Trabalho de Conclusão de Curso (TCC)! 🎓
+O **VitaIA** é um projeto acadêmico de Trabalho de Conclusão de Curso (TCC) voltado à qualidade de vida. A plataforma reúne acompanhamento de hábitos, autenticação, sincronização em nuvem, recursos de acessibilidade e assistência por inteligência artificial.
 
-A ideia é colocar em prática tudo aquilo que aprendemos durante o curso, desde programação até organização e desenvolvimento de um projeto completo.
+## 🌐 Site publicado
 
-🎯 Objetivo
+**Produção:** https://tcc-qo-l.vercel.app
 
-Nosso objetivo é desenvolver uma solução que ajude a resolver o problema escolhido para o TCC, utilizando programação, tecnologia e boas práticas de desenvolvimento. 💻
+## 🎯 Objetivo
 
-🛠️ Tecnologias
+Criar uma experiência simples e acessível para ajudar o usuário a acompanhar aspectos do dia a dia, como hidratação, alimentação, sono, exercícios e humor, utilizando tecnologia para organizar os registros e oferecer apoio informativo.
 
-As principais tecnologias utilizadas no projeto são:
+> O VitaIA é um projeto acadêmico e não substitui avaliação, diagnóstico ou tratamento realizado por profissionais qualificados.
 
-💻 JavaScript
-⚙️ HTML
-🗄️ CSS
-🎨 Python
-🔄 Versionamento
+## ✅ Recursos principais
 
-Para organizar o desenvolvimento, utilizamos Git e GitHub.
+- Cadastro e login com e-mail/senha pelo Firebase Authentication
+- Login com Google
+- Recuperação de senha por e-mail
+- Realtime Database com dados separados por UID
+- Sincronização de informações entre navegadores/dispositivos
+- Painel administrativo protegido por permissão `admin`
+- Chat com IA utilizando Google Gemini por endpoint serverless
+- Registro de hidratação, nutrição, sono, exercícios e humor
+- Recursos de acessibilidade e modo simplificado
+- Interface responsiva para celular e desktop
+- Política de Privacidade e Termos de Uso
 
-Com eles conseguimos:
+## 🛠️ Tecnologias
 
-📌 Acompanhar as mudanças no projeto;
-🕐 Ver a evolução do código;
-🔙 Recuperar versões anteriores;
-👥 Trabalhar melhor em equipe;
-📂 Manter o projeto organizado.
+- HTML5
+- CSS3
+- JavaScript
+- Node.js / Express para desenvolvimento local
+- Firebase Authentication
+- Firebase Realtime Database
+- Google Gemini API
+- Vercel para hospedagem e função serverless
+- Git e GitHub para versionamento
 
-Os commits também ajudam a registrar o que foi feito em cada etapa do desenvolvimento.
+## 🤖 Inteligência artificial
 
-👨‍💻 Equipe
+A chave do Gemini **não fica no frontend**. O navegador envia as solicitações para `/api/ai`, e o endpoint serverless consulta o Google Gemini utilizando a variável de ambiente `GEMINI_API_KEY`.
+
+Para desenvolvimento local, crie um arquivo `.env` na raiz:
+
+```env
+GEMINI_API_KEY=sua_chave_gemini
+GEMINI_MODEL=gemini-3.5-flash-lite
+```
+
+Nunca publique o `.env` ou credenciais administrativas no GitHub.
+
+## ▶️ Executar localmente
+
+Com Node.js instalado:
+
+```bash
+npm install
+npm start
+```
+
+Depois abra:
+
+```text
+http://localhost:3000
+```
+
+O Live Server pode ser usado para visualizar somente arquivos estáticos, mas o chat de IA local depende do servidor Node na porta 3000.
+
+## 🔐 Segurança e dados
+
+- Regras do Realtime Database negam acesso global por padrão.
+- Usuários comuns acessam somente seus próprios dados em `users/{uid}`.
+- O painel administrativo depende de uma custom claim `admin: true`.
+- Arquivos `.env`, `serviceAccountKey.json`, `.vercel/` e `node_modules/` são ignorados pelo Git.
+- O endpoint de IA possui validação de entrada, limite de tamanho, timeout e limitação básica de requisições.
+
+Consulte também:
+
+- [Política de Privacidade](https://tcc-qo-l.vercel.app/privacidade.html)
+- [Termos de Uso](https://tcc-qo-l.vercel.app/termos.html)
+
+## 👨‍💻 Equipe
 
 Projeto desenvolvido por:
 
-👤 Daniel Luis dos Santos
-👤 Eduarda Chaves Baptista
-👤 Guilherme Teles Meira
-👤 Renato Segura
-👤 Gustavo Luiz Lima
-👤 Matheus Gonzales Jardim
+- Daniel Luis dos Santos
+- Eduarda Chaves Baptista
+- Guilherme Teles Meira
+- Renato Segura
+- Gustavo Luiz Lima
+- Matheus Gonzales Jardim
 
-🎓 Curso: Técnico em Desenvolvimento de Sistemas
-📅 Ano: 2026
+**Curso:** Técnico em Desenvolvimento de Sistemas  
+**Ano:** 2026
 
-📚 Finalidade
+## 📚 Finalidade
 
-Este repositório foi criado para armazenar e acompanhar o desenvolvimento do nosso TCC, servindo também como registro da evolução do projeto durante o curso.
-
-💡 Feito por alunos, para aprender, testar, errar, corrigir e evoluir! 🚀
+Este repositório registra o desenvolvimento e a evolução do TCC, incluindo frontend, autenticação, banco de dados, inteligência artificial, segurança e publicação do sistema.
